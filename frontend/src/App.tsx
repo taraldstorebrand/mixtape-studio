@@ -1,0 +1,150 @@
+import { useState, useCallback } from 'react';
+import { PromptInput } from './components/lyrics/PromptInput';
+import { LyricsTextarea } from './components/lyrics/LyricsTextarea';
+import { HistoryList } from './components/history/HistoryList';
+import { generateLyrics, generateSong } from './services/api';
+import { useHistory } from './hooks/useHistory';
+import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
+import { HistoryItem } from './types';
+import './App.css';
+
+function App() {
+  const [currentLyrics, setCurrentLyrics] = useState('');
+  const [genre, setGenre] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingSong, setIsGeneratingSong] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { history, addHistoryItem, updateHistoryItem, handleFeedback } = useHistory();
+
+  const handleSunoUpdate = useCallback((data: SunoUpdateData) => {
+    console.log('Received Suno update:', data);
+    
+    const historyItem = history.find(item => item.sunoJobId === data.jobId);
+    if (historyItem) {
+      if (data.status === 'completed') {
+        updateHistoryItem(historyItem.id, {
+          sunoStatus: 'completed',
+          sunoAudioUrls: data.audio_urls,
+        });
+      } else if (data.status === 'partial' && data.audio_urls && data.audio_urls.length > 0) {
+        updateHistoryItem(historyItem.id, {
+          sunoStatus: 'partial',
+          sunoAudioUrls: data.audio_urls,
+        });
+      } else if (data.status === 'failed') {
+        updateHistoryItem(historyItem.id, {
+          sunoStatus: 'failed',
+        });
+      }
+    }
+  }, [history, updateHistoryItem]);
+
+  useSunoSocket(handleSunoUpdate);
+
+  const handleGenerateLyrics = async (prompt: string) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const lyrics = await generateLyrics(prompt);
+      setCurrentLyrics(lyrics);
+      
+      const newItem: HistoryItem = {
+        id: Date.now().toString(),
+        prompt,
+        lyrics,
+        createdAt: new Date().toISOString(),
+      };
+      addHistoryItem(newItem);
+    } catch (err: any) {
+      setError(err.message || 'Kunne ikke generere sangtekst');
+      console.error('Error generating lyrics:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGenerateSong = async () => {
+    if (!currentLyrics.trim()) return;
+
+    setIsGeneratingSong(true);
+    setError(null);
+
+    try {
+      const result = await generateSong(currentLyrics, genre || undefined);
+      
+      const latestItem = history[0];
+      if (latestItem && latestItem.lyrics === currentLyrics) {
+        updateHistoryItem(latestItem.id, {
+          sunoJobId: result.jobId,
+          sunoStatus: 'pending' as const,
+          genre: genre || undefined,
+        });
+      } else {
+        const newItem: HistoryItem = {
+          id: Date.now().toString(),
+          prompt: 'Generert direkte',
+          lyrics: currentLyrics,
+          createdAt: new Date().toISOString(),
+          sunoJobId: result.jobId,
+          sunoStatus: 'pending',
+          genre: genre || undefined,
+        };
+        addHistoryItem(newItem);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Kunne ikke generere sang');
+      console.error('Error generating song:', err);
+    } finally {
+      setIsGeneratingSong(false);
+    }
+  };
+
+  const handleReuse = (item: HistoryItem) => {
+    setCurrentLyrics(item.lyrics);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="app">
+      <header className="app-header">
+        <h1>🎵 Sangtekst Generator</h1>
+        <p>Generer sangtekster med ChatGPT og lag musikk med Suno</p>
+      </header>
+
+      <main className="app-main">
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
+        <div className="generation-section">
+          <PromptInput
+            onGenerate={handleGenerateLyrics}
+            isLoading={isLoading}
+          />
+          
+          <LyricsTextarea
+            lyrics={currentLyrics}
+            onChange={setCurrentLyrics}
+            genre={genre}
+            onGenreChange={setGenre}
+            onGenerateSong={handleGenerateSong}
+            isLoading={isLoading}
+            isGeneratingSong={isGeneratingSong}
+          />
+        </div>
+
+        <HistoryList
+          items={history}
+          onFeedback={handleFeedback}
+          onReuse={handleReuse}
+        />
+      </main>
+    </div>
+  );
+}
+
+export default App;

@@ -1,0 +1,72 @@
+# DECISIONS.md
+
+This file records explicit architectural and product decisions.
+Entries in this file are authoritative and must not be changed without a new task.
+
+---
+
+## D-001 – Suno callback endpoint
+Status: Resolved
+
+Decision:
+The backend uses polling only for Suno job status updates.
+The `callBackUrl` parameter has been removed from Suno API requests.
+
+Rationale:
+- The Suno API documentation confirms `callBackUrl` is optional
+- The backend already implements a robust polling mechanism with WebSocket updates
+- No callback endpoint was ever implemented, making the parameter unused
+- Polling-only approach is simpler and avoids requiring a publicly accessible callback URL
+
+---
+
+## D-002 – Socket.IO event scope
+Status: Accepted
+
+Decision:
+All Socket.IO updates related to Suno job status are broadcast to all connected clients.
+This behavior is currently accepted and is not considered a bug.
+
+No user-level scoping or session isolation is implemented at this time.
+
+---
+
+## D-003 – GPT model version
+Status: Resolved
+
+Decision:
+The backend uses `gpt-5.2` for lyrics generation.
+This model is verified as valid and available in the OpenAI Chat Completions API.
+
+Decision:
+The backend uses the OpenAI Responses API.
+The model `gpt-5.2` requires `max_completion_tokens` instead of `max_tokens`.
+This parameter is now considered part of the locked API contract.
+
+Rationale:
+- OpenAI documentation confirms `gpt-5.2` is the current GPT-5.2 Thinking model identifier
+- The model is available to all API developers
+- No change required; the existing model identifier is correct and locked
+
+---
+
+## D-004 – Song title behavior
+Status: Accepted
+
+Decision:
+Users cannot manually set a song title via the UI.
+If a genre is provided, a derived title may be generated.
+If no title can be derived, the song title defaults to "Untitled".
+
+This is accepted current behavior.
+
+---
+
+## D-005 – Identifier generation
+Status: Accepted
+
+Decision:
+Client-side identifiers for history entries are generated using `Date.now()`.
+While theoretical collision risk exists, this approach is accepted for now.
+
+No change is planned unless user-visible issues arise.
