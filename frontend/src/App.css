@@ -173,18 +173,26 @@
   color: #ccc;
 }
 
-.genre-input {
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 2px solid #444;
-  border-radius: 8px;
-  background-color: #1a1a1a;
-  color: white;
+.genre-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
-.genre-input:focus {
-  outline: none;
-  border-color: #646cff;
+.genre-remove-button {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.genre-remove-button:hover {
+  color: #ff4444;
 }
 
 .loading {

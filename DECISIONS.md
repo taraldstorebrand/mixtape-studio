@@ -182,3 +182,19 @@ Rationale:
 - Compact song list allows viewing more items at once
 - Resizable panels let users optimize for their screen size
 - Lyrics remain accessible via "Gjenbruk" button when needed
+
+---
+
+## D-016 – Genre field with searchable history
+Status: Accepted
+
+Decision:
+The genre input field is replaced with a searchable, creatable dropdown using react-select.
+Previously used genres are stored in localStorage (`sangtekst_genre_history`, max 50 items).
+Users can type new values or select from history. Each option has a remove button.
+
+Rationale:
+- Improves UX by providing quick access to previously used genres
+- Creatable dropdown allows both selection and free-text entry
+- localStorage persistence maintains history across sessions
+- Remove functionality keeps the list manageable

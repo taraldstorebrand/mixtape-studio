@@ -4,6 +4,7 @@ import { LyricsTextarea } from './components/lyrics/LyricsTextarea';
 import { HistoryList } from './components/history/HistoryList';
 import { generateLyrics, generateSong } from './services/api';
 import { useHistory } from './hooks/useHistory';
+import { useGenreHistory } from './hooks/useGenreHistory';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
 import './App.css';
@@ -25,6 +26,7 @@ function App() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { history, addHistoryItem, updateHistoryItem, handleFeedback } = useHistory();
+  const { genres: genreHistory, addGenre, removeGenre } = useGenreHistory();
 
   useEffect(() => {
     localStorage.setItem(PANEL_WIDTH_KEY, panelWidth.toString());
@@ -121,6 +123,10 @@ function App() {
     try {
       const result = await generateSong(currentLyrics, genre || undefined, title);
       
+      if (genre.trim()) {
+        addGenre(genre.trim());
+      }
+      
       const newItem: HistoryItem = {
         id: Date.now().toString(),
         prompt: title,
@@ -175,6 +181,8 @@ function App() {
               onGenerateSong={handleGenerateSong}
               isLoading={isLoading}
               isGeneratingSong={isGeneratingSong}
+              genreHistory={genreHistory}
+              onRemoveGenre={removeGenre}
             />
           </div>
         </div>
