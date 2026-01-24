@@ -28,7 +28,6 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 2. User clicks "Generer Tekst" button
 3. System sends prompt to backend → OpenAI API
 4. Generated lyrics appear in the text area
-5. A new history entry is created
 
 **Constraints**:
 
@@ -99,6 +98,12 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 2. Each item shows: title, status badge, timestamp, audio players (if completed)
 3. Lyrics are not displayed in the list (use "Gjenbruk" to view)
 4. Completed items have inline audio players
+
+**Storage rules**:
+- Only Suno song generations create history entries (not ChatGPT lyrics alone)
+- History entry is created when Suno generation starts (status: pending)
+- Failed generations are automatically removed from history
+- This allows viewing status and accessing partial results during generation
 
 ### 6. Provide Feedback
 

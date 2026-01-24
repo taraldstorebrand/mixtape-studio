@@ -25,7 +25,7 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { history, addHistoryItem, updateHistoryItem, handleFeedback } = useHistory();
+  const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistory();
   const { genres: genreHistory, addGenre, removeGenre } = useGenreHistory();
 
   useEffect(() => {
@@ -76,9 +76,7 @@ function App() {
           sunoAudioUrls: data.audio_urls,
         });
       } else if (data.status === 'failed') {
-        updateHistoryItem(historyItem.id, {
-          sunoStatus: 'failed',
-        });
+        removeHistoryItem(historyItem.id);
         setIsGeneratingSong(false);
       } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
         updateHistoryItem(historyItem.id, {
@@ -86,7 +84,7 @@ function App() {
         });
       }
     }
-  }, [history, updateHistoryItem]);
+  }, [history, updateHistoryItem, removeHistoryItem]);
 
   useSunoSocket(handleSunoUpdate);
 
@@ -97,15 +95,6 @@ function App() {
     try {
       const lyrics = await generateLyrics(prompt);
       setCurrentLyrics(lyrics);
-      
-      const newItem: HistoryItem = {
-        id: Date.now().toString(),
-        prompt,
-        title: '',
-        lyrics,
-        createdAt: new Date().toISOString(),
-      };
-      addHistoryItem(newItem);
     } catch (err: any) {
       setError(err.message || 'Kunne ikke generere sangtekst');
       console.error('Error generating lyrics:', err);

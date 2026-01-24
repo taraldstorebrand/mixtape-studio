@@ -53,6 +53,12 @@ export function updateFeedback(id: string, feedback: 'up' | 'down'): void {
   updateHistoryItem(id, { feedback });
 }
 
+export function removeHistoryItem(id: string): void {
+  const history = getHistory();
+  const filtered = history.filter(item => item.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+}
+
 export function clearHistory(): void {
   localStorage.removeItem(STORAGE_KEY);
 }

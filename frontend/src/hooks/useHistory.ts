@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { HistoryItem } from '../types';
-import { getHistory, saveHistoryItem, updateFeedback, updateHistoryItem } from '../services/storage';
+import { getHistory, saveHistoryItem, updateFeedback, updateHistoryItem, removeHistoryItem } from '../services/storage';
 
 export function useHistory() {
   const [history, setHistory] = useState<HistoryItem[]>(() => getHistory());
@@ -24,10 +24,16 @@ export function useHistory() {
     setHistory(getHistory());
   }, []);
 
+  const removeItem = useCallback((id: string) => {
+    removeHistoryItem(id);
+    setHistory(getHistory());
+  }, []);
+
   return {
     history,
     addHistoryItem,
     updateHistoryItem: updateItem,
+    removeHistoryItem: removeItem,
     handleFeedback,
     refreshHistory,
   };

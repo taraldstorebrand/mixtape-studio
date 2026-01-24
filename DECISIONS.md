@@ -360,3 +360,18 @@ New backend routes must use `/api/` prefix. No other proxy paths are added witho
 Rationale:
 - Clear separation between frontend and backend routes
 - Prevents accidental route conflicts
+
+---
+
+## D-029 – History only for Suno generations
+Status: Accepted
+
+Decision:
+History entries are only created for Suno song generations, not for ChatGPT lyrics generation alone.
+History entry is created when Suno generation starts (pending status).
+Failed Suno generations are automatically removed from history.
+
+Rationale:
+- History should represent completed or in-progress songs, not intermediate text generation
+- Pending entries allow users to see status and access partial results during generation
+- Removing failed entries keeps history clean and focused on successful outputs

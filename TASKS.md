@@ -1,40 +1,32 @@
 # TASKS.md
 
-## Iteration 008 – Genre field with searchable history
+## Iteration 009 – History only for successful Suno generations
 
 ### Goal
-Replace the genre text input with a searchable dropdown (react-select) that remembers previously used genres, allows free-text entry, and supports removing saved values.
+Change history behavior so that only Suno song generations create history entries. ChatGPT lyrics generation alone does not create entries. Failed Suno generations are removed from history.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Install `react-select`
-- Replace genre input with Creatable Select component
-- Store genre history in localStorage (`sangtekst_genre_history`)
-- Load saved genres as dropdown options
-- Allow typing new values (creates new option)
-- Add remove button (×) to delete saved genres from history
-- Limit stored genres (max 50)
+- Remove history creation from `handleGenerateLyrics`
+- Add logic to remove history entry when Suno status becomes "failed"
 
 ---
 
 ## Files Allowed to Change
 - frontend/src/App.tsx
-- frontend/src/App.css
-- frontend/package.json
 - DECISIONS.md
 - SPEC.md
 
 ---
 
 ## Acceptance Criteria
-- Genre field is a searchable/creatable dropdown
-- Previously used genres appear as options
-- New genres are saved to localStorage on use
-- Users can remove genres from history
-- D-016 added to DECISIONS.md
+- ChatGPT lyrics generation does NOT create history entries
+- Suno generation creates history entry on start (pending status)
+- Failed Suno generations are automatically removed from history
+- D-029 added to DECISIONS.md
 
 ---
 
@@ -42,6 +34,7 @@ Replace the genre text input with a searchable dropdown (react-select) that reme
 
 | Iteration | Description |
 |-----------|-------------|
+| 008 | Genre field with searchable history |
 | 007 | Two-panel resizable layout |
 | 006 | Required title and generation spinner |
 | 005 | Serve local MP3 files |
