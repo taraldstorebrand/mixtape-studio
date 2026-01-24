@@ -70,20 +70,42 @@ export interface SunoStatusResponse {
 // Store active polling jobs
 const activeJobs = new Map<string, NodeJS.Timeout>();
 
+// Store job titles for filename generation
+const jobTitles = new Map<string, string>();
+
+// Sanitize title for filesystem
+function sanitizeFilename(title: string): string {
+  return title.replace(/[/\\?*<>|":]/g, '_');
+}
+
+// Find next available index for a title
+function getNextIndex(sanitizedTitle: string): number {
+  const files = fs.readdirSync(MP3_DIR);
+  const pattern = new RegExp(`^${sanitizedTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}_(\\d+)\\.mp3$`);
+  let maxIndex = 0;
+  for (const file of files) {
+    const match = file.match(pattern);
+    if (match) {
+      maxIndex = Math.max(maxIndex, parseInt(match[1], 10));
+    }
+  }
+  return maxIndex + 1;
+}
+
 // Ensure mp3s directory exists
 if (!fs.existsSync(MP3_DIR)) {
   fs.mkdirSync(MP3_DIR, { recursive: true });
 }
 
 // Download audio file and save locally
-async function downloadMp3(url: string, jobId: string, index: number): Promise<string> {
-  const filename = `${jobId}_${index}.mp3`;
+async function downloadMp3(url: string, sanitizedTitle: string, index: number): Promise<string> {
+  const filename = `${sanitizedTitle}_${index}.mp3`;
   const filepath = path.join(MP3_DIR, filename);
   
   const response = await axios.get(url, { responseType: 'arraybuffer' });
   fs.writeFileSync(filepath, response.data);
   
-  return filepath;
+  return filename;
 }
 
 // Function to send WebSocket updates
@@ -109,15 +131,19 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
     
     // Download MP3s when completed
     if (status.status === 'completed' && status.audio_urls && status.audio_urls.length > 0) {
+      const title = jobTitles.get(jobId) || jobId;
+      const sanitizedTitle = sanitizeFilename(title);
+      const startIndex = getNextIndex(sanitizedTitle);
       try {
         const localUrls = await Promise.all(
-          status.audio_urls.map(async (url, index) => {
-            await downloadMp3(url, jobId, index);
-            return `/mp3s/${jobId}_${index}.mp3`;
+          status.audio_urls.map(async (url, i) => {
+            const filename = await downloadMp3(url, sanitizedTitle, startIndex + i);
+            return `/mp3s/${filename}`;
           })
         );
         status.local_urls = localUrls;
         console.log('Downloaded MP3s, local URLs:', localUrls);
+        jobTitles.delete(jobId);
       } catch (downloadError) {
         console.error('Error downloading MP3s:', downloadError);
       }
@@ -196,6 +222,9 @@ export async function generateSong(
     }
 
     const jobId = response.data.data.taskId;
+    
+    // Store title for filename generation
+    jobTitles.set(jobId, title || 'Untitled');
     
     // Start background polling and WebSocket updates
     setTimeout(() => pollAndUpdate(jobId), 5000);

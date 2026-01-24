@@ -24,7 +24,7 @@ test-cursor/
 │   │   ├── utils/        # Utility functions
 │   │   ├── config.ts     # Environment configuration
 │   │   └── server.ts     # Express + Socket.IO server entry
-│   ├── mp3s/             # Downloaded Suno audio files (gitignored)
+│   ├── mp3s/             # Downloaded Suno audio files ({title}_{index}.mp3, gitignored)
 │   └── package.json
 ├── shared/            # Shared TypeScript types
 │   └── types/

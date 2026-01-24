@@ -19,6 +19,7 @@ Require song title before Suno generation and show spinner until complete.
 
 ### Backend
 - Fix lyrics truncation to only apply in non-custom mode
+- Change MP3 filename format to `{title}_{index}.mp3` (index starts at 1, title sanitized)
 
 ---
 

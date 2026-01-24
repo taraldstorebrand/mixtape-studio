@@ -82,17 +82,7 @@ Status: Superseded by D-013
 ---
 
 ## D-008 – Local MP3 storage
-Status: Accepted
-
-Decision:
-Downloaded Suno audio files are stored locally in `backend/mp3s/`.
-Files are downloaded when job status reaches `completed`.
-Files are named `{jobId}_{index}.mp3` for traceability.
-
-Rationale:
-- Suno CDN URLs expire after 15 days
-- Local storage ensures permanent access to generated songs
-- Directory is gitignored to avoid committing large binary files
+Status: Superseded by D-014
 
 ---
 
@@ -159,3 +149,19 @@ When genre is provided (custom mode), full lyrics are sent to Suno.
 Rationale:
 - Suno API limitation of 500 chars only applies to non-custom mode
 - Custom mode supports longer lyrics for full song generation
+
+---
+
+## D-014 – MP3 filename format
+Status: Accepted
+
+Decision:
+Downloaded MP3 files are named `{title}_{index}.mp3` with unique sequential index.
+Index continues from existing files (e.g., if sang_1.mp3 and sang_2.mp3 exist, next becomes sang_3.mp3).
+Title is sanitized: special characters replaced with `_`.
+Files are stored in `backend/mp3s/` (gitignored).
+
+Rationale:
+- Title-based names are more meaningful than jobId
+- Sequential numbering avoids overwriting existing files
+- Sanitizing ensures filesystem compatibility
