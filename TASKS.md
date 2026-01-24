@@ -1,6 +1,50 @@
 # TASKS.md
 
-## Iteration 002 – Resolve backend contract gaps
+## Iteration 003 – Fix Suno audio URL source
+
+### Goal
+Switch from using `audioUrl` (proxy URLs) to `sourceAudioUrl` (direct Suno CDN URLs)
+to fix broken audio playback.
+
+---
+
+## Background
+The Suno API returns two URL types:
+- `audioUrl`: Proxy URLs via `musicfile.api.box` (currently broken/unreliable)
+- `sourceAudioUrl`: Direct Suno CDN URLs via `cdn1.suno.ai` (working)
+
+---
+
+## In Scope
+
+### Backend
+- Modify `backend/src/services/suno.ts` to use `sourceAudioUrl` instead of `audioUrl`
+
+### Documentation
+- Update DECISIONS.md with new decision D-006
+
+---
+
+## Out of Scope
+- Local audio file storage (deferred to future iteration)
+- Frontend changes
+- Any other backend changes
+
+---
+
+## Files Allowed to Change
+- backend/src/services/suno.ts
+- DECISIONS.md
+
+---
+
+## Acceptance Criteria
+- Audio playback works using `cdn1.suno.ai` URLs
+- D-006 is added to DECISIONS.md
+
+---
+
+## Iteration 002 – Resolve backend contract gaps (Completed)
 
 ### Goal
 Resolve explicitly unresolved backend contract decisions identified in Iteration 001,

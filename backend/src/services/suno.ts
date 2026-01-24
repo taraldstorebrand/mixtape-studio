@@ -36,6 +36,7 @@ type SunoTaskStatus = 'PENDING' | 'GENERATING' | 'TEXT_SUCCESS' | 'FIRST_SUCCESS
 interface SunoRecordInfoTrack {
   id: string;
   audioUrl?: string;
+  sourceAudioUrl?: string;
   streamAudioUrl?: string;
   imageUrl?: string;
   prompt?: string;
@@ -210,7 +211,7 @@ export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> 
     // Based on API docs, the structure is data.response.sunoData[0].audioUrl
     const tracks = data.response?.sunoData || [];
     const audioUrls = tracks
-      .map(track => track.audioUrl)
+      .map(track => track.sourceAudioUrl)
       .filter(url => url) as string[];
 
     // Map API status to our expected status values

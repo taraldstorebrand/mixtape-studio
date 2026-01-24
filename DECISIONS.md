@@ -10,12 +10,12 @@ Status: Resolved
 
 Decision:
 The backend uses polling only for Suno job status updates.
-The `callBackUrl` parameter is set to a dummy value (`http://localhost:3000/suno/callback`).
+The `callBackUrl` parameter has been removed from Suno API requests.
 
 Rationale:
-- The Suno API requires `callBackUrl` as a mandatory field
+- The Suno API documentation confirms `callBackUrl` is optional
 - The backend already implements a robust polling mechanism with WebSocket updates
-- No callback endpoint is implemented; the dummy value satisfies the API contract
+- No callback endpoint was ever implemented, making the parameter unused
 - Polling-only approach is simpler and avoids requiring a publicly accessible callback URL
 
 ---
@@ -70,3 +70,23 @@ Client-side identifiers for history entries are generated using `Date.now()`.
 While theoretical collision risk exists, this approach is accepted for now.
 
 No change is planned unless user-visible issues arise.
+
+---
+
+## D-006 – Suno audio URL source
+Status: Accepted
+
+Decision:
+The backend uses `sourceAudioUrl` (direct Suno CDN) instead of `audioUrl` (proxy).
+
+Rationale:
+- `audioUrl` points to `musicfile.api.box`, a third-party proxy with reliability issues
+- `sourceAudioUrl` points to `cdn1.suno.ai`, Suno's own CDN, which is stable
+- URLs expire after 15 days per Suno documentation; local storage may be considered later
+
+## D-007 – Lyrics truncation scope
+Status: Accepted
+
+Decision:
+Lyrics truncation is applied globally across all generation modes.
+This behavior is accepted and not mode-specific.
