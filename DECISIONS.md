@@ -104,3 +104,17 @@ Rationale:
 - Suno CDN URLs expire after 15 days
 - Local storage ensures permanent access to generated songs
 - Directory is gitignored to avoid committing large binary files
+
+---
+
+## D-009 – Local audio URL preference
+Status: Accepted
+
+Decision:
+Frontend prefers local audio URLs (`/mp3s/{jobId}_{index}.mp3`) over CDN URLs when available.
+CDN URLs remain as fallback for backwards compatibility.
+
+Rationale:
+- Local files do not expire, unlike Suno CDN URLs (15-day limit)
+- Backend serves static files from `backend/mp3s/` via `/mp3s/*` route
+- Fallback ensures audio remains playable during transition or if download fails

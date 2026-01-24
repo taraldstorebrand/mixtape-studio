@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { config } from './config';
@@ -22,6 +23,9 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+
+// Static file serving for downloaded MP3s
+app.use('/mp3s', express.static(path.join(__dirname, '../mp3s')));
 
 // Routes
 app.use('/api/chatgpt', chatgptRoutes);

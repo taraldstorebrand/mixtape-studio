@@ -58,9 +58,18 @@ export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
         </div>
       </div>
       <div className="history-lyrics">{item.lyrics}</div>
-      {((item.sunoAudioUrls && item.sunoAudioUrls.length > 0) || item.sunoAudioUrl) && (
+      {((item.sunoLocalUrls && item.sunoLocalUrls.length > 0) || (item.sunoAudioUrls && item.sunoAudioUrls.length > 0) || item.sunoAudioUrl) && (
         <div className="audio-previews">
-          {item.sunoAudioUrls ? (
+          {(item.sunoLocalUrls && item.sunoLocalUrls.length > 0) ? (
+            item.sunoLocalUrls.map((url, index) => (
+              <div key={index} className="audio-preview">
+                <label>Sang {index + 1}:</label>
+                <audio controls src={url}>
+                  Din nettleser støtter ikke audio-elementet.
+                </audio>
+              </div>
+            ))
+          ) : item.sunoAudioUrls ? (
             item.sunoAudioUrls.map((url, index) => (
               <div key={index} className="audio-preview">
                 <label>Sang {index + 1}:</label>

@@ -63,7 +63,7 @@ interface SunoRecordInfoData {
 export interface SunoStatusResponse {
   status: string;
   audio_urls?: string[];
-  local_paths?: string[];
+  local_urls?: string[];
   error?: string;
 }
 
@@ -110,11 +110,14 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
     // Download MP3s when completed
     if (status.status === 'completed' && status.audio_urls && status.audio_urls.length > 0) {
       try {
-        const localPaths = await Promise.all(
-          status.audio_urls.map((url, index) => downloadMp3(url, jobId, index))
+        const localUrls = await Promise.all(
+          status.audio_urls.map(async (url, index) => {
+            await downloadMp3(url, jobId, index);
+            return `/mp3s/${jobId}_${index}.mp3`;
+          })
         );
-        status.local_paths = localPaths;
-        console.log('Downloaded MP3s:', localPaths);
+        status.local_urls = localUrls;
+        console.log('Downloaded MP3s, local URLs:', localUrls);
       } catch (downloadError) {
         console.error('Error downloading MP3s:', downloadError);
       }

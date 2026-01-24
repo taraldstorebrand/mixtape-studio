@@ -1,6 +1,42 @@
 # TASKS.md
 
-## Iteration 004 – Local MP3 download
+## Iteration 005 – Serve local MP3 files
+
+### Goal
+Serve downloaded MP3 files from backend and update frontend to use local URLs instead of expiring CDN URLs.
+
+---
+
+## In Scope
+
+### Backend
+- Add static file serving for `/mp3s/*` route pointing to `backend/mp3s/`
+- Modify `suno-update` payload to include `local_urls` (relative paths like `/mp3s/{jobId}_0.mp3`)
+
+### Frontend
+- Update audio player to prefer `local_urls` over `audio_urls` when available
+- Update `HistoryItem` type to include `sunoLocalUrls?: string[]`
+
+---
+
+## Files Allowed to Change
+- backend/src/server.ts
+- backend/src/services/suno.ts
+- frontend/src/components/history/HistoryItem.tsx
+- shared/types/index.ts
+- DECISIONS.md
+- ARCHITECTURE.md
+
+---
+
+## Acceptance Criteria
+- Audio plays from `/mp3s/*` endpoint when local files exist
+- CDN URLs remain as fallback
+- D-009 added to DECISIONS.md
+
+---
+
+## Iteration 004 – Local MP3 download (Completed)
 
 ### Goal
 Download generated songs to local `backend/mp3s/` folder when Suno job completes.

@@ -27,7 +27,7 @@ export function disconnectSocket() {
   }
 }
 
-export function onSunoUpdate(callback: (data: { jobId: string; status: string; audio_urls?: string[]; error?: string }) => void) {
+export function onSunoUpdate(callback: (data: { jobId: string; status: string; audio_urls?: string[]; local_urls?: string[]; error?: string }) => void) {
   if (socket) {
     socket.on('suno-update', callback);
   }

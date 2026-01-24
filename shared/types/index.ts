@@ -7,6 +7,7 @@ export interface HistoryItem {
   sunoJobId?: string;
   sunoStatus?: 'pending' | 'partial' | 'completed' | 'failed';
   sunoAudioUrls?: string[];
+  sunoLocalUrls?: string[];
   genre?: string;
   // Legacy field for backward compatibility - will be migrated
   sunoAudioUrl?: string;

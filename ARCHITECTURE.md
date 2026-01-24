@@ -62,6 +62,7 @@ test-cursor/
 - **Port**: http://localhost:3001
 - **HTTP Server**: Express with CORS enabled
 - **WebSocket**: Socket.IO for real-time Suno status updates
+- **Static Files**: `/mp3s/*` serves downloaded audio from `backend/mp3s/`
 
 ## Communication Patterns
 

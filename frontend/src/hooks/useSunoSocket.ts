@@ -5,6 +5,7 @@ export interface SunoUpdateData {
   jobId: string;
   status: string;
   audio_urls?: string[];
+  local_urls?: string[];
   error?: string;
 }
 

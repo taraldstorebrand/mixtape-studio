@@ -26,6 +26,7 @@ function App() {
         updateHistoryItem(historyItem.id, {
           sunoStatus: 'completed',
           sunoAudioUrls: data.audio_urls,
+          sunoLocalUrls: data.local_urls,
         });
       } else if (data.status === 'partial') {
         updateHistoryItem(historyItem.id, {
@@ -37,8 +38,6 @@ function App() {
           sunoStatus: 'failed',
         });
       } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
-        // Handle case where audioUrl fields are populated asynchronously
-        // while job status remains unchanged (per SPEC.md contract)
         updateHistoryItem(historyItem.id, {
           sunoAudioUrls: data.audio_urls,
         });
