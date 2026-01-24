@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { PromptInput } from './components/lyrics/PromptInput';
 import { LyricsTextarea } from './components/lyrics/LyricsTextarea';
 import { HistoryList } from './components/history/HistoryList';
@@ -8,6 +8,8 @@ import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
 import './App.css';
 
+const PANEL_WIDTH_KEY = 'sangtekst_panel_width';
+
 function App() {
   const [currentLyrics, setCurrentLyrics] = useState('');
   const [title, setTitle] = useState('');
@@ -15,8 +17,44 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingSong, setIsGeneratingSong] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [panelWidth, setPanelWidth] = useState(() => {
+    const saved = localStorage.getItem(PANEL_WIDTH_KEY);
+    return saved ? parseInt(saved, 10) : 50;
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { history, addHistoryItem, updateHistoryItem, handleFeedback } = useHistory();
+
+  useEffect(() => {
+    localStorage.setItem(PANEL_WIDTH_KEY, panelWidth.toString());
+  }, [panelWidth]);
+
+  const handleMouseDown = useCallback(() => {
+    setIsDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const newWidth = ((e.clientX - rect.left) / rect.width) * 100;
+      setPanelWidth(Math.min(70, Math.max(30, newWidth)));
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
 
   const handleSunoUpdate = useCallback((data: SunoUpdateData) => {
     console.log('Received Suno update:', data);
@@ -109,41 +147,50 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🎵 Sangtekst Generator</h1>
+        <h1>Sangtekst Generator</h1>
         <p>Generer sangtekster med ChatGPT og lag musikk med Suno</p>
       </header>
 
-      <main className="app-main">
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+      <main className="app-main" ref={containerRef}>
+        <div className="panel-left" style={{ width: `${panelWidth}%` }}>
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
 
-        <div className="generation-section">
-          <PromptInput
-            onGenerate={handleGenerateLyrics}
-            isLoading={isLoading}
-          />
-          
-          <LyricsTextarea
-            lyrics={currentLyrics}
-            onChange={setCurrentLyrics}
-            title={title}
-            onTitleChange={setTitle}
-            genre={genre}
-            onGenreChange={setGenre}
-            onGenerateSong={handleGenerateSong}
-            isLoading={isLoading}
-            isGeneratingSong={isGeneratingSong}
-          />
+          <div className="generation-section">
+            <PromptInput
+              onGenerate={handleGenerateLyrics}
+              isLoading={isLoading}
+            />
+            
+            <LyricsTextarea
+              lyrics={currentLyrics}
+              onChange={setCurrentLyrics}
+              title={title}
+              onTitleChange={setTitle}
+              genre={genre}
+              onGenreChange={setGenre}
+              onGenerateSong={handleGenerateSong}
+              isLoading={isLoading}
+              isGeneratingSong={isGeneratingSong}
+            />
+          </div>
         </div>
 
-        <HistoryList
-          items={history}
-          onFeedback={handleFeedback}
-          onReuse={handleReuse}
+        <div
+          className={`resize-handle ${isDragging ? 'dragging' : ''}`}
+          onMouseDown={handleMouseDown}
         />
+
+        <div className="panel-right">
+          <HistoryList
+            items={history}
+            onFeedback={handleFeedback}
+            onReuse={handleReuse}
+          />
+        </div>
       </main>
     </div>
   );

@@ -1,6 +1,50 @@
 # TASKS.md
 
-## Iteration 006 – Required title and generation spinner
+## Iteration 007 – Two-panel resizable layout
+
+### Goal
+Reorganize the UI into a left/right two-panel layout with resizable splitter. Left panel contains all generation inputs, right panel shows a compact song list.
+
+---
+
+## In Scope
+
+### Frontend
+- Create resizable two-panel layout (left: inputs, right: songs)
+- Left panel: ChatGPT prompt input, lyrics textarea, title/genre inputs, generate buttons
+- Right panel: Compact song list (no lyrics display)
+- Song items show: title, status badge, audio players (if completed), timestamp
+- Add drag handle between panels for resizing
+- Persist panel width to localStorage (optional)
+- Remove lyrics display from history items
+
+### Styling
+- Responsive: stack vertically on narrow screens
+- Minimum width constraints for both panels
+
+---
+
+## Files Allowed to Change
+- frontend/src/App.tsx
+- frontend/src/App.css
+- frontend/src/components/history/HistoryList.tsx
+- frontend/src/components/history/HistoryItem.tsx
+- frontend/src/components/history/HistoryItem.css (or new file)
+- DECISIONS.md
+- SPEC.md
+
+---
+
+## Acceptance Criteria
+- Left panel contains all input/generation controls
+- Right panel shows compact song list without lyrics
+- Panels are resizable via drag handle
+- Layout responsive on small screens
+- D-015 added to DECISIONS.md documenting layout change
+
+---
+
+## Iteration 006 – Required title and generation spinner (Completed)
 
 ### Goal
 Require song title before Suno generation and show spinner until complete.

@@ -165,3 +165,20 @@ Rationale:
 - Title-based names are more meaningful than jobId
 - Sequential numbering avoids overwriting existing files
 - Sanitizing ensures filesystem compatibility
+
+---
+
+## D-015 – Two-panel resizable layout
+Status: Accepted
+
+Decision:
+The UI uses a left/right two-panel layout with a draggable resize handle.
+Left panel contains all generation inputs (prompt, lyrics, title, genre, buttons).
+Right panel shows a compact song list without lyrics display.
+Panel width is persisted to localStorage.
+
+Rationale:
+- Separates input controls from output/history for clearer workflow
+- Compact song list allows viewing more items at once
+- Resizable panels let users optimize for their screen size
+- Lyrics remain accessible via "Gjenbruk" button when needed

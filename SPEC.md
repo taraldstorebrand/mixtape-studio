@@ -6,6 +6,18 @@
 
 ---
 
+## Layout
+
+The application uses a two-panel resizable layout:
+- **Left panel**: All generation controls (prompt input, lyrics editor, title/genre fields, buttons)
+- **Right panel**: Compact song history list
+- **Resize handle**: Draggable divider between panels (30-70% width range)
+- **Responsive**: Stacks vertically on screens < 768px
+
+Panel width is persisted to localStorage (`sangtekst_panel_width`).
+
+---
+
 ## User-Visible Features
 
 ### 1. Generate Lyrics
@@ -73,14 +85,14 @@
 **Note:** Suno allocates all song variations upfront; individual track fields such as `audioUrl` are populated asynchronously and may change without any change in job status. Clients must react to payload changes, not only status transitions.
 
 
-### 5. View History
+### 5. View Song History
 
 **Flow**:
 
-1. All generated lyrics appear in a scrollable history list
-2. Each item shows: prompt, lyrics, timestamp
-3. Items with Suno jobs show generation status
-4. Completed items have playable audio
+1. Songs appear in a compact scrollable list in the right panel
+2. Each item shows: title, status badge, timestamp, audio players (if completed)
+3. Lyrics are not displayed in the list (use "Gjenbruk" to view)
+4. Completed items have inline audio players
 
 ### 6. Provide Feedback
 

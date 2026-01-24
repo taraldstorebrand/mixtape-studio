@@ -18,7 +18,7 @@ export function HistoryList({ items, onFeedback, onReuse }: HistoryListProps) {
 
   return (
     <div className="history-list">
-      <h2>Historikk</h2>
+      <h2>Sanger ({items.length})</h2>
       {items.map((item) => (
         <HistoryItem
           key={item.id}

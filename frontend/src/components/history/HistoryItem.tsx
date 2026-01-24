@@ -12,7 +12,7 @@ export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
     
     const statusMap = {
       pending: { text: 'Venter...', className: 'status-pending' },
-      partial: { text: 'Første sang klar', className: 'status-partial' },
+      partial: { text: 'Delvis', className: 'status-partial' },
       completed: { text: 'Ferdig', className: 'status-completed' },
       failed: { text: 'Feilet', className: 'status-failed' },
     };
@@ -21,15 +21,20 @@ export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
     return <span className={`status-badge ${status.className}`}>{status.text}</span>;
   };
 
+  const displayTitle = item.title || item.prompt || 'Uten tittel';
+  const hasAudio = (item.sunoLocalUrls && item.sunoLocalUrls.length > 0) || 
+                   (item.sunoAudioUrls && item.sunoAudioUrls.length > 0) || 
+                   item.sunoAudioUrl;
+
   return (
     <div className="history-item">
       <div className="history-header">
         <div className="history-meta">
-          <strong className="history-prompt">{item.prompt}</strong>
-          <span className="history-date">
-            {new Date(item.createdAt).toLocaleString('no-NO')}
-          </span>
+          <strong className="history-title">{displayTitle}</strong>
           {getStatusBadge()}
+          <span className="history-date">
+            {new Date(item.createdAt).toLocaleDateString('no-NO')}
+          </span>
         </div>
         <div className="history-actions">
           <button
@@ -45,45 +50,38 @@ export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
               className={`thumb-button ${item.feedback === 'up' ? 'active' : ''}`}
               title="Thumbs up"
             >
-              👍
+              +
             </button>
             <button
               onClick={() => onFeedback(item.id, 'down')}
               className={`thumb-button ${item.feedback === 'down' ? 'active' : ''}`}
               title="Thumbs down"
             >
-              👎
+              -
             </button>
           </div>
         </div>
       </div>
-      <div className="history-lyrics">{item.lyrics}</div>
-      {((item.sunoLocalUrls && item.sunoLocalUrls.length > 0) || (item.sunoAudioUrls && item.sunoAudioUrls.length > 0) || item.sunoAudioUrl) && (
+      {hasAudio && (
         <div className="audio-previews">
           {(item.sunoLocalUrls && item.sunoLocalUrls.length > 0) ? (
             item.sunoLocalUrls.map((url, index) => (
               <div key={index} className="audio-preview">
-                <label>Sang {index + 1}:</label>
-                <audio controls src={url}>
-                  Din nettleser støtter ikke audio-elementet.
-                </audio>
+                <label>#{index + 1}</label>
+                <audio controls src={url} />
               </div>
             ))
           ) : item.sunoAudioUrls ? (
             item.sunoAudioUrls.map((url, index) => (
               <div key={index} className="audio-preview">
-                <label>Sang {index + 1}:</label>
-                <audio controls src={url}>
-                  Din nettleser støtter ikke audio-elementet.
-                </audio>
+                <label>#{index + 1}</label>
+                <audio controls src={url} />
               </div>
             ))
           ) : item.sunoAudioUrl ? (
             <div className="audio-preview">
-              <label>Sang:</label>
-              <audio controls src={item.sunoAudioUrl}>
-                Din nettleser støtter ikke audio-elementet.
-              </audio>
+              <label>#1</label>
+              <audio controls src={item.sunoAudioUrl} />
             </div>
           ) : null}
         </div>
