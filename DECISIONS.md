@@ -10,13 +10,12 @@ Status: Resolved
 
 Decision:
 The backend uses polling only for Suno job status updates.
-The `callBackUrl` parameter has been removed from Suno API requests.
+The `callBackUrl` parameter is required by the Suno API but uses a dummy URL.
 
 Rationale:
-- The Suno API documentation confirms `callBackUrl` is optional
-- The backend already implements a robust polling mechanism with WebSocket updates
-- No callback endpoint was ever implemented, making the parameter unused
-- Polling-only approach is simpler and avoids requiring a publicly accessible callback URL
+- The Suno API requires `callBackUrl` as a mandatory field
+- The backend uses polling with WebSocket updates, so the callback is not used
+- A dummy URL is acceptable since the callback endpoint is never invoked
 
 ---
 
@@ -90,3 +89,18 @@ Status: Accepted
 Decision:
 Lyrics truncation is applied globally across all generation modes.
 This behavior is accepted and not mode-specific.
+
+---
+
+## D-008 – Local MP3 storage
+Status: Accepted
+
+Decision:
+Downloaded Suno audio files are stored locally in `backend/mp3s/`.
+Files are downloaded when job status reaches `completed`.
+Files are named `{jobId}_{index}.mp3` for traceability.
+
+Rationale:
+- Suno CDN URLs expire after 15 days
+- Local storage ensures permanent access to generated songs
+- Directory is gitignored to avoid committing large binary files

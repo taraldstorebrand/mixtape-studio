@@ -1,6 +1,39 @@
 # TASKS.md
 
-## Iteration 003 – Fix Suno audio URL source
+## Iteration 004 – Local MP3 download
+
+### Goal
+Download generated songs to local `backend/mp3s/` folder when Suno job completes.
+
+---
+
+## In Scope
+
+### Backend
+- Create `backend/mp3s/` directory (gitignored)
+- Modify `backend/src/services/suno.ts`:
+  - When status becomes `completed`, download each `sourceAudioUrl`
+  - Save as `{jobId}_{index}.mp3` in `backend/mp3s/`
+  - Add local file paths to WebSocket update payload
+
+---
+
+## Files Allowed to Change
+- backend/src/services/suno.ts
+- backend/.gitignore
+- DECISIONS.md
+- ARCHITECTURE.md
+
+---
+
+## Acceptance Criteria
+- MP3 files saved to `backend/mp3s/` on job completion
+- Files named `{jobId}_{0|1}.mp3`
+- Local paths included in `suno-update` payload
+
+---
+
+## Iteration 003 – Fix Suno audio URL source (Completed)
 
 ### Goal
 Switch from using `audioUrl` (proxy URLs) to `sourceAudioUrl` (direct Suno CDN URLs)

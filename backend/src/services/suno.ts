@@ -1,7 +1,10 @@
 import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
 import { io } from '../server';
 
 const SUNO_API_BASE_URL = 'https://api.sunoapi.org';
+const MP3_DIR = path.join(__dirname, '../../mp3s');
 
 // Suno API docs (Quick Start):
 // - POST  /api/v1/generate
@@ -60,11 +63,28 @@ interface SunoRecordInfoData {
 export interface SunoStatusResponse {
   status: string;
   audio_urls?: string[];
+  local_paths?: string[];
   error?: string;
 }
 
 // Store active polling jobs
 const activeJobs = new Map<string, NodeJS.Timeout>();
+
+// Ensure mp3s directory exists
+if (!fs.existsSync(MP3_DIR)) {
+  fs.mkdirSync(MP3_DIR, { recursive: true });
+}
+
+// Download audio file and save locally
+async function downloadMp3(url: string, jobId: string, index: number): Promise<string> {
+  const filename = `${jobId}_${index}.mp3`;
+  const filepath = path.join(MP3_DIR, filename);
+  
+  const response = await axios.get(url, { responseType: 'arraybuffer' });
+  fs.writeFileSync(filepath, response.data);
+  
+  return filepath;
+}
 
 // Function to send WebSocket updates
 function sendSunoUpdate(jobId: string, status: SunoStatusResponse) {
@@ -86,6 +106,19 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
 
   try {
     const status = await getSongStatus(jobId);
+    
+    // Download MP3s when completed
+    if (status.status === 'completed' && status.audio_urls && status.audio_urls.length > 0) {
+      try {
+        const localPaths = await Promise.all(
+          status.audio_urls.map((url, index) => downloadMp3(url, jobId, index))
+        );
+        status.local_paths = localPaths;
+        console.log('Downloaded MP3s:', localPaths);
+      } catch (downloadError) {
+        console.error('Error downloading MP3s:', downloadError);
+      }
+    }
     
     // Send update via WebSocket
     sendSunoUpdate(jobId, status);
@@ -133,9 +166,9 @@ export async function generateSong(
     const requestData: SunoGenerateRequest = {
       prompt: truncatedPrompt,
       customMode: useCustomMode,
-      callBackUrl: 'http://localhost:3000/suno/callback',
       instrumental: false,
       model: 'V5',
+      callBackUrl: 'https://example.com/callback',
       ...(useCustomMode && { style: genre, title: title || 'Untitled' }),
     };
 
