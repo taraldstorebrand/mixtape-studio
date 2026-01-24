@@ -34,18 +34,14 @@ No user-level scoping or session isolation is implemented at this time.
 Status: Resolved
 
 Decision:
-The backend uses `gpt-5.2` for lyrics generation.
-This model is verified as valid and available in the OpenAI Chat Completions API.
-
-Decision:
-The backend uses the OpenAI Responses API.
-The model `gpt-5.2` requires `max_completion_tokens` instead of `max_tokens`.
-This parameter is now considered part of the locked API contract.
+The backend uses `gpt-5.2` via the OpenAI Responses API (not Chat Completions API).
+The parameter `max_completion_tokens` is used (not `max_tokens`).
+This is part of the locked API contract.
 
 Rationale:
-- OpenAI documentation confirms `gpt-5.2` is the current GPT-5.2 Thinking model identifier
-- The model is available to all API developers
-- No change required; the existing model identifier is correct and locked
+- OpenAI Responses API is the chosen integration
+- `gpt-5.2` requires `max_completion_tokens` parameter
+- The model identifier and API choice are locked
 
 ---
 
@@ -198,3 +194,169 @@ Rationale:
 - Creatable dropdown allows both selection and free-text entry
 - localStorage persistence maintains history across sessions
 - Remove functionality keeps the list manageable
+
+---
+
+## D-017 – Shared types usage
+Status: Accepted
+
+Decision:
+Both frontend and backend MUST import types from `shared/types/index.ts`.
+No duplicate type definitions are allowed in frontend/ or backend/.
+
+Rationale:
+- Single source of truth for data structures
+- Prevents drift between frontend and backend types
+
+---
+
+## D-018 – Suno polling configuration
+Status: Accepted
+
+Decision:
+Backend polls Suno API every 5 seconds with a maximum timeout of 5 minutes.
+These values are implementation constants, not configurable at runtime.
+
+Rationale:
+- 5-second interval balances responsiveness with API rate limits
+- 5-minute timeout covers Suno's typical generation time
+
+---
+
+## D-019 – WebSocket disconnect handling
+Status: Accepted
+
+Decision:
+Frontend does not implement automatic WebSocket reconnection.
+If WebSocket disconnects during Suno polling, user must refresh the page.
+No error message is shown to the user on disconnect.
+
+Rationale:
+- Simplifies implementation for MVP
+- Suno status can be recovered by refreshing the page
+
+---
+
+## D-020 – History item limit
+Status: Accepted
+
+Decision:
+Maximum 100 history items are stored in localStorage.
+When limit is exceeded, the oldest items are removed first (FIFO).
+
+Rationale:
+- Prevents localStorage from growing unbounded
+- FIFO ensures recent work is preserved
+
+---
+
+## D-021 – Genre history limit
+Status: Accepted
+
+Decision:
+Maximum 50 genres are stored in localStorage (`sangtekst_genre_history`).
+When limit is exceeded, the oldest entries are removed first (FIFO).
+
+Rationale:
+- Keeps dropdown list manageable
+- Consistent with history item limit behavior (FIFO)
+
+---
+
+## D-022 – localStorage key naming
+Status: Accepted
+
+Decision:
+All localStorage keys use prefix `sangtekst_` followed by snake_case identifier.
+Canonical keys:
+- `sangtekst_history` – song history items
+- `sangtekst_genre_history` – genre dropdown history
+- `sangtekst_panel_width` – resizable panel width
+
+Rationale:
+- Consistent naming prevents key collisions
+- Prefix isolates app data from other localStorage users
+
+---
+
+## D-023 – HTTP error display
+Status: Accepted
+
+Decision:
+Frontend displays API errors as inline text below the relevant button.
+Error message shows the server's error text if available, otherwise a generic message.
+Errors are cleared when user initiates a new request.
+
+Rationale:
+- Inline errors are visible without interrupting workflow
+- Clears automatically to avoid stale error states
+
+---
+
+## D-024 – ID collision risk
+Status: Accepted
+
+Decision:
+The theoretical risk of `Date.now()` ID collisions is ignored.
+No collision detection or handling is implemented.
+
+Rationale:
+- Probability is nearly zero (requires two items in same millisecond)
+- Not worth added complexity for MVP
+
+---
+
+## D-025 – Suno "partial" status definition
+Status: Accepted
+
+Decision:
+The `sunoStatus: 'partial'` means at least one (but not all) audio files are available.
+Suno generates 2 variations; "partial" indicates 1 of 2 is ready.
+
+Rationale:
+- Allows UI to show available audio while waiting for remaining tracks
+- Provides incremental feedback during long generation
+
+---
+
+## D-026 – Genre string handling
+Status: Accepted
+
+Decision:
+Genre strings are stored and sent to Suno as-is without sanitization.
+No character restrictions apply to genre input.
+
+Rationale:
+- Suno API accepts free-text genre descriptions
+- No filesystem interaction requires sanitization
+
+---
+
+## D-027 – Backend utils folder purpose
+Status: Accepted
+
+Decision:
+The `backend/src/utils/` folder contains shared utility functions.
+Currently contains `logger.ts` – a simple console logger with timestamps.
+No external logging libraries are used.
+
+Rationale:
+- Centralizes logging format for consistency
+- Avoids third-party logging dependencies for MVP
+
+---
+
+## D-028 – Vite proxy routes
+Status: Accepted
+
+Decision:
+Vite dev server proxies the following paths to backend (localhost:3001):
+- `/api/*` – REST API endpoints
+- `/mp3s/*` – Static audio files
+- `/socket.io` – WebSocket connection
+
+New backend routes must use `/api/` prefix. No other proxy paths are added without updating this decision.
+
+Rationale:
+- Clear separation between frontend and backend routes
+- Prevents accidental route conflicts
