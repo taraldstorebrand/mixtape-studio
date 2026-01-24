@@ -27,7 +27,7 @@ function App() {
           sunoStatus: 'completed',
           sunoAudioUrls: data.audio_urls,
         });
-      } else if (data.status === 'partial' && data.audio_urls && data.audio_urls.length > 0) {
+      } else if (data.status === 'partial') {
         updateHistoryItem(historyItem.id, {
           sunoStatus: 'partial',
           sunoAudioUrls: data.audio_urls,
@@ -35,6 +35,12 @@ function App() {
       } else if (data.status === 'failed') {
         updateHistoryItem(historyItem.id, {
           sunoStatus: 'failed',
+        });
+      } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
+        // Handle case where audioUrl fields are populated asynchronously
+        // while job status remains unchanged (per SPEC.md contract)
+        updateHistoryItem(historyItem.id, {
+          sunoAudioUrls: data.audio_urls,
         });
       }
     }

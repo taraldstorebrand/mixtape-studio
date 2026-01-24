@@ -15,6 +15,7 @@ interface SunoGenerateRequest {
   customMode: boolean;
   instrumental: boolean;
   model: SunoModel;
+  callBackUrl: string;
   // Required when customMode=true:
   style?: string;
   title?: string;
@@ -131,6 +132,7 @@ export async function generateSong(
     const requestData: SunoGenerateRequest = {
       prompt: truncatedPrompt,
       customMode: useCustomMode,
+      callBackUrl: 'http://localhost:3000/suno/callback',
       instrumental: false,
       model: 'V5',
       ...(useCustomMode && { style: genre, title: title || 'Untitled' }),

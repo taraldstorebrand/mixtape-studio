@@ -7,7 +7,7 @@ let socket: Socket | null = null;
 
 export function connectSocket() {
   if (!socket) {
-    socket = io(window.location.origin);
+    socket = io('http://localhost:3001');
     
     socket.on('connect', () => {
       console.log('Connected to WebSocket');

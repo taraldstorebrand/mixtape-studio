@@ -10,12 +10,12 @@ Status: Resolved
 
 Decision:
 The backend uses polling only for Suno job status updates.
-The `callBackUrl` parameter has been removed from Suno API requests.
+The `callBackUrl` parameter is set to a dummy value (`http://localhost:3000/suno/callback`).
 
 Rationale:
-- The Suno API documentation confirms `callBackUrl` is optional
+- The Suno API requires `callBackUrl` as a mandatory field
 - The backend already implements a robust polling mechanism with WebSocket updates
-- No callback endpoint was ever implemented, making the parameter unused
+- No callback endpoint is implemented; the dummy value satisfies the API contract
 - Polling-only approach is simpler and avoids requiring a publicly accessible callback URL
 
 ---

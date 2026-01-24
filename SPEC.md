@@ -56,6 +56,9 @@
 - Generation can take several minutes
 - Suno generates 2 song variations
 
+**Note:** Suno allocates all song variations upfront; individual track fields such as `audioUrl` are populated asynchronously and may change without any change in job status. Clients must react to payload changes, not only status transitions.
+
+
 ### 5. View History
 
 **Flow**:
