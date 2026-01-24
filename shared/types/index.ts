@@ -1,6 +1,7 @@
 export interface HistoryItem {
   id: string;
   prompt: string;
+  title: string;
   lyrics: string;
   createdAt: string;
   feedback?: 'up' | 'down';

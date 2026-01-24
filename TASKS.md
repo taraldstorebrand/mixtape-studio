@@ -1,6 +1,48 @@
 # TASKS.md
 
-## Iteration 005 – Serve local MP3 files
+## Iteration 006 – Required title and generation spinner
+
+### Goal
+Require song title before Suno generation and show spinner until complete.
+
+---
+
+## In Scope
+
+### Frontend
+- Add title input field (required for Suno)
+- Disable "Generer Sang med Suno" when title is empty
+- Show spinner on button during generation
+- Keep button disabled until status is "completed" or "failed"
+- Pass title to backend when calling `/api/suno/generate`
+- Create new history entry for each Suno generation (allow duplicate lyrics)
+
+### Backend
+- Fix lyrics truncation to only apply in non-custom mode
+
+---
+
+## Files Allowed to Change
+- frontend/src/App.tsx
+- frontend/src/services/api.ts
+- frontend/vite.config.ts
+- backend/src/services/suno.ts
+- DECISIONS.md
+- SPEC.md
+
+---
+
+## Acceptance Criteria
+- Title input visible and required for Suno generation
+- Button disabled when title empty
+- Spinner shown during generation
+- Button re-enabled on completion or failure
+- New history entry created per Suno generation
+- D-010, D-011, and D-012 added to DECISIONS.md
+
+---
+
+## Iteration 005 – Serve local MP3 files (Completed)
 
 ### Goal
 Serve downloaded MP3 files from backend and update frontend to use local URLs instead of expiring CDN URLs.

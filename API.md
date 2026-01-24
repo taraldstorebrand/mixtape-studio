@@ -67,8 +67,8 @@ Submit lyrics for music generation via Suno API.
 ```json
 {
   "lyrics": "string (required, non-empty, max 500 chars in non-custom mode)",
-  "genre": "string (optional - enables custom mode when provided)",
-  "title": "string (optional - used with genre in custom mode)"
+  "title": "string (required - song title)",
+  "genre": "string (optional - enables custom mode when provided)"
 }
 ```
 

@@ -10,6 +10,7 @@ import './App.css';
 
 function App() {
   const [currentLyrics, setCurrentLyrics] = useState('');
+  const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingSong, setIsGeneratingSong] = useState(false);
@@ -28,6 +29,7 @@ function App() {
           sunoAudioUrls: data.audio_urls,
           sunoLocalUrls: data.local_urls,
         });
+        setIsGeneratingSong(false);
       } else if (data.status === 'partial') {
         updateHistoryItem(historyItem.id, {
           sunoStatus: 'partial',
@@ -37,6 +39,7 @@ function App() {
         updateHistoryItem(historyItem.id, {
           sunoStatus: 'failed',
         });
+        setIsGeneratingSong(false);
       } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
         updateHistoryItem(historyItem.id, {
           sunoAudioUrls: data.audio_urls,
@@ -58,6 +61,7 @@ function App() {
       const newItem: HistoryItem = {
         id: Date.now().toString(),
         prompt,
+        title: '',
         lyrics,
         createdAt: new Date().toISOString(),
       };
@@ -71,37 +75,28 @@ function App() {
   };
 
   const handleGenerateSong = async () => {
-    if (!currentLyrics.trim()) return;
+    if (!currentLyrics.trim() || !title.trim()) return;
 
     setIsGeneratingSong(true);
     setError(null);
 
     try {
-      const result = await generateSong(currentLyrics, genre || undefined);
+      const result = await generateSong(currentLyrics, genre || undefined, title);
       
-      const latestItem = history[0];
-      if (latestItem && latestItem.lyrics === currentLyrics) {
-        updateHistoryItem(latestItem.id, {
-          sunoJobId: result.jobId,
-          sunoStatus: 'pending' as const,
-          genre: genre || undefined,
-        });
-      } else {
-        const newItem: HistoryItem = {
-          id: Date.now().toString(),
-          prompt: 'Generert direkte',
-          lyrics: currentLyrics,
-          createdAt: new Date().toISOString(),
-          sunoJobId: result.jobId,
-          sunoStatus: 'pending',
-          genre: genre || undefined,
-        };
-        addHistoryItem(newItem);
-      }
+      const newItem: HistoryItem = {
+        id: Date.now().toString(),
+        prompt: title,
+        title: title,
+        lyrics: currentLyrics,
+        createdAt: new Date().toISOString(),
+        sunoJobId: result.jobId,
+        sunoStatus: 'pending',
+        genre: genre || undefined,
+      };
+      addHistoryItem(newItem);
     } catch (err: any) {
       setError(err.message || 'Kunne ikke generere sang');
       console.error('Error generating song:', err);
-    } finally {
       setIsGeneratingSong(false);
     }
   };
@@ -134,6 +129,8 @@ function App() {
           <LyricsTextarea
             lyrics={currentLyrics}
             onChange={setCurrentLyrics}
+            title={title}
+            onTitleChange={setTitle}
             genre={genre}
             onGenreChange={setGenre}
             onGenerateSong={handleGenerateSong}

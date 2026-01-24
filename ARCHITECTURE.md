@@ -55,6 +55,7 @@ test-cursor/
 - **Port**: http://localhost:5173
 - **Persistence**: localStorage (client-side only)
 - **State Management**: React useState hooks
+- **Proxy**: Vite dev server proxies `/api/*`, `/mp3s/*`, and `/socket.io` to backend
 
 ### Backend
 

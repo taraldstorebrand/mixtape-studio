@@ -38,23 +38,37 @@
 2. Genre is sent to Suno when generating music
 3. Enables Suno "custom mode" for more control
 
+### 3.5. Set Title (Required for Suno)
+
+**Flow**:
+
+1. User enters a song title in the title input field
+2. Title is sent to Suno when generating music
+
+**Constraints**:
+
+- Title is required before generating a song with Suno
+- "Generer Sang med Suno" button is disabled until title is provided
+
 ### 4. Generate Song with Suno
 
 **Flow**:
 
 1. User clicks "Generer Sang med Suno" button
-2. System sends lyrics (and optional genre) to backend → Suno API
-3. Loading state shown during submission
+2. Button shows spinner and is disabled during generation
+3. System sends title, lyrics (and optional genre) to backend → Suno API
 4. History item is updated with job ID and "pending" status
 5. Backend polls Suno and pushes status updates via WebSocket
-6. When complete, audio URLs appear in the history item
+6. When complete, spinner stops and audio URLs appear in the history item
 
 **Constraints**:
 
+- Title must be non-empty
 - Lyrics must be non-empty
-- Lyrics truncated to 500 characters (in non-custom mode)
+- Lyrics truncated to 500 characters (only when genre is not provided)
 - Generation can take several minutes
 - Suno generates 2 song variations
+- Button remains disabled with spinner until status is "completed" or "failed"
 
 **Note:** Suno allocates all song variations upfront; individual track fields such as `audioUrl` are populated asynchronously and may change without any change in job status. Clients must react to payload changes, not only status transitions.
 
@@ -111,6 +125,7 @@ All data is stored in the browser's `localStorage`.
 interface HistoryItem {
   id: string;                    // Unique ID (timestamp-based)
   prompt: string;                // Original user prompt
+  title: string;                 // Song title (required)
   lyrics: string;                // Generated or edited lyrics
   createdAt: string;             // ISO 8601 timestamp
   feedback?: 'up' | 'down';      // User feedback
@@ -153,6 +168,4 @@ interface HistoryItem {
 
 2. **Error handling for WebSocket**: Behavior when WebSocket disconnects during Suno polling is not explicitly handled in the frontend.
 
-3. **Genre without title**: When genre is provided to Suno, title defaults to "Untitled" if not specified. Users cannot currently set a title via the UI.
 
-4. **History item update logic**: When generating a song, the system attempts to update the latest history item if the lyrics match. If not, it creates a new item with prompt "Generert direkte". This could lead to unexpected behavior if user edits lyrics before generating.

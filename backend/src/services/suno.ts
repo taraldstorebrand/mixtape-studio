@@ -162,12 +162,12 @@ export async function generateSong(
     const useCustomMode = !!genre;
     
     // In non-custom mode, prompt is limited to 500 characters
-    const truncatedPrompt = lyrics.length > 500 ? lyrics.substring(0, 500) : lyrics;
+    const prompt = useCustomMode ? lyrics : (lyrics.length > 500 ? lyrics.substring(0, 500) : lyrics);
 
     // We treat the provided "lyrics" as Suno's "prompt" (docs use prompt).
     // Keep our API stable to the frontend: return { jobId, status }.
     const requestData: SunoGenerateRequest = {
-      prompt: truncatedPrompt,
+      prompt: prompt,
       customMode: useCustomMode,
       instrumental: false,
       model: 'V5',

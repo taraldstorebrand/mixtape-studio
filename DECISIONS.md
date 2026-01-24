@@ -50,14 +50,7 @@ Rationale:
 ---
 
 ## D-004 – Song title behavior
-Status: Accepted
-
-Decision:
-Users cannot manually set a song title via the UI.
-If a genre is provided, a derived title may be generated.
-If no title can be derived, the song title defaults to "Untitled".
-
-This is accepted current behavior.
+Status: Superseded by D-010
 
 ---
 
@@ -84,11 +77,7 @@ Rationale:
 - URLs expire after 15 days per Suno documentation; local storage may be considered later
 
 ## D-007 – Lyrics truncation scope
-Status: Accepted
-
-Decision:
-Lyrics truncation is applied globally across all generation modes.
-This behavior is accepted and not mode-specific.
+Status: Superseded by D-013
 
 ---
 
@@ -118,3 +107,55 @@ Rationale:
 - Local files do not expire, unlike Suno CDN URLs (15-day limit)
 - Backend serves static files from `backend/mp3s/` via `/mp3s/*` route
 - Fallback ensures audio remains playable during transition or if download fails
+
+---
+
+## D-010 – User-defined song title
+Status: Accepted
+
+Decision:
+Users must provide a song title before generating music with Suno.
+The "Generer Sang med Suno" button is disabled until title is filled in.
+
+Rationale:
+- Title is required by the Suno API
+- Mandatory input ensures intentional, meaningful song names
+
+---
+
+## D-011 – Suno generation spinner
+Status: Accepted
+
+Decision:
+The "Generer Sang med Suno" button shows a spinner and remains disabled from click until job status reaches "completed" or "failed".
+
+Rationale:
+- Prevents duplicate submissions
+- Provides clear visual feedback during long-running generation (up to 5 minutes)
+
+---
+
+## D-012 – History entry per Suno generation
+Status: Accepted
+
+Decision:
+Each Suno song generation creates a new history entry.
+Duplicate lyrics across history entries are allowed and preserved.
+
+Rationale:
+- Simplifies logic by avoiding matching/updating existing entries
+- Allows users to generate multiple songs from the same lyrics
+- Each generation has unique title, jobId, and audio results
+
+---
+
+## D-013 – Lyrics truncation in non-custom mode only
+Status: Accepted
+
+Decision:
+Lyrics truncation to 500 characters applies only in non-custom mode.
+When genre is provided (custom mode), full lyrics are sent to Suno.
+
+Rationale:
+- Suno API limitation of 500 chars only applies to non-custom mode
+- Custom mode supports longer lyrics for full song generation
