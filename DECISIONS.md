@@ -493,3 +493,21 @@ Rationale:
 - Simpler implementation with native elements
 - Full control over styling and behavior
 - Avoids react-select's complex API and styling overrides
+
+---
+
+## D-037 – App.tsx component extraction
+Status: Accepted
+
+Decision:
+App.tsx is split into focused components and hooks:
+- `useResizable` hook handles panel resize logic, mouse events, and localStorage persistence
+- `DetailPanel` component renders either read-only selected item view or generation section
+- `HistoryPanel` component wraps HistoryList with panel styling
+- App.tsx retains only state management, callbacks, and layout orchestration
+
+Rationale:
+- Separation of concerns improves maintainability
+- Reusable `useResizable` hook can be applied to other resizable elements
+- Smaller components are easier to test and reason about
+- App.tsx becomes a thin orchestration layer

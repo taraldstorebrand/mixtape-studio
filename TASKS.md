@@ -1,48 +1,47 @@
 # TASKS.md
 
-## Iteration 014 – Custom GenreInput component
+## Iteration 015 – Split App.tsx into panels and resize hook
 
 ### Goal
-Replace `react-select` with a lightweight custom `GenreInput` component using native `<input>` and controlled dropdown.
+Extract DetailPanel, HistoryPanel, and a reusable `useResizable` hook from App.tsx. Reduce App.tsx to orchestration only. Preserve all existing behavior.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Create new `GenreInput` component in `frontend/src/components/`
-- Remove `react-select` dependency from App.tsx
-- Implement dropdown with matching items from `genreHistory`
-- Arrow keys navigate, Enter selects, Escape closes
-- Each dropdown option has a remove (×) button that does not select the option
-- User can type freely (creatable behavior)
-
-### Component Props
-- `value: string`
-- `onChange(value: string)`
-- `genreHistory: string[]`
-- `onRemoveGenre(genre: string)`
+- Create `useResizable` hook in `frontend/src/hooks/useResizable.ts`
+  - Accepts containerRef, storageKey, defaultWidth, minWidth, maxWidth
+  - Returns { width, isDragging, handleMouseDown }
+  - Handles localStorage persistence and mouse events internally
+- Create `DetailPanel` component in `frontend/src/components/panels/DetailPanel.tsx`
+  - Renders readonly view when item selected, generation section otherwise
+  - Receives all necessary props from App.tsx
+- Create `HistoryPanel` component in `frontend/src/components/panels/HistoryPanel.tsx`
+  - Wraps HistoryList with panel styling
+- Refactor App.tsx to use new components/hook
+  - App.tsx handles state, callbacks, and layout orchestration only
 
 ---
 
 ## Files Allowed to Change
 - frontend/src/App.tsx
-- frontend/src/components/GenreInput.tsx (new)
-- frontend/package.json (remove react-select)
-- SPEC.md
+- frontend/src/hooks/useResizable.ts (new)
+- frontend/src/components/panels/DetailPanel.tsx (new)
+- frontend/src/components/panels/HistoryPanel.tsx (new)
+- ARCHITECTURE.md
 - DECISIONS.md
 
 ---
 
 ## Acceptance Criteria
-- GenreInput works as a text input with dropdown suggestions
-- Dropdown shows matching genres from history as user types
-- Arrow Up/Down navigate dropdown, Enter selects, Escape closes
-- Each option has × button to remove genre without selecting
-- No react-select or other select/combobox library used
-- No useCallback or useMemo unless strictly necessary
-- Uses existing CSS classes
-- D-036 added to DECISIONS.md
+- App.tsx contains only state, callbacks, and layout composition
+- useResizable hook is reusable and handles all resize logic
+- DetailPanel shows readonly view or generation section based on selectedItem
+- HistoryPanel wraps HistoryList
+- All existing behavior preserved (resize, localStorage, selection, etc.)
+- No useCallback or useMemo unless strictly required
+- D-037 added to DECISIONS.md
 
 ---
 

@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
-import { PromptInput } from './components/lyrics/PromptInput';
-import { LyricsTextarea } from './components/lyrics/LyricsTextarea';
-import { HistoryList } from './components/history/HistoryList';
+import { useState, useRef } from 'react';
+import { DetailPanel } from './components/panels/DetailPanel';
+import { HistoryPanel } from './components/panels/HistoryPanel';
 import { generateLyrics, generateSong } from './services/api';
 import { useHistory } from './hooks/useHistory';
 import { useGenreHistory } from './hooks/useGenreHistory';
+import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
 import './App.css';
@@ -20,45 +20,17 @@ function App() {
   const [isGeneratingSong, setIsGeneratingSong] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [panelWidth, setPanelWidth] = useState(() => {
-    const saved = localStorage.getItem(PANEL_WIDTH_KEY);
-    return saved ? parseInt(saved, 10) : 50;
-  });
-  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistory();
   const { genres: genreHistory, addGenre, removeGenre } = useGenreHistory();
-
-  useEffect(() => {
-    localStorage.setItem(PANEL_WIDTH_KEY, panelWidth.toString());
-  }, [panelWidth]);
-
-  const handleMouseDown = () => {
-    setIsDragging(true);
-  };
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const newWidth = ((e.clientX - rect.left) / rect.width) * 100;
-      setPanelWidth(Math.min(70, Math.max(30, newWidth)));
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging]);
+  const { width: panelWidth, isDragging, handleMouseDown } = useResizable({
+    containerRef,
+    storageKey: PANEL_WIDTH_KEY,
+    defaultWidth: 50,
+    minWidth: 30,
+    maxWidth: 70,
+  });
 
   const handleSunoUpdate = (data: SunoUpdateData) => {
     console.log('Received Suno update:', data);
@@ -191,61 +163,23 @@ function App() {
 
       <main className="app-main" ref={containerRef}>
         <div className="panel-left" style={{ width: `${panelWidth}%` }}>
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-
-          {selectedItem ? (
-            <div className="readonly-view">
-              <div className="readonly-header">
-                <h2>Valgt sang</h2>
-                <button className="copy-button" onClick={handleCopy}>
-                  Kopier
-                </button>
-              </div>
-              <div className="readonly-field">
-                <label>ChatGPT-prompt:</label>
-                <p>{selectedItem.prompt || '(ingen prompt)'}</p>
-              </div>
-              <div className="readonly-field">
-                <label>Tittel:</label>
-                <p>{selectedItem.title}</p>
-              </div>
-              <div className="readonly-field">
-                <label>Sangtekst:</label>
-                <pre className="readonly-lyrics">{selectedItem.lyrics}</pre>
-              </div>
-              {selectedItem.genre && (
-                <div className="readonly-field">
-                  <label>Sjanger:</label>
-                  <p>{selectedItem.genre}</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="generation-section">
-              <PromptInput
-                onGenerate={handleGenerateLyrics}
-                isLoading={isLoading}
-              />
-              
-              <LyricsTextarea
-                lyrics={currentLyrics}
-                onChange={setCurrentLyrics}
-                title={title}
-                onTitleChange={setTitle}
-                genre={genre}
-                onGenreChange={setGenre}
-                onGenerateSong={handleGenerateSong}
-                isLoading={isLoading}
-                isGeneratingSong={isGeneratingSong}
-                genreHistory={genreHistory}
-                onRemoveGenre={removeGenre}
-              />
-            </div>
-          )}
+          <DetailPanel
+            selectedItem={selectedItem ?? null}
+            onCopy={handleCopy}
+            currentLyrics={currentLyrics}
+            onLyricsChange={setCurrentLyrics}
+            title={title}
+            onTitleChange={setTitle}
+            genre={genre}
+            onGenreChange={setGenre}
+            onGenerateLyrics={handleGenerateLyrics}
+            onGenerateSong={handleGenerateSong}
+            isLoading={isLoading}
+            isGeneratingSong={isGeneratingSong}
+            genreHistory={genreHistory}
+            onRemoveGenre={removeGenre}
+            error={error}
+          />
         </div>
 
         <div
@@ -254,7 +188,7 @@ function App() {
         />
 
         <div className="panel-right">
-          <HistoryList
+          <HistoryPanel
             items={history}
             selectedItemId={selectedItemId}
             onFeedback={handleFeedback}

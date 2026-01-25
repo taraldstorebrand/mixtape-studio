@@ -10,11 +10,14 @@ Monorepo with frontend, backend, and shared types for a song lyrics generator ap
 test-cursor/
 ├── frontend/          # React SPA
 │   ├── src/
-│   │   ├── components/   # React components (history/, lyrics/)
-│   │   ├── hooks/        # Custom React hooks
+│   │   ├── components/   # React components
+│   │   │   ├── history/     # History list components
+│   │   │   ├── lyrics/      # Lyrics input components
+│   │   │   └── panels/      # Layout panels (DetailPanel, HistoryPanel)
+│   │   ├── hooks/        # Custom React hooks (useHistory, useResizable, etc.)
 │   │   ├── services/     # API client and localStorage services
 │   │   ├── types/        # Re-exports shared types
-│   │   └── App.tsx       # Main application component
+│   │   └── App.tsx       # Main application orchestration (state, callbacks, layout)
 │   └── vite.config.ts
 ├── backend/           # Express REST API + WebSocket server
 │   ├── src/
