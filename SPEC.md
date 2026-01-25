@@ -98,6 +98,18 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 2. Each item shows: title, status badge, timestamp, audio players (if completed)
 3. Lyrics are not displayed in the list (use "Gjenbruk" to view)
 4. Completed items have inline audio players
+5. Filter bar at top with "Default", "Liked", "All" options
+6. Each item has a trashcan delete button
+7. Each audio track has a trashcan delete button
+
+**Filtering**:
+- Default (initial): Shows everything except items with feedback = 'down'
+- Liked: Shows only items with feedback = 'up'
+- All: Shows everything including disliked items
+
+**Deletion**:
+- History item delete removes the entire entry from localStorage
+- Track delete removes only that audio URL from the item (keeps other tracks)
 
 **Storage rules**:
 - Only Suno song generations create history entries (not ChatGPT lyrics alone)

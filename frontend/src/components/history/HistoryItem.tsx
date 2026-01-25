@@ -4,9 +4,11 @@ interface HistoryItemProps {
   item: HistoryItemType;
   onFeedback: (id: string, feedback: 'up' | 'down') => void;
   onReuse: (item: HistoryItemType) => void;
+  onDelete: () => void;
+  onDeleteTrack: (trackIndex: number) => void;
 }
 
-export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
+export function HistoryItem({ item, onFeedback, onReuse, onDelete, onDeleteTrack }: HistoryItemProps) {
   const getStatusBadge = () => {
     if (!item.sunoStatus) return null;
     
@@ -60,6 +62,13 @@ export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
               -
             </button>
           </div>
+          <button
+            onClick={onDelete}
+            className="delete-button"
+            title="Slett"
+          >
+            🗑
+          </button>
         </div>
       </div>
       {hasAudio && (
@@ -69,6 +78,13 @@ export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
               <div key={index} className="audio-preview">
                 <label>#{index + 1}</label>
                 <audio controls src={url} />
+                <button
+                  onClick={() => onDeleteTrack(index)}
+                  className="delete-track-button"
+                  title="Slett spor"
+                >
+                  🗑
+                </button>
               </div>
             ))
           ) : item.sunoAudioUrls ? (
@@ -76,12 +92,26 @@ export function HistoryItem({ item, onFeedback, onReuse }: HistoryItemProps) {
               <div key={index} className="audio-preview">
                 <label>#{index + 1}</label>
                 <audio controls src={url} />
+                <button
+                  onClick={() => onDeleteTrack(index)}
+                  className="delete-track-button"
+                  title="Slett spor"
+                >
+                  🗑
+                </button>
               </div>
             ))
           ) : item.sunoAudioUrl ? (
             <div className="audio-preview">
               <label>#1</label>
               <audio controls src={item.sunoAudioUrl} />
+              <button
+                onClick={() => onDeleteTrack(0)}
+                className="delete-track-button"
+                title="Slett spor"
+              >
+                🗑
+              </button>
             </div>
           ) : null}
         </div>

@@ -375,3 +375,34 @@ Rationale:
 - History should represent completed or in-progress songs, not intermediate text generation
 - Pending entries allow users to see status and access partial results during generation
 - Removing failed entries keeps history clean and focused on successful outputs
+
+---
+
+## D-030 – History filtering
+Status: Accepted
+
+Decision:
+The right panel includes a filter bar with three options: "Default", "Liked", "All".
+- Default: Shows all items except those with `feedback: 'down'`
+- Liked: Shows only items with `feedback: 'up'`
+- All: Shows all items including disliked
+Default filter is "Default".
+
+Rationale:
+- Allows users to focus on preferred content
+- Disliked items are hidden by default but recoverable via "All" filter
+
+---
+
+## D-031 – Delete history items and tracks
+Status: Accepted
+
+Decision:
+Each history item displays a trashcan icon button to delete the entire item.
+Each audio track displays a trashcan icon button to delete that individual track.
+Deletions are immediate with no confirmation dialog.
+
+Rationale:
+- Gives users full control over their history
+- Individual track deletion allows keeping partial results
+- No confirmation for MVP simplicity

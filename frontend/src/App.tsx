@@ -139,6 +139,30 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleDeleteItem = (id: string) => {
+    removeHistoryItem(id);
+  };
+
+  const handleDeleteTrack = (id: string, trackIndex: number) => {
+    const item = history.find(h => h.id === id);
+    if (!item) return;
+
+    const localUrls = item.sunoLocalUrls ? [...item.sunoLocalUrls] : [];
+    const audioUrls = item.sunoAudioUrls ? [...item.sunoAudioUrls] : [];
+    
+    if (localUrls.length > 0) {
+      localUrls.splice(trackIndex, 1);
+    }
+    if (audioUrls.length > 0) {
+      audioUrls.splice(trackIndex, 1);
+    }
+
+    updateHistoryItem(id, {
+      sunoLocalUrls: localUrls,
+      sunoAudioUrls: audioUrls,
+    });
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -186,6 +210,8 @@ function App() {
             items={history}
             onFeedback={handleFeedback}
             onReuse={handleReuse}
+            onDeleteItem={handleDeleteItem}
+            onDeleteTrack={handleDeleteTrack}
           />
         </div>
       </main>
