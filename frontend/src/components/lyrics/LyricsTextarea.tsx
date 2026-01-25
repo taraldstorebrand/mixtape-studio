@@ -155,17 +155,6 @@ export function LyricsTextarea({
 
   return (
     <div className="lyrics-container">
-      <label htmlFor="lyrics-textarea" className="lyrics-label">
-        Generert sangtekst (kan redigeres):
-      </label>
-      <textarea
-        id="lyrics-textarea"
-        value={lyrics}
-        onChange={(e) => onChange(e.target.value)}
-        className="lyrics-textarea"
-        rows={12}
-        placeholder="Sangteksten vil vises her..."
-      />
       <div className="title-input-container">
         <label htmlFor="title-input" className="title-label">
           Sangtittel (påkrevd):
@@ -179,6 +168,17 @@ export function LyricsTextarea({
           placeholder="Skriv inn sangtittel..."
         />
       </div>
+      <label htmlFor="lyrics-editor" className="lyrics-label">
+        Sangtekst:
+      </label>
+      <textarea
+        id="lyrics-editor"
+        value={lyrics}
+        onChange={(e) => onChange(e.target.value)}
+        className="lyrics-editor"
+        rows={14}
+        placeholder="Sangteksten vil vises her..."
+      />
       <div className="genre-input-container">
         <label className="genre-label">
           Sjanger/stil (valgfritt):

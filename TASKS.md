@@ -1,41 +1,36 @@
 # TASKS.md
 
-## Iteration 011 – Thumb button styling and toggle behavior
+## Iteration 012 – Lyrics editor and prompt input styling
 
 ### Goal
-Improve thumb button visibility and interaction with proper styling and toggle behavior.
+Improve the lyrics display and input controls with editor-style visuals.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Add color to `.delete-button` and `.thumb-button` for visibility
-- Replace "+" and "-" with 👍 and 👎 emoji symbols
-- Add grayscale/opacity filter for unselected state, full color when selected
-- Implement toggle behavior: clicking selected thumb deselects it
-- Clicking opposite thumb switches selection (auto-deselects the other)
+- Convert lyrics textarea to editable editor-style component (not read-only)
+- Style lyrics area as content display rather than raw textarea appearance
+- Use small multiline textarea for ChatGPT prompt input
+- Keep song title as clear, editable input field associated with the lyrics
 
 ---
 
 ## Files Allowed to Change
 - frontend/src/App.css
-- frontend/src/components/history/HistoryItem.tsx
-- frontend/src/components/history/HistoryList.tsx
-- frontend/src/hooks/useHistory.ts
-- frontend/src/services/storage.ts
+- frontend/src/App.tsx
+- frontend/src/components/lyrics/LyricsEditor.tsx (if exists)
 - DECISIONS.md
 
 ---
 
 ## Acceptance Criteria
-- Thumb buttons and delete buttons are visible (have color)
-- Thumb icons display as 👍 and 👎
-- Unselected thumbs appear faded/grayscale
-- Selected thumbs appear full color
-- Clicking a selected thumb deselects it (sets feedback to null)
-- Clicking opposite thumb switches selection
-- D-032 added to DECISIONS.md
+- Lyrics display in an editable, editor-style text area
+- Lyrics area is styled as content (not raw textarea look)
+- ChatGPT prompt uses small multiline textarea
+- Song title is a clear, editable input field
+- D-033 added to DECISIONS.md
 
 ---
 
@@ -43,6 +38,7 @@ Improve thumb button visibility and interaction with proper styling and toggle b
 
 | Iteration | Description |
 |-----------|-------------|
+| 011 | Thumb button styling and toggle behavior |
 | 010 | History filtering and deletion |
 | 009 | History only for successful Suno generations |
 | 008 | Genre field with searchable history |

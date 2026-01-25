@@ -18,14 +18,14 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
 
   return (
     <form onSubmit={handleSubmit} className="prompt-form">
-      <div className="input-group">
-        <input
-          type="text"
+      <div className="prompt-input-group">
+        <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Skriv en prompt for sangteksten (f.eks. 'En sang om sommer')"
           disabled={isLoading}
-          className="prompt-input"
+          className="prompt-textarea"
+          rows={3}
         />
         <button 
           type="submit" 

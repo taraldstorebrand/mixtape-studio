@@ -36,11 +36,11 @@
   width: 50%;
   min-width: 300px;
   max-width: 70%;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .panel-right {
@@ -75,48 +75,52 @@
 .generation-section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .prompt-form {
   width: 100%;
 }
 
-.input-group {
+.prompt-input-group {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
   width: 100%;
 }
 
-.prompt-input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 2px solid #646cff;
-  border-radius: 8px;
+.prompt-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  border: 1px solid #444;
+  border-radius: 6px;
   background-color: #1a1a1a;
   color: white;
+  resize: vertical;
+  min-height: 50px;
 }
 
-.prompt-input:focus {
+.prompt-textarea:focus {
   outline: none;
-  border-color: #535bf2;
+  border-color: #646cff;
 }
 
-.prompt-input:disabled {
+.prompt-textarea:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 .generate-button,
 .generate-song-button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.95rem;
   font-weight: 600;
   background-color: #646cff;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -135,28 +139,59 @@
 .lyrics-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .lyrics-label {
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-.lyrics-textarea {
+.lyrics-editor {
   width: 100%;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   font-size: 1rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.6;
+  border: none;
+  border-radius: 6px;
+  background-color: #0d0d0d;
+  color: #e8e8e8;
+  resize: vertical;
+  min-height: 220px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.lyrics-editor:focus {
+  outline: none;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(100, 108, 255, 0.3);
+}
+
+.title-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.title-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
   font-family: inherit;
   border: 2px solid #646cff;
-  border-radius: 8px;
+  border-radius: 6px;
   background-color: #1a1a1a;
   color: white;
-  resize: vertical;
-  min-height: 200px;
 }
 
-.lyrics-textarea:focus {
+.title-input:focus {
   outline: none;
   border-color: #535bf2;
 }
@@ -164,12 +199,12 @@
 .genre-input-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .genre-label {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: #ccc;
 }
 

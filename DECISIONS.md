@@ -424,3 +424,18 @@ Rationale:
 - Visual distinction between selected/unselected improves usability
 - Toggle behavior allows users to undo accidental clicks
 - Switching logic prevents conflicting up+down states
+
+---
+
+## D-033 – Lyrics editor and prompt input styling
+Status: Accepted
+
+Decision:
+Lyrics are displayed in an editable, editor-style text area styled as content (not raw textarea appearance).
+ChatGPT prompt uses a small multiline textarea for input.
+Song title is a clear, editable input field visually associated with the lyrics editor.
+
+Rationale:
+- Editor-style lyrics area improves readability and content feel
+- Multiline prompt textarea allows better visibility for longer prompts
+- Distinct styling for title/lyrics/prompt clarifies input purpose
