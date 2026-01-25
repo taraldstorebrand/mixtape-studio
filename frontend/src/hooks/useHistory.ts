@@ -1,33 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { HistoryItem } from '../types';
 import { getHistory, saveHistoryItem, updateFeedback, updateHistoryItem, removeHistoryItem } from '../services/storage';
 
 export function useHistory() {
   const [history, setHistory] = useState<HistoryItem[]>(() => getHistory());
 
-  const refreshHistory = useCallback(() => {
+  const refreshHistory = () => {
     setHistory(getHistory());
-  }, []);
+  };
 
-  const addHistoryItem = useCallback((item: HistoryItem) => {
+  const addHistoryItem = (item: HistoryItem) => {
     saveHistoryItem(item);
     setHistory(getHistory());
-  }, []);
+  };
 
-  const updateItem = useCallback((id: string, updates: Partial<HistoryItem>) => {
+  const updateItem = (id: string, updates: Partial<HistoryItem>) => {
     updateHistoryItem(id, updates);
     setHistory(getHistory());
-  }, []);
+  };
 
-  const handleFeedback = useCallback((id: string, feedback: 'up' | 'down' | null) => {
+  const handleFeedback = (id: string, feedback: 'up' | 'down' | null) => {
     updateFeedback(id, feedback);
     setHistory(getHistory());
-  }, []);
+  };
 
-  const removeItem = useCallback((id: string) => {
+  const removeItem = (id: string) => {
     removeHistoryItem(id);
     setHistory(getHistory());
-  }, []);
+  };
 
   return {
     history,

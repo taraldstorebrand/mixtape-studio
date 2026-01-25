@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const GENRE_HISTORY_KEY = 'sangtekst_genre_history';
 const MAX_GENRES = 50;
@@ -20,7 +20,7 @@ export function useGenreHistory() {
     localStorage.setItem(GENRE_HISTORY_KEY, JSON.stringify(genres));
   }, [genres]);
 
-  const addGenre = useCallback((genre: string) => {
+  const addGenre = (genre: string) => {
     const trimmed = genre.trim();
     if (!trimmed) return;
     
@@ -29,11 +29,11 @@ export function useGenreHistory() {
       const updated = [trimmed, ...filtered].slice(0, MAX_GENRES);
       return updated;
     });
-  }, []);
+  };
 
-  const removeGenre = useCallback((genre: string) => {
+  const removeGenre = (genre: string) => {
     setGenres((prev) => prev.filter((g) => g !== genre));
-  }, []);
+  };
 
   return { genres, addGenre, removeGenre };
 }

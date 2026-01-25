@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PromptInput } from './components/lyrics/PromptInput';
 import { LyricsTextarea } from './components/lyrics/LyricsTextarea';
 import { HistoryList } from './components/history/HistoryList';
@@ -34,9 +34,9 @@ function App() {
     localStorage.setItem(PANEL_WIDTH_KEY, panelWidth.toString());
   }, [panelWidth]);
 
-  const handleMouseDown = useCallback(() => {
+  const handleMouseDown = () => {
     setIsDragging(true);
-  }, []);
+  };
 
   useEffect(() => {
     if (!isDragging) return;
@@ -60,7 +60,7 @@ function App() {
     };
   }, [isDragging]);
 
-  const handleSunoUpdate = useCallback((data: SunoUpdateData) => {
+  const handleSunoUpdate = (data: SunoUpdateData) => {
     console.log('Received Suno update:', data);
     
     const historyItem = history.find(item => item.sunoJobId === data.jobId);
@@ -86,7 +86,7 @@ function App() {
         });
       }
     }
-  }, [history, updateHistoryItem, removeHistoryItem]);
+  };
 
   useSunoSocket(handleSunoUpdate);
 
