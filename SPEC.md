@@ -127,15 +127,31 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 **Values**: `up` | `down` | (none)
 
-### 7. Reuse Previous Lyrics
+### 7. Select Song from History
 
 **Flow**:
 
-1. User clicks "Gjenbruk" on a history item
-2. The lyrics are loaded into the text area
-3. Page scrolls to top
+1. User clicks on a history item (anywhere on the item)
+2. The item becomes selected and highlighted
+3. Left panel switches to read-only mode showing all saved fields (title, lyrics, genre, prompt)
+4. Audio players and status remain visible in the history item
+5. Clicking the same item again deselects it
+6. Deselecting resets left panel to "new draft" state with only ChatGPT prompt visible
 
-### 8. Play Generated Audio
+**States**:
+- **New draft state**: Only ChatGPT prompt input is visible; title, lyrics, genre fields are hidden or empty
+- **Read-only state**: All fields displayed but not editable; shows the selected song's complete state; includes "Kopier" button
+
+### 8. Copy Song as New Draft
+
+**Flow**:
+
+1. User clicks "Kopier" button in the read-only view (left panel)
+2. Values (prompt, title, lyrics, genre) are copied to a new editable draft
+3. The history item is deselected
+4. Left panel switches to edit mode with the copied values
+
+### 9. Play Generated Audio
 
 **Flow**:
 

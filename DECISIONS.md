@@ -454,3 +454,22 @@ Rationale:
 - Dark UI is the design direction for this application
 - Consistent dark surfaces improve visual cohesion
 - Removing light mode prevents jarring white surfaces on any system preference
+
+---
+
+## D-035 – Song selection and draft state restoration
+Status: Accepted
+
+Decision:
+Clicking a history item selects it and displays its complete state in read-only mode in the left panel.
+Clicking the already-selected item deselects it and resets the left panel to "new draft" state.
+"New draft" state shows only the ChatGPT prompt input; title, lyrics, and genre fields are hidden or cleared.
+Read-only view includes a "Kopier" button to create an editable copy (replaces the "Gjenbruk" button on history items).
+History items store complete draft state (prompt, title, lyrics, genre) to enable full restoration on selection.
+
+Rationale:
+- Selection provides quick preview of past work without modifying current draft
+- Toggle deselection allows easy return to blank slate for new content
+- "Kopier" in read-only view is more intuitive than "Gjenbruk" on compact history items
+- Complete state storage ensures no data loss when viewing history
+- Read-only mode prevents accidental modification of historical entries

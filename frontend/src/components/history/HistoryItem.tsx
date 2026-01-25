@@ -2,13 +2,14 @@ import { HistoryItem as HistoryItemType } from '../../types';
 
 interface HistoryItemProps {
   item: HistoryItemType;
+  isSelected: boolean;
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
-  onReuse: (item: HistoryItemType) => void;
+  onSelect: (item: HistoryItemType) => void;
   onDelete: () => void;
   onDeleteTrack: (trackIndex: number) => void;
 }
 
-export function HistoryItem({ item, onFeedback, onReuse, onDelete, onDeleteTrack }: HistoryItemProps) {
+export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete, onDeleteTrack }: HistoryItemProps) {
   const getStatusBadge = () => {
     if (!item.sunoStatus) return null;
     
@@ -28,8 +29,19 @@ export function HistoryItem({ item, onFeedback, onReuse, onDelete, onDeleteTrack
                    (item.sunoAudioUrls && item.sunoAudioUrls.length > 0) || 
                    item.sunoAudioUrl;
 
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('audio')) {
+      return;
+    }
+    onSelect(item);
+  };
+
   return (
-    <div className="history-item">
+    <div 
+      className={`history-item ${isSelected ? 'selected' : ''}`}
+      onClick={handleClick}
+    >
       <div className="history-header">
         <div className="history-meta">
           <strong className="history-title">{displayTitle}</strong>
@@ -39,13 +51,6 @@ export function HistoryItem({ item, onFeedback, onReuse, onDelete, onDeleteTrack
           </span>
         </div>
         <div className="history-actions">
-          <button
-            onClick={() => onReuse(item)}
-            className="reuse-button"
-            title="Gjenbruk denne teksten"
-          >
-            Gjenbruk
-          </button>
           <div className="feedback-buttons">
             <button
               onClick={() => onFeedback(item.id, item.feedback === 'up' ? null : 'up')}

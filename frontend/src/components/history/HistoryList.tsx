@@ -6,13 +6,14 @@ type FilterType = 'default' | 'liked' | 'all';
 
 interface HistoryListProps {
   items: HistoryItemType[];
+  selectedItemId: string | null;
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
-  onReuse: (item: HistoryItemType) => void;
+  onSelect: (item: HistoryItemType) => void;
   onDeleteItem: (id: string) => void;
   onDeleteTrack: (id: string, trackIndex: number) => void;
 }
 
-export function HistoryList({ items, onFeedback, onReuse, onDeleteItem, onDeleteTrack }: HistoryListProps) {
+export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDeleteItem, onDeleteTrack }: HistoryListProps) {
   const [filter, setFilter] = useState<FilterType>('default');
 
   const filteredItems = items.filter(item => {
@@ -58,8 +59,9 @@ export function HistoryList({ items, onFeedback, onReuse, onDeleteItem, onDelete
         <HistoryItem
           key={item.id}
           item={item}
+          isSelected={item.id === selectedItemId}
           onFeedback={onFeedback}
-          onReuse={onReuse}
+          onSelect={onSelect}
           onDelete={() => onDeleteItem(item.id)}
           onDeleteTrack={(trackIndex) => onDeleteTrack(item.id, trackIndex)}
         />

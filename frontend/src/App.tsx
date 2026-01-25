@@ -15,9 +15,11 @@ function App() {
   const [currentLyrics, setCurrentLyrics] = useState('');
   const [title, setTitle] = useState('');
   const [genre, setGenre] = useState('');
+  const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingSong, setIsGeneratingSong] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [panelWidth, setPanelWidth] = useState(() => {
     const saved = localStorage.getItem(PANEL_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : 50;
@@ -88,12 +90,13 @@ function App() {
 
   useSunoSocket(handleSunoUpdate);
 
-  const handleGenerateLyrics = async (prompt: string) => {
+  const handleGenerateLyrics = async (inputPrompt: string) => {
     setIsLoading(true);
     setError(null);
+    setPrompt(inputPrompt);
     
     try {
-      const lyrics = await generateLyrics(prompt);
+      const lyrics = await generateLyrics(inputPrompt);
       setCurrentLyrics(lyrics);
     } catch (err: any) {
       setError(err.message || 'Kunne ikke generere sangtekst');
@@ -118,7 +121,7 @@ function App() {
       
       const newItem: HistoryItem = {
         id: Date.now().toString(),
-        prompt: title,
+        prompt: prompt,
         title: title,
         lyrics: currentLyrics,
         createdAt: new Date().toISOString(),
@@ -134,10 +137,26 @@ function App() {
     }
   };
 
-  const handleReuse = (item: HistoryItem) => {
-    setCurrentLyrics(item.lyrics);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleSelect = (item: HistoryItem) => {
+    if (selectedItemId === item.id) {
+      setSelectedItemId(null);
+    } else {
+      setSelectedItemId(item.id);
+    }
   };
+
+  const handleCopy = () => {
+    const selectedItem = history.find(h => h.id === selectedItemId);
+    if (selectedItem) {
+      setPrompt(selectedItem.prompt || '');
+      setTitle(selectedItem.title || '');
+      setCurrentLyrics(selectedItem.lyrics || '');
+      setGenre(selectedItem.genre || '');
+      setSelectedItemId(null);
+    }
+  };
+
+  const selectedItem = selectedItemId ? history.find(h => h.id === selectedItemId) : null;
 
   const handleDeleteItem = (id: string) => {
     removeHistoryItem(id);
@@ -178,26 +197,55 @@ function App() {
             </div>
           )}
 
-          <div className="generation-section">
-            <PromptInput
-              onGenerate={handleGenerateLyrics}
-              isLoading={isLoading}
-            />
-            
-            <LyricsTextarea
-              lyrics={currentLyrics}
-              onChange={setCurrentLyrics}
-              title={title}
-              onTitleChange={setTitle}
-              genre={genre}
-              onGenreChange={setGenre}
-              onGenerateSong={handleGenerateSong}
-              isLoading={isLoading}
-              isGeneratingSong={isGeneratingSong}
-              genreHistory={genreHistory}
-              onRemoveGenre={removeGenre}
-            />
-          </div>
+          {selectedItem ? (
+            <div className="readonly-view">
+              <div className="readonly-header">
+                <h2>Valgt sang</h2>
+                <button className="copy-button" onClick={handleCopy}>
+                  Kopier
+                </button>
+              </div>
+              <div className="readonly-field">
+                <label>ChatGPT-prompt:</label>
+                <p>{selectedItem.prompt || '(ingen prompt)'}</p>
+              </div>
+              <div className="readonly-field">
+                <label>Tittel:</label>
+                <p>{selectedItem.title}</p>
+              </div>
+              <div className="readonly-field">
+                <label>Sangtekst:</label>
+                <pre className="readonly-lyrics">{selectedItem.lyrics}</pre>
+              </div>
+              {selectedItem.genre && (
+                <div className="readonly-field">
+                  <label>Sjanger:</label>
+                  <p>{selectedItem.genre}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="generation-section">
+              <PromptInput
+                onGenerate={handleGenerateLyrics}
+                isLoading={isLoading}
+              />
+              
+              <LyricsTextarea
+                lyrics={currentLyrics}
+                onChange={setCurrentLyrics}
+                title={title}
+                onTitleChange={setTitle}
+                genre={genre}
+                onGenreChange={setGenre}
+                onGenerateSong={handleGenerateSong}
+                isLoading={isLoading}
+                isGeneratingSong={isGeneratingSong}
+                genreHistory={genreHistory}
+                onRemoveGenre={removeGenre}
+              />
+            </div>
+          )}
         </div>
 
         <div
@@ -208,8 +256,9 @@ function App() {
         <div className="panel-right">
           <HistoryList
             items={history}
+            selectedItemId={selectedItemId}
             onFeedback={handleFeedback}
-            onReuse={handleReuse}
+            onSelect={handleSelect}
             onDeleteItem={handleDeleteItem}
             onDeleteTrack={handleDeleteTrack}
           />
