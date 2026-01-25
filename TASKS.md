@@ -1,36 +1,33 @@
 # TASKS.md
 
-## Iteration 012 – Lyrics editor and prompt input styling
+## Iteration 013 – Dark theme consistency
 
 ### Goal
-Improve the lyrics display and input controls with editor-style visuals.
+Remove pure white surfaces and use subtle dark/tinted backgrounds for visual cohesion with the dark UI.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Convert lyrics textarea to editable editor-style component (not read-only)
-- Style lyrics area as content display rather than raw textarea appearance
-- Use small multiline textarea for ChatGPT prompt input
-- Keep song title as clear, editable input field associated with the lyrics
+- Remove light mode media query (force dark theme)
+- Apply subtle dark/tinted background to header instead of inheriting white
+- Ensure all surfaces use dark backgrounds for visual consistency
 
 ---
 
 ## Files Allowed to Change
 - frontend/src/App.css
-- frontend/src/App.tsx
-- frontend/src/components/lyrics/LyricsEditor.tsx (if exists)
+- frontend/src/index.css
 - DECISIONS.md
 
 ---
 
 ## Acceptance Criteria
-- Lyrics display in an editable, editor-style text area
-- Lyrics area is styled as content (not raw textarea look)
-- ChatGPT prompt uses small multiline textarea
-- Song title is a clear, editable input field
-- D-033 added to DECISIONS.md
+- No pure white (#ffffff) surfaces anywhere in the app
+- Header has subtle dark/tinted background matching the dark UI
+- Light mode media query removed or disabled
+- D-034 added to DECISIONS.md
 
 ---
 
@@ -38,6 +35,7 @@ Improve the lyrics display and input controls with editor-style visuals.
 
 | Iteration | Description |
 |-----------|-------------|
+| 012 | Lyrics editor and prompt input styling |
 | 011 | Thumb button styling and toggle behavior |
 | 010 | History filtering and deletion |
 | 009 | History only for successful Suno generations |

@@ -439,3 +439,18 @@ Rationale:
 - Editor-style lyrics area improves readability and content feel
 - Multiline prompt textarea allows better visibility for longer prompts
 - Distinct styling for title/lyrics/prompt clarifies input purpose
+
+---
+
+## D-034 – Dark theme consistency
+Status: Accepted
+
+Decision:
+The application uses a dark theme exclusively. Light mode is disabled.
+All surfaces use dark/tinted backgrounds (#242424 base, #1a1a1f header) instead of pure white.
+The `prefers-color-scheme: light` media query is removed.
+
+Rationale:
+- Dark UI is the design direction for this application
+- Consistent dark surfaces improve visual cohesion
+- Removing light mode prevents jarring white surfaces on any system preference
