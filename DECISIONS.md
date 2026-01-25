@@ -473,3 +473,23 @@ Rationale:
 - "Kopier" in read-only view is more intuitive than "Gjenbruk" on compact history items
 - Complete state storage ensures no data loss when viewing history
 - Read-only mode prevents accidental modification of historical entries
+
+---
+
+## D-036 – Custom GenreInput component
+Status: Accepted
+
+Decision:
+The genre input field uses a custom `GenreInput` component built with native `<input>` and controlled dropdown.
+No external select/combobox libraries (react-select, etc.) are used.
+Component behavior:
+- User can type freely (creatable)
+- Dropdown shows matching items from genre history
+- Arrow Up/Down navigate options, Enter selects, Escape closes
+- Each dropdown option has a remove (×) button that removes the genre without selecting it
+
+Rationale:
+- Reduces bundle size by eliminating react-select dependency
+- Simpler implementation with native elements
+- Full control over styling and behavior
+- Avoids react-select's complex API and styling overrides

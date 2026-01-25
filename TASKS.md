@@ -1,47 +1,48 @@
 # TASKS.md
 
-## Iteration 013 – Song selection and draft state restoration
+## Iteration 014 – Custom GenreInput component
 
 ### Goal
-Enable selecting a song from history to view its details in read-only mode. Clicking the selected song again deselects it and resets to "new draft" state. History items store complete draft state for full restoration.
+Replace `react-select` with a lightweight custom `GenreInput` component using native `<input>` and controlled dropdown.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Add selection state to history items (clicking selects, clicking again deselects)
-- Selected song displays all fields in read-only mode in left panel
-- Read-only view includes a "Kopier" button to create an editable copy of the values
-- Remove "Gjenbruk" button from history items
-- Deselecting resets left panel to default "new draft" state (only ChatGPT prompt visible)
-- History items must store complete draft state (prompt, title, lyrics, genre, all outputs)
+- Create new `GenreInput` component in `frontend/src/components/`
+- Remove `react-select` dependency from App.tsx
+- Implement dropdown with matching items from `genreHistory`
+- Arrow keys navigate, Enter selects, Escape closes
+- Each dropdown option has a remove (×) button that does not select the option
+- User can type freely (creatable behavior)
 
-### Shared Types
-- Update HistoryItem interface if needed to ensure all draft fields are stored
+### Component Props
+- `value: string`
+- `onChange(value: string)`
+- `genreHistory: string[]`
+- `onRemoveGenre(genre: string)`
 
 ---
 
 ## Files Allowed to Change
 - frontend/src/App.tsx
-- frontend/src/components/history/SongHistory.tsx
-- frontend/src/components/history/SongHistoryItem.tsx
-- frontend/src/services/storageService.ts
-- shared/types/index.ts
+- frontend/src/components/GenreInput.tsx (new)
+- frontend/package.json (remove react-select)
 - SPEC.md
 - DECISIONS.md
 
 ---
 
 ## Acceptance Criteria
-- Clicking a history item selects it and shows details in read-only mode in left panel
-- Clicking the already-selected item deselects it
-- Deselecting resets left panel to "new draft" state with only ChatGPT prompt visible
-- Read-only view has "Kopier" button that creates editable copy and deselects
-- "Gjenbruk" button removed from history items
-- History items store complete draft state (prompt, title, lyrics, genre)
-- Selecting an item fully restores its state in read-only mode
-- D-035 added to DECISIONS.md
+- GenreInput works as a text input with dropdown suggestions
+- Dropdown shows matching genres from history as user types
+- Arrow Up/Down navigate dropdown, Enter selects, Escape closes
+- Each option has × button to remove genre without selecting
+- No react-select or other select/combobox library used
+- No useCallback or useMemo unless strictly necessary
+- Uses existing CSS classes
+- D-036 added to DECISIONS.md
 
 ---
 
@@ -49,6 +50,7 @@ Enable selecting a song from history to view its details in read-only mode. Clic
 
 | Iteration | Description |
 |-----------|-------------|
+| 014 | Custom GenreInput component |
 | 013 | Song selection and draft state restoration |
 | 012 | Lyrics editor and prompt input styling |
 | 013-prev | Dark theme consistency |

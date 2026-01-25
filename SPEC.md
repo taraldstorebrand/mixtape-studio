@@ -45,13 +45,18 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 **Flow**:
 
-1. User clicks the genre dropdown field
-2. Previously used genres appear as searchable options
-3. User can select an existing genre or type a new one
+1. User types in the genre input field
+2. Dropdown appears with matching genres from history
+3. User can select from dropdown (arrow keys + Enter) or type a new value
 4. New genres are saved to history on use
-5. User can remove saved genres via × button on dropdown options
+5. User can remove saved genres via × button on dropdown options (does not select)
 6. Genre is sent to Suno when generating music
 7. Enables Suno "custom mode" for more control
+
+**Keyboard**:
+- Arrow Up/Down: Navigate dropdown options
+- Enter: Select highlighted option
+- Escape: Close dropdown
 
 **Storage**: `sangtekst_genre_history` (array of strings, max 50)
 
