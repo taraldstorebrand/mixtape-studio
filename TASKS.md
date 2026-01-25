@@ -1,47 +1,40 @@
 # TASKS.md
 
-## Iteration 015 – Split App.tsx into panels and resize hook
+## Iteration 016 – DetailPanel owns editor draft state
 
 ### Goal
-Extract DetailPanel, HistoryPanel, and a reusable `useResizable` hook from App.tsx. Reduce App.tsx to orchestration only. Preserve all existing behavior.
+Refactor so DetailPanel owns all editor draft state and logic. Reduce App.tsx to thin orchestration. Preserve all existing behavior.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Create `useResizable` hook in `frontend/src/hooks/useResizable.ts`
-  - Accepts containerRef, storageKey, defaultWidth, minWidth, maxWidth
-  - Returns { width, isDragging, handleMouseDown }
-  - Handles localStorage persistence and mouse events internally
-- Create `DetailPanel` component in `frontend/src/components/panels/DetailPanel.tsx`
-  - Renders readonly view when item selected, generation section otherwise
-  - Receives all necessary props from App.tsx
-- Create `HistoryPanel` component in `frontend/src/components/panels/HistoryPanel.tsx`
-  - Wraps HistoryList with panel styling
-- Refactor App.tsx to use new components/hook
-  - App.tsx handles state, callbacks, and layout orchestration only
+- Move all editor draft state into DetailPanel:
+  - lyrics, title, genre, prompt, isLoading, isGeneratingSong, error
+- Move handlers into DetailPanel:
+  - generateLyrics, generateSong, copy-from-history
+- DetailPanel exposes imperative handle for Suno completion notification
+- Reduce DetailPanel props to: selectedItem, genreHistory, onAddHistoryItem, onAddGenre, onRemoveGenre, onClearSelection
+- HistoryPanel remains unchanged (immutable history concerns only)
+- App.tsx remains thin orchestrator (history, genre history, selection, Suno socket, layout)
 
 ---
 
 ## Files Allowed to Change
 - frontend/src/App.tsx
-- frontend/src/hooks/useResizable.ts (new)
-- frontend/src/components/panels/DetailPanel.tsx (new)
-- frontend/src/components/panels/HistoryPanel.tsx (new)
-- ARCHITECTURE.md
+- frontend/src/components/panels/DetailPanel.tsx
 - DECISIONS.md
 
 ---
 
 ## Acceptance Criteria
-- App.tsx contains only state, callbacks, and layout composition
-- useResizable hook is reusable and handles all resize logic
-- DetailPanel shows readonly view or generation section based on selectedItem
-- HistoryPanel wraps HistoryList
-- All existing behavior preserved (resize, localStorage, selection, etc.)
-- No useCallback or useMemo unless strictly required
-- D-037 added to DECISIONS.md
+- DetailPanel owns all editor draft state internally
+- App.tsx does not manage editor draft state (lyrics, title, genre, prompt, loading, error)
+- DetailPanel props reduced to only external dependencies
+- HistoryPanel unchanged
+- All existing behavior preserved
+- D-038 added to DECISIONS.md
 
 ---
 
@@ -49,6 +42,7 @@ Extract DetailPanel, HistoryPanel, and a reusable `useResizable` hook from App.t
 
 | Iteration | Description |
 |-----------|-------------|
+| 015 | Split App.tsx into panels and resize hook |
 | 014 | Custom GenreInput component |
 | 013 | Song selection and draft state restoration |
 | 012 | Lyrics editor and prompt input styling |

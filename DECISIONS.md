@@ -497,17 +497,27 @@ Rationale:
 ---
 
 ## D-037 – App.tsx component extraction
+Status: Superseded by D-038
+
+---
+
+## D-038 – DetailPanel owns editor draft state
 Status: Accepted
 
 Decision:
-App.tsx is split into focused components and hooks:
-- `useResizable` hook handles panel resize logic, mouse events, and localStorage persistence
-- `DetailPanel` component renders either read-only selected item view or generation section
-- `HistoryPanel` component wraps HistoryList with panel styling
-- App.tsx retains only state management, callbacks, and layout orchestration
+DetailPanel owns all editor draft state and logic internally:
+- State: lyrics, title, genre, prompt, isLoading, isGeneratingSong, error
+- Handlers: generateLyrics, generateSong, copy-from-history
+- DetailPanel exposes an imperative handle (`notifySongGenerationComplete`) for App to notify when Suno generation completes or fails
+
+App.tsx props to DetailPanel are reduced to:
+- selectedItem, genreHistory, onAddHistoryItem, onAddGenre, onRemoveGenre, onClearSelection
+
+HistoryPanel remains focused on immutable history concerns (list, selection, feedback, deletion).
+App.tsx is a thin orchestrator: manages history, genre history, selection, Suno socket updates, and layout.
 
 Rationale:
-- Separation of concerns improves maintainability
-- Reusable `useResizable` hook can be applied to other resizable elements
-- Smaller components are easier to test and reason about
-- App.tsx becomes a thin orchestration layer
+- Co-locates editor state with the component that uses it
+- Reduces prop drilling and simplifies App.tsx
+- Clearer separation: DetailPanel = editor, HistoryPanel = history, App = orchestration
+- Imperative handle is minimal surface for cross-component communication (Suno completion)

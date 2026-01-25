@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
-import { DetailPanel } from './components/panels/DetailPanel';
+import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
-import { generateLyrics, generateSong } from './services/api';
 import { useHistory } from './hooks/useHistory';
 import { useGenreHistory } from './hooks/useGenreHistory';
 import { useResizable } from './hooks/useResizable';
@@ -12,15 +11,9 @@ import './App.css';
 const PANEL_WIDTH_KEY = 'sangtekst_panel_width';
 
 function App() {
-  const [currentLyrics, setCurrentLyrics] = useState('');
-  const [title, setTitle] = useState('');
-  const [genre, setGenre] = useState('');
-  const [prompt, setPrompt] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGeneratingSong, setIsGeneratingSong] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const detailPanelRef = useRef<DetailPanelHandle>(null);
 
   const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistory();
   const { genres: genreHistory, addGenre, removeGenre } = useGenreHistory();
@@ -43,7 +36,7 @@ function App() {
           sunoAudioUrls: data.audio_urls,
           sunoLocalUrls: data.local_urls,
         });
-        setIsGeneratingSong(false);
+        detailPanelRef.current?.notifySongGenerationComplete();
       } else if (data.status === 'partial') {
         updateHistoryItem(historyItem.id, {
           sunoStatus: 'partial',
@@ -51,7 +44,7 @@ function App() {
         });
       } else if (data.status === 'failed') {
         removeHistoryItem(historyItem.id);
-        setIsGeneratingSong(false);
+        detailPanelRef.current?.notifySongGenerationComplete();
       } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
         updateHistoryItem(historyItem.id, {
           sunoAudioUrls: data.audio_urls,
@@ -62,53 +55,6 @@ function App() {
 
   useSunoSocket(handleSunoUpdate);
 
-  const handleGenerateLyrics = async (inputPrompt: string) => {
-    setIsLoading(true);
-    setError(null);
-    setPrompt(inputPrompt);
-    
-    try {
-      const lyrics = await generateLyrics(inputPrompt);
-      setCurrentLyrics(lyrics);
-    } catch (err: any) {
-      setError(err.message || 'Kunne ikke generere sangtekst');
-      console.error('Error generating lyrics:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGenerateSong = async () => {
-    if (!currentLyrics.trim() || !title.trim()) return;
-
-    setIsGeneratingSong(true);
-    setError(null);
-
-    try {
-      const result = await generateSong(currentLyrics, genre || undefined, title);
-      
-      if (genre.trim()) {
-        addGenre(genre.trim());
-      }
-      
-      const newItem: HistoryItem = {
-        id: Date.now().toString(),
-        prompt: prompt,
-        title: title,
-        lyrics: currentLyrics,
-        createdAt: new Date().toISOString(),
-        sunoJobId: result.jobId,
-        sunoStatus: 'pending',
-        genre: genre || undefined,
-      };
-      addHistoryItem(newItem);
-    } catch (err: any) {
-      setError(err.message || 'Kunne ikke generere sang');
-      console.error('Error generating song:', err);
-      setIsGeneratingSong(false);
-    }
-  };
-
   const handleSelect = (item: HistoryItem) => {
     if (selectedItemId === item.id) {
       setSelectedItemId(null);
@@ -117,15 +63,8 @@ function App() {
     }
   };
 
-  const handleCopy = () => {
-    const selectedItem = history.find(h => h.id === selectedItemId);
-    if (selectedItem) {
-      setPrompt(selectedItem.prompt || '');
-      setTitle(selectedItem.title || '');
-      setCurrentLyrics(selectedItem.lyrics || '');
-      setGenre(selectedItem.genre || '');
-      setSelectedItemId(null);
-    }
+  const handleClearSelection = () => {
+    setSelectedItemId(null);
   };
 
   const selectedItem = selectedItemId ? history.find(h => h.id === selectedItemId) : null;
@@ -164,21 +103,13 @@ function App() {
       <main className="app-main" ref={containerRef}>
         <div className="panel-left" style={{ width: `${panelWidth}%` }}>
           <DetailPanel
+            ref={detailPanelRef}
             selectedItem={selectedItem ?? null}
-            onCopy={handleCopy}
-            currentLyrics={currentLyrics}
-            onLyricsChange={setCurrentLyrics}
-            title={title}
-            onTitleChange={setTitle}
-            genre={genre}
-            onGenreChange={setGenre}
-            onGenerateLyrics={handleGenerateLyrics}
-            onGenerateSong={handleGenerateSong}
-            isLoading={isLoading}
-            isGeneratingSong={isGeneratingSong}
             genreHistory={genreHistory}
+            onAddHistoryItem={addHistoryItem}
+            onAddGenre={addGenre}
             onRemoveGenre={removeGenre}
-            error={error}
+            onClearSelection={handleClearSelection}
           />
         </div>
 

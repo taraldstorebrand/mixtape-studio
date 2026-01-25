@@ -1,42 +1,101 @@
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { PromptInput } from '../lyrics/PromptInput';
 import { LyricsTextarea } from '../lyrics/LyricsTextarea';
+import { generateLyrics, generateSong } from '../../services/api';
 import { HistoryItem } from '../../types';
 
 interface DetailPanelProps {
   selectedItem: HistoryItem | null;
-  onCopy: () => void;
-  currentLyrics: string;
-  onLyricsChange: (lyrics: string) => void;
-  title: string;
-  onTitleChange: (title: string) => void;
-  genre: string;
-  onGenreChange: (genre: string) => void;
-  onGenerateLyrics: (prompt: string) => void;
-  onGenerateSong: () => void;
-  isLoading: boolean;
-  isGeneratingSong: boolean;
   genreHistory: string[];
+  onAddHistoryItem: (item: HistoryItem) => void;
+  onAddGenre: (genre: string) => void;
   onRemoveGenre: (genre: string) => void;
-  error: string | null;
+  onClearSelection: () => void;
 }
 
-export function DetailPanel({
+export interface DetailPanelHandle {
+  notifySongGenerationComplete: () => void;
+}
+
+export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(function DetailPanel({
   selectedItem,
-  onCopy,
-  currentLyrics,
-  onLyricsChange,
-  title,
-  onTitleChange,
-  genre,
-  onGenreChange,
-  onGenerateLyrics,
-  onGenerateSong,
-  isLoading,
-  isGeneratingSong,
   genreHistory,
+  onAddHistoryItem,
+  onAddGenre,
   onRemoveGenre,
-  error,
-}: DetailPanelProps) {
+  onClearSelection,
+}, ref) {
+  const [currentLyrics, setCurrentLyrics] = useState('');
+  const [title, setTitle] = useState('');
+  const [genre, setGenre] = useState('');
+  const [prompt, setPrompt] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingSong, setIsGeneratingSong] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    notifySongGenerationComplete: () => {
+      setIsGeneratingSong(false);
+    },
+  }));
+
+  const handleGenerateLyrics = async (inputPrompt: string) => {
+    setIsLoading(true);
+    setError(null);
+    setPrompt(inputPrompt);
+
+    try {
+      const lyrics = await generateLyrics(inputPrompt);
+      setCurrentLyrics(lyrics);
+    } catch (err: any) {
+      setError(err.message || 'Kunne ikke generere sangtekst');
+      console.error('Error generating lyrics:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGenerateSong = async () => {
+    if (!currentLyrics.trim() || !title.trim()) return;
+
+    setIsGeneratingSong(true);
+    setError(null);
+
+    try {
+      const result = await generateSong(currentLyrics, genre || undefined, title);
+
+      if (genre.trim()) {
+        onAddGenre(genre.trim());
+      }
+
+      const newItem: HistoryItem = {
+        id: Date.now().toString(),
+        prompt: prompt,
+        title: title,
+        lyrics: currentLyrics,
+        createdAt: new Date().toISOString(),
+        sunoJobId: result.jobId,
+        sunoStatus: 'pending',
+        genre: genre || undefined,
+      };
+      onAddHistoryItem(newItem);
+    } catch (err: any) {
+      setError(err.message || 'Kunne ikke generere sang');
+      console.error('Error generating song:', err);
+      setIsGeneratingSong(false);
+    }
+  };
+
+  const handleCopy = () => {
+    if (selectedItem) {
+      setPrompt(selectedItem.prompt || '');
+      setTitle(selectedItem.title || '');
+      setCurrentLyrics(selectedItem.lyrics || '');
+      setGenre(selectedItem.genre || '');
+      onClearSelection();
+    }
+  };
+
   return (
     <>
       {error && (
@@ -49,7 +108,7 @@ export function DetailPanel({
         <div className="readonly-view">
           <div className="readonly-header">
             <h2>Valgt sang</h2>
-            <button className="copy-button" onClick={onCopy}>
+            <button className="copy-button" onClick={handleCopy}>
               Kopier
             </button>
           </div>
@@ -75,18 +134,18 @@ export function DetailPanel({
       ) : (
         <div className="generation-section">
           <PromptInput
-            onGenerate={onGenerateLyrics}
+            onGenerate={handleGenerateLyrics}
             isLoading={isLoading}
           />
-          
+
           <LyricsTextarea
             lyrics={currentLyrics}
-            onChange={onLyricsChange}
+            onChange={setCurrentLyrics}
             title={title}
-            onTitleChange={onTitleChange}
+            onTitleChange={setTitle}
             genre={genre}
-            onGenreChange={onGenreChange}
-            onGenerateSong={onGenerateSong}
+            onGenreChange={setGenre}
+            onGenerateSong={handleGenerateSong}
             isLoading={isLoading}
             isGeneratingSong={isGeneratingSong}
             genreHistory={genreHistory}
@@ -96,4 +155,4 @@ export function DetailPanel({
       )}
     </>
   );
-}
+});
