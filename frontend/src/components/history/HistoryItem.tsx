@@ -2,7 +2,7 @@ import { HistoryItem as HistoryItemType } from '../../types';
 
 interface HistoryItemProps {
   item: HistoryItemType;
-  onFeedback: (id: string, feedback: 'up' | 'down') => void;
+  onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onReuse: (item: HistoryItemType) => void;
   onDelete: () => void;
   onDeleteTrack: (trackIndex: number) => void;
@@ -48,18 +48,18 @@ export function HistoryItem({ item, onFeedback, onReuse, onDelete, onDeleteTrack
           </button>
           <div className="feedback-buttons">
             <button
-              onClick={() => onFeedback(item.id, 'up')}
+              onClick={() => onFeedback(item.id, item.feedback === 'up' ? null : 'up')}
               className={`thumb-button ${item.feedback === 'up' ? 'active' : ''}`}
               title="Thumbs up"
             >
-              +
+              👍
             </button>
             <button
-              onClick={() => onFeedback(item.id, 'down')}
+              onClick={() => onFeedback(item.id, item.feedback === 'down' ? null : 'down')}
               className={`thumb-button ${item.feedback === 'down' ? 'active' : ''}`}
               title="Thumbs down"
             >
-              -
+              👎
             </button>
           </div>
           <button

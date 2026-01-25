@@ -6,7 +6,7 @@ type FilterType = 'default' | 'liked' | 'all';
 
 interface HistoryListProps {
   items: HistoryItemType[];
-  onFeedback: (id: string, feedback: 'up' | 'down') => void;
+  onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onReuse: (item: HistoryItemType) => void;
   onDeleteItem: (id: string) => void;
   onDeleteTrack: (id: string, trackIndex: number) => void;

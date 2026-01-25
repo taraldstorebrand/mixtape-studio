@@ -19,7 +19,7 @@ export function useHistory() {
     setHistory(getHistory());
   }, []);
 
-  const handleFeedback = useCallback((id: string, feedback: 'up' | 'down') => {
+  const handleFeedback = useCallback((id: string, feedback: 'up' | 'down' | null) => {
     updateFeedback(id, feedback);
     setHistory(getHistory());
   }, []);

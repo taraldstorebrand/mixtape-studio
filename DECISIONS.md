@@ -406,3 +406,21 @@ Rationale:
 - Gives users full control over their history
 - Individual track deletion allows keeping partial results
 - No confirmation for MVP simplicity
+
+---
+
+## D-032 – Thumb button styling and toggle behavior
+Status: Accepted
+
+Decision:
+Thumb buttons use 👍 and 👎 emoji symbols instead of "+" and "-".
+Unselected state: grayscale filter (100%) with 50% opacity for faded/outline appearance.
+Selected state: full color with no filter for filled appearance.
+Toggle behavior: clicking a selected thumb deselects it (sets feedback to null).
+Clicking the opposite thumb automatically switches selection.
+
+Rationale:
+- Emoji symbols are more intuitive than text characters
+- Visual distinction between selected/unselected improves usability
+- Toggle behavior allows users to undo accidental clicks
+- Switching logic prevents conflicting up+down states

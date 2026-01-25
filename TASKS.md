@@ -1,40 +1,41 @@
 # TASKS.md
 
-## Iteration 010 – History filtering and deletion
+## Iteration 011 – Thumb button styling and toggle behavior
 
 ### Goal
-Add filtering options to the history panel and delete buttons for history items and individual audio tracks.
+Improve thumb button visibility and interaction with proper styling and toggle behavior.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Add filter bar with "Default", "Liked", "All" buttons to HistoryList
-- Add trashcan delete button to each history item
-- Add trashcan delete button to each audio track
-- Default filter hides disliked items, Liked shows only liked, All shows everything
+- Add color to `.delete-button` and `.thumb-button` for visibility
+- Replace "+" and "-" with 👍 and 👎 emoji symbols
+- Add grayscale/opacity filter for unselected state, full color when selected
+- Implement toggle behavior: clicking selected thumb deselects it
+- Clicking opposite thumb switches selection (auto-deselects the other)
 
 ---
 
 ## Files Allowed to Change
-- frontend/src/App.tsx
 - frontend/src/App.css
-- frontend/src/components/history/HistoryList.tsx
 - frontend/src/components/history/HistoryItem.tsx
+- frontend/src/components/history/HistoryList.tsx
+- frontend/src/hooks/useHistory.ts
+- frontend/src/services/storage.ts
 - DECISIONS.md
-- SPEC.md
 
 ---
 
 ## Acceptance Criteria
-- Filter bar displays with 3 buttons: Default, Liked, All
-- Default filter (initial) shows all items except feedback='down'
-- Liked filter shows only items with feedback='up'
-- All filter shows all items
-- Each history item has a trashcan delete button
-- Each audio track has a trashcan delete button
-- D-030 and D-031 added to DECISIONS.md
+- Thumb buttons and delete buttons are visible (have color)
+- Thumb icons display as 👍 and 👎
+- Unselected thumbs appear faded/grayscale
+- Selected thumbs appear full color
+- Clicking a selected thumb deselects it (sets feedback to null)
+- Clicking opposite thumb switches selection
+- D-032 added to DECISIONS.md
 
 ---
 
@@ -42,6 +43,7 @@ Add filtering options to the history panel and delete buttons for history items 
 
 | Iteration | Description |
 |-----------|-------------|
+| 010 | History filtering and deletion |
 | 009 | History only for successful Suno generations |
 | 008 | Genre field with searchable history |
 | 007 | Two-panel resizable layout |

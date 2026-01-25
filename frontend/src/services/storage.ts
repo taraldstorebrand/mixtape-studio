@@ -49,8 +49,8 @@ export function updateHistoryItem(id: string, updates: Partial<HistoryItem>): vo
   }
 }
 
-export function updateFeedback(id: string, feedback: 'up' | 'down'): void {
-  updateHistoryItem(id, { feedback });
+export function updateFeedback(id: string, feedback: 'up' | 'down' | null): void {
+  updateHistoryItem(id, { feedback: feedback ?? undefined });
 }
 
 export function removeHistoryItem(id: string): void {
