@@ -1,7 +1,9 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useAtom } from 'jotai';
 import { PromptInput } from '../lyrics/PromptInput';
 import { LyricsTextarea } from '../lyrics/LyricsTextarea';
 import { generateLyrics, generateSong } from '../../services/api';
+import { isGeneratingSongAtom } from '../../store';
 import { HistoryItem } from '../../types';
 
 interface DetailPanelProps {
@@ -30,7 +32,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   const [genre, setGenre] = useState('');
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isGeneratingSong, setIsGeneratingSong] = useState(false);
+  const [isGeneratingSong, setIsGeneratingSong] = useAtom(isGeneratingSongAtom);
   const [error, setError] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({

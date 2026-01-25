@@ -521,3 +521,26 @@ Rationale:
 - Reduces prop drilling and simplifies App.tsx
 - Clearer separation: DetailPanel = editor, HistoryPanel = history, App = orchestration
 - Imperative handle is minimal surface for cross-component communication (Suno completion)
+
+---
+
+## D-039 – Jotai for shared application state
+Status: Accepted
+
+Decision:
+Jotai is used for shared application state that needs to be accessed across multiple components:
+- `historyAtom` – history items list (synced with localStorage)
+- `selectedItemIdAtom` – currently selected item ID
+- `selectedItemAtom` – derived atom for selected item
+- `isGeneratingSongAtom` – song generation lifecycle state
+- `genreHistoryAtom` – genre history list (synced with localStorage)
+
+Editor draft state (lyrics, title, genre, prompt, isLoading, error) remains local in DetailPanel.
+Visual UI state (panel width, dragging, filter) remains local in components/hooks.
+
+Rationale:
+- Jotai provides simple, minimal API for shared state without boilerplate
+- Atoms are granular and composable, avoiding unnecessary re-renders
+- Shared state enables components to react to changes without prop drilling
+- Local state for editor drafts keeps component self-contained
+- Clear separation: Jotai = shared/cross-component, useState = local/component-specific

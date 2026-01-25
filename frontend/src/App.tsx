@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
-import { useHistory } from './hooks/useHistory';
-import { useGenreHistory } from './hooks/useGenreHistory';
+import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, isGeneratingSongAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
@@ -11,12 +11,14 @@ import './App.css';
 const PANEL_WIDTH_KEY = 'sangtekst_panel_width';
 
 function App() {
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useAtom(selectedItemIdAtom);
+  const selectedItem = useAtomValue(selectedItemAtom);
+  const setIsGeneratingSong = useSetAtom(isGeneratingSongAtom);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<DetailPanelHandle>(null);
 
-  const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistory();
-  const { genres: genreHistory, addGenre, removeGenre } = useGenreHistory();
+  const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistoryAtom();
+  const { genres: genreHistory, addGenre, removeGenre } = useGenreHistoryAtom();
   const { width: panelWidth, isDragging, handleMouseDown } = useResizable({
     containerRef,
     storageKey: PANEL_WIDTH_KEY,
@@ -36,6 +38,7 @@ function App() {
           sunoAudioUrls: data.audio_urls,
           sunoLocalUrls: data.local_urls,
         });
+        setIsGeneratingSong(false);
         detailPanelRef.current?.notifySongGenerationComplete();
       } else if (data.status === 'partial') {
         updateHistoryItem(historyItem.id, {
@@ -44,6 +47,7 @@ function App() {
         });
       } else if (data.status === 'failed') {
         removeHistoryItem(historyItem.id);
+        setIsGeneratingSong(false);
         detailPanelRef.current?.notifySongGenerationComplete();
       } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
         updateHistoryItem(historyItem.id, {
@@ -66,8 +70,6 @@ function App() {
   const handleClearSelection = () => {
     setSelectedItemId(null);
   };
-
-  const selectedItem = selectedItemId ? history.find(h => h.id === selectedItemId) : null;
 
   const handleDeleteItem = (id: string) => {
     removeHistoryItem(id);

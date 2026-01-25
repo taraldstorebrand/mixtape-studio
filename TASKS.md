@@ -1,27 +1,35 @@
 # TASKS.md
 
-## Iteration 016 – DetailPanel owns editor draft state
+## Iteration 017 – Introduce Jotai for shared state
 
 ### Goal
-Refactor so DetailPanel owns all editor draft state and logic. Reduce App.tsx to thin orchestration. Preserve all existing behavior.
+Introduce Jotai for shared application state (history, selected item, song generation lifecycle). Keep editor draft state and visual UI state local.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Move all editor draft state into DetailPanel:
-  - lyrics, title, genre, prompt, isLoading, isGeneratingSong, error
-- Move handlers into DetailPanel:
-  - generateLyrics, generateSong, copy-from-history
-- DetailPanel exposes imperative handle for Suno completion notification
-- Reduce DetailPanel props to: selectedItem, genreHistory, onAddHistoryItem, onAddGenre, onRemoveGenre, onClearSelection
-- HistoryPanel remains unchanged (immutable history concerns only)
-- App.tsx remains thin orchestrator (history, genre history, selection, Suno socket, layout)
+- Add Jotai dependency
+- Create atoms for shared state:
+  - `historyAtom` – history items list
+  - `selectedItemIdAtom` – currently selected item ID
+  - `selectedItemAtom` – derived atom for selected item
+  - `isGeneratingSongAtom` – song generation lifecycle
+  - `genreHistoryAtom` – genre history list
+- Create hook wrappers: `useHistoryAtom`, `useGenreHistoryAtom`
+- Update App.tsx to use Jotai atoms
+- Update DetailPanel to use shared `isGeneratingSongAtom`
+- Keep editor draft state local (lyrics, title, genre, prompt, isLoading, error)
 
 ---
 
 ## Files Allowed to Change
+- frontend/package.json
+- frontend/src/store/atoms.ts (new)
+- frontend/src/store/useHistoryAtom.ts (new)
+- frontend/src/store/useGenreHistoryAtom.ts (new)
+- frontend/src/store/index.ts (new)
 - frontend/src/App.tsx
 - frontend/src/components/panels/DetailPanel.tsx
 - DECISIONS.md
@@ -29,12 +37,11 @@ Refactor so DetailPanel owns all editor draft state and logic. Reduce App.tsx to
 ---
 
 ## Acceptance Criteria
-- DetailPanel owns all editor draft state internally
-- App.tsx does not manage editor draft state (lyrics, title, genre, prompt, loading, error)
-- DetailPanel props reduced to only external dependencies
-- HistoryPanel unchanged
+- Jotai installed and atoms created
+- History, selected item, and song generation lifecycle use Jotai atoms
+- Editor draft state remains local in DetailPanel
 - All existing behavior preserved
-- D-038 added to DECISIONS.md
+- D-039 added to DECISIONS.md
 
 ---
 
@@ -42,6 +49,7 @@ Refactor so DetailPanel owns all editor draft state and logic. Reduce App.tsx to
 
 | Iteration | Description |
 |-----------|-------------|
+| 016 | DetailPanel owns editor draft state |
 | 015 | Split App.tsx into panels and resize hook |
 | 014 | Custom GenreInput component |
 | 013 | Song selection and draft state restoration |
