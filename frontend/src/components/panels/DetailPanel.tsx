@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { PromptInput } from '../lyrics/PromptInput';
 import { LyricsTextarea } from '../lyrics/LyricsTextarea';
 import { generateLyrics, generateSong } from '../../services/api';
-import { isGeneratingSongAtom } from '../../store';
+import { songGenerationStatusAtom } from '../../store';
 import { HistoryItem } from '../../types';
 
 interface DetailPanelProps {
@@ -32,12 +32,12 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   const [genre, setGenre] = useState('');
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isGeneratingSong, setIsGeneratingSong] = useAtom(isGeneratingSongAtom);
+  const [songGenerationStatus, setSongGenerationStatus] = useAtom(songGenerationStatusAtom);
   const [error, setError] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({
     notifySongGenerationComplete: () => {
-      setIsGeneratingSong(false);
+      setSongGenerationStatus('idle');
     },
   }));
 
@@ -60,7 +60,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   const handleGenerateSong = async () => {
     if (!currentLyrics.trim() || !title.trim()) return;
 
-    setIsGeneratingSong(true);
+    setSongGenerationStatus('pending');
     setError(null);
 
     try {
@@ -84,7 +84,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
     } catch (err: any) {
       setError(err.message || 'Kunne ikke generere sang');
       console.error('Error generating song:', err);
-      setIsGeneratingSong(false);
+      setSongGenerationStatus('failed');
     }
   };
 
@@ -149,7 +149,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
             onGenreChange={setGenre}
             onGenerateSong={handleGenerateSong}
             isLoading={isLoading}
-            isGeneratingSong={isGeneratingSong}
+            isGeneratingSong={songGenerationStatus === 'pending'}
             genreHistory={genreHistory}
             onRemoveGenre={onRemoveGenre}
           />

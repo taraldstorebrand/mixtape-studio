@@ -1,35 +1,27 @@
 # TASKS.md
 
-## Iteration 017 – Introduce Jotai for shared state
+## Iteration 018 – Refine Jotai atoms
 
 ### Goal
-Introduce Jotai for shared application state (history, selected item, song generation lifecycle). Keep editor draft state and visual UI state local.
+Remove side effects from atom initialization; use explicit initialization in hooks. Replace boolean `isGeneratingSongAtom` with semantic `songGenerationStatusAtom`.
 
 ---
 
 ## In Scope
 
 ### Frontend
-- Add Jotai dependency
-- Create atoms for shared state:
-  - `historyAtom` – history items list
-  - `selectedItemIdAtom` – currently selected item ID
-  - `selectedItemAtom` – derived atom for selected item
-  - `isGeneratingSongAtom` – song generation lifecycle
-  - `genreHistoryAtom` – genre history list
-- Create hook wrappers: `useHistoryAtom`, `useGenreHistoryAtom`
-- Update App.tsx to use Jotai atoms
-- Update DetailPanel to use shared `isGeneratingSongAtom`
-- Keep editor draft state local (lyrics, title, genre, prompt, isLoading, error)
+- Initialize atoms with empty/default values (no localStorage or service calls in atom definitions)
+- Add `useEffect` in hook wrappers to load initial data on mount
+- Replace `isGeneratingSongAtom: boolean` with `songGenerationStatusAtom: 'idle' | 'pending' | 'completed' | 'failed'`
+- Update App.tsx and DetailPanel to use new status atom
 
 ---
 
 ## Files Allowed to Change
-- frontend/package.json
-- frontend/src/store/atoms.ts (new)
-- frontend/src/store/useHistoryAtom.ts (new)
-- frontend/src/store/useGenreHistoryAtom.ts (new)
-- frontend/src/store/index.ts (new)
+- frontend/src/store/atoms.ts
+- frontend/src/store/useHistoryAtom.ts
+- frontend/src/store/useGenreHistoryAtom.ts
+- frontend/src/store/index.ts
 - frontend/src/App.tsx
 - frontend/src/components/panels/DetailPanel.tsx
 - DECISIONS.md
@@ -37,11 +29,11 @@ Introduce Jotai for shared application state (history, selected item, song gener
 ---
 
 ## Acceptance Criteria
-- Jotai installed and atoms created
-- History, selected item, and song generation lifecycle use Jotai atoms
-- Editor draft state remains local in DetailPanel
+- Atoms initialize without side effects
+- Hook wrappers load initial data via `useEffect`
+- Song generation status uses semantic values
 - All existing behavior preserved
-- D-039 added to DECISIONS.md
+- D-040 added to DECISIONS.md
 
 ---
 
@@ -49,6 +41,7 @@ Introduce Jotai for shared application state (history, selected item, song gener
 
 | Iteration | Description |
 |-----------|-------------|
+| 017 | Introduce Jotai for shared state |
 | 016 | DetailPanel owns editor draft state |
 | 015 | Split App.tsx into panels and resize hook |
 | 014 | Custom GenreInput component |

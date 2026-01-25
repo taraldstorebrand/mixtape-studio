@@ -544,3 +544,20 @@ Rationale:
 - Shared state enables components to react to changes without prop drilling
 - Local state for editor drafts keeps component self-contained
 - Clear separation: Jotai = shared/cross-component, useState = local/component-specific
+
+---
+
+## D-040 – Jotai atom initialization without side effects
+Status: Accepted
+
+Decision:
+Jotai atoms are initialized with empty/default values. Side effects (localStorage reads, service calls) are performed in hook wrappers using `useEffect` on mount.
+- `historyAtom` initializes as `[]`, loaded via `useEffect` in `useHistoryAtom`
+- `genreHistoryAtom` initializes as `[]`, loaded via `useEffect` in `useGenreHistoryAtom`
+- `songGenerationStatusAtom` replaces `isGeneratingSongAtom` with semantic status: `'idle' | 'pending' | 'completed' | 'failed'`
+
+Rationale:
+- Avoids side effects during module evaluation (atom definition)
+- Makes atoms pure and predictable
+- Semantic status provides richer state information than boolean
+- Explicit initialization in hooks ensures proper React lifecycle integration

@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
-import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, isGeneratingSongAtom } from './store';
+import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
@@ -13,7 +13,7 @@ const PANEL_WIDTH_KEY = 'sangtekst_panel_width';
 function App() {
   const [selectedItemId, setSelectedItemId] = useAtom(selectedItemIdAtom);
   const selectedItem = useAtomValue(selectedItemAtom);
-  const setIsGeneratingSong = useSetAtom(isGeneratingSongAtom);
+  const setSongGenerationStatus = useSetAtom(songGenerationStatusAtom);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<DetailPanelHandle>(null);
 
@@ -38,7 +38,7 @@ function App() {
           sunoAudioUrls: data.audio_urls,
           sunoLocalUrls: data.local_urls,
         });
-        setIsGeneratingSong(false);
+        setSongGenerationStatus('completed');
         detailPanelRef.current?.notifySongGenerationComplete();
       } else if (data.status === 'partial') {
         updateHistoryItem(historyItem.id, {
@@ -47,7 +47,7 @@ function App() {
         });
       } else if (data.status === 'failed') {
         removeHistoryItem(historyItem.id);
-        setIsGeneratingSong(false);
+        setSongGenerationStatus('failed');
         detailPanelRef.current?.notifySongGenerationComplete();
       } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
         updateHistoryItem(historyItem.id, {

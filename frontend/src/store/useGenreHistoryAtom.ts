@@ -5,11 +5,29 @@ import { genreHistoryAtom } from './atoms';
 const GENRE_HISTORY_KEY = 'sangtekst_genre_history';
 const MAX_GENRES = 50;
 
+const loadGenreHistory = (): string[] => {
+  const saved = localStorage.getItem(GENRE_HISTORY_KEY);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
 export function useGenreHistoryAtom() {
   const [genres, setGenres] = useAtom(genreHistoryAtom);
 
   useEffect(() => {
-    localStorage.setItem(GENRE_HISTORY_KEY, JSON.stringify(genres));
+    setGenres(loadGenreHistory());
+  }, [setGenres]);
+
+  useEffect(() => {
+    if (genres.length > 0) {
+      localStorage.setItem(GENRE_HISTORY_KEY, JSON.stringify(genres));
+    }
   }, [genres]);
 
   const addGenre = (genre: string) => {

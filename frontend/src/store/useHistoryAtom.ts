@@ -1,4 +1,5 @@
 import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { historyAtom } from './atoms';
 import { HistoryItem } from '../types';
 import {
@@ -11,6 +12,10 @@ import {
 
 export function useHistoryAtom() {
   const [history, setHistory] = useAtom(historyAtom);
+
+  useEffect(() => {
+    setHistory(getHistory());
+  }, [setHistory]);
 
   const addHistoryItem = (item: HistoryItem) => {
     saveHistoryItem(item);
