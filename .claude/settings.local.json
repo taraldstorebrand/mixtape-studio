@@ -4,7 +4,11 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Tarald\\\\Desktop\\\\Test Cursor\" -Filter \"*.md\" -Recurse -Depth 1)",
       "Bash(Where-Object { $_FullName -notlike \"*node_modules*\" })",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(findstr:*)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\Tarald\\\\Desktop\\\\Test Cursor\\\\*.md\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
