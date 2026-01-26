@@ -14,8 +14,10 @@ build/
 */dist/
 */build/
 
-# Database
-backend/data/
+# SQLite runtime files
+backend/data/*.db
+backend/data/*.db-wal
+backend/data/*.db-shm
 
 # Logs
 *.log

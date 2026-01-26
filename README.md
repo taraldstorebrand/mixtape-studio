@@ -1,16 +1,28 @@
 # 🎵 Sangtekst Generator
 
-En React-applikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
+En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
+
+## Krav til abonnementer
+
+Denne løsningen krever aktive abonnementer på:
+
+- **OpenAI API** - For ChatGPT-tilgang til sangtekstgenerering  
+  Registrer deg og kjøp tokens på: https://platform.openai.com
+  
+- **Suno API** - For musikkgenerering fra tekst  
+  Abonner på: https://sunoapi.org
 
 ## Funksjoner
 
 - ✍️ Generer sangtekster med ChatGPT basert på brukerprompts
-- 🎵 Send genererte tekster til Suno for musikkgenerering
+- 🎵 Send genererte tekster til Suno for musikkgenerering (2 variasjoner per request)
 - 📝 Rediger tekster før sending til Suno
-- 📚 Lagre historikk av alle prompts og genererte tekster
-- 👍👎 Gi feedback med thumbs up/down på genererte tekster
-- 🔄 Gjenbruk tidligere tekster
+- 🎼 Angi tittel og sjanger for sangene
+- 📚 Historikk lagret i SQLite database
+- 👍👎 Gi feedback med thumbs up/down på genererte sanger
+- 🔄 Kopier tidligere sanger som nye utkast
 - 🎧 Spill av genererte sanger direkte i appen
+- 🔀 Resizable to-panel layout
 
 ## Teknisk Stack
 
@@ -18,14 +30,16 @@ En React-applikasjon som bruker ChatGPT til å generere sangtekster basert på b
 - React 19
 - TypeScript 5.9
 - Vite 7
-- localStorage for persistering
+- WebSocket for sanntidsoppdateringer
 
 ### Backend
 - Node.js
 - Express 5
 - TypeScript 5.3
+- SQLite for persistering
 - OpenAI API v6 (ChatGPT)
-- Suno API
+- Suno API via sunoapi.org
+- WebSocket for Suno-statusoppdateringer
 
 ## Oppsett
 
@@ -33,8 +47,8 @@ En React-applikasjon som bruker ChatGPT til å generere sangtekster basert på b
 
 - Node.js (v18 eller nyere)
 - npm eller yarn
-- OpenAI API-nøkkel
-- Suno API-nøkkel
+- OpenAI API-nøkkel (krever abonnement)
+- Suno API-nøkkel fra sunoapi.org (krever abonnement)
 
 ### Installasjon
 
@@ -86,9 +100,12 @@ npm run dev
 
 1. **Generer sangtekst**: Skriv inn en prompt (f.eks. "En sang om sommer") og klikk "Generer Tekst"
 2. **Rediger tekst**: Du kan redigere den genererte teksten før du sender den til Suno
-3. **Generer sang**: Klikk "Generer Sang med Suno" for å lage musikk fra teksten
-4. **Gi feedback**: Bruk thumbs up/down knappene på historikk-elementer for å markere hva som var vellykket eller mislykket
-5. **Gjenbruk**: Klikk "Gjenbruk" på et historikk-element for å laste teksten inn igjen
+3. **Angi tittel**: Fyll inn tittel (påkrevd) og eventuelt sjanger
+4. **Generer sang**: Klikk "Generer Sang med Suno" for å lage musikk fra teksten
+5. **Se status**: Suno-generering vises med spinner og oppdateres via WebSocket
+6. **Spill av**: Ferdige sanger kan spilles direkte i historikklisten
+7. **Gi feedback**: Bruk thumbs up/down på historikk-elementer
+8. **Filtrer**: Bruk filterknappene for å vise standard, likede, eller alle sanger
 
 ## Prosjektstruktur
 
@@ -97,17 +114,20 @@ test-cursor/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/     # React komponenter
-│   │   ├── services/        # API og storage services
+│   │   ├── services/       # API og storage services
+│   │   ├── hooks/          # Custom React hooks
 │   │   ├── types/          # TypeScript typer
 │   │   └── App.tsx         # Hovedkomponent
 │   └── package.json
 ├── backend/
 │   ├── src/
 │   │   ├── routes/         # API routes
-│   │   ├── services/       # OpenAI og Suno services
+│   │   ├── services/       # OpenAI, Suno og DB services
 │   │   └── server.ts       # Express server
+│   ├── data/               # SQLite database
 │   └── package.json
-├── .env.example            # Eksempel på miljøvariabler
+├── shared/
+│   └── types.ts            # Delte TypeScript typer
 └── README.md
 ```
 
@@ -118,13 +138,27 @@ test-cursor/
 - `POST /api/chatgpt/generate-lyrics` - Generer sangtekst fra prompt
 - `POST /api/suno/generate` - Generer sang fra tekst
 - `GET /api/suno/status/:jobId` - Hent status på sang-generering
+- `GET /api/history` - Hent alle historikk-elementer
+- `POST /api/history` - Lagre historikk-element
+- `PUT /api/history/:id` - Oppdater historikk-element
+- `DELETE /api/history/:id` - Slett historikk-element
+- `GET /api/genres` - Hent sjangerhistorikk
+- `POST /api/genres` - Lagre ny sjanger
+- `DELETE /api/genres/:genre` - Slett sjanger
+- `POST /api/migrate` - Migrer data fra localStorage
 - `GET /health` - Health check
+
+### WebSocket
+
+- Sanntidsoppdateringer for Suno-jobstatus
 
 ## Notater
 
-- Historikk lagres lokalt i nettleserens localStorage
-- Maksimalt 100 historikk-elementer lagres
-- Suno-generering kan ta noen minutter - appen poller automatisk for status
+- Historikk lagres i SQLite database på backend
+- Maksimalt 10 000 historikk-elementer lagres
+- Maksimalt 50 sjangre i sjangerhistorikk
+- Suno genererer 2 sangvariasjoner per request
+- Mislykkede genereringer fjernes automatisk fra historikk
 - API-nøkler må konfigureres i `.env` filen i backend-mappen
 
 ## Lisens
