@@ -5,11 +5,10 @@ interface StatusBadgeProps {
 }
 
 function StatusBadge({ status }: StatusBadgeProps) {
-  if (!status) return null;
+  if (!status || status === 'completed') return null;
 
   const statusMap: Record<string, { text: string; className: string }> = {
     pending: { text: 'Venter...', className: 'status-pending' },
-    completed: { text: 'Ferdig', className: 'status-completed' },
     failed: { text: 'Feilet', className: 'status-failed' },
   };
 
@@ -49,7 +48,13 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
           <strong className="history-title">{displayTitle}{variationLabel}</strong>
           <StatusBadge status={item.sunoStatus} />
           <span className="history-date">
-            {new Date(item.createdAt).toLocaleDateString('no-NO')}
+            {new Date(item.createdAt).toLocaleString('no-NO', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </span>
         </div>
         <div className="history-actions">

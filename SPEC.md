@@ -101,7 +101,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 1. Songs appear in a compact scrollable list in the right panel
 2. Each item represents one song (Suno generates 2 variations per request, each becomes a separate item)
-3. Each item shows: title, status badge, timestamp, audio player (if completed)
+3. Each item shows: title, status badge (only for non-completed), timestamp (dd.MM.yyyy HH:mm), audio player (if completed)
 4. Lyrics are not displayed in the list (use "Gjenbruk" to view)
 5. Completed items have inline audio player
 6. Filter bar at top with "Default", "Liked", "All" options
