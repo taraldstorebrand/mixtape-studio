@@ -381,6 +381,30 @@
   margin: 0;
 }
 
+.mixtape-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background-color: #646cff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.mixtape-button:hover:not(:disabled) {
+  background-color: #535bf2;
+}
+
+.mixtape-button:disabled {
+  background-color: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
 .history-list h2 {
   margin: 0;
   font-size: 1.2rem;

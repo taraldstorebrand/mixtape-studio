@@ -106,6 +106,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 5. Completed items have inline audio player
 6. Filter bar at top with "Default", "Liked", "All" options
 7. Each item has a trashcan delete button
+8. "Lag mixtape av likte sanger" button at top creates downloadable MP3 from all liked songs
 
 **Filtering**:
 - Default (initial): Shows everything except items with feedback = 'down'
@@ -163,6 +164,22 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 1. Completed Suno jobs display audio player(s)
 2. User can play generated songs directly in the browser
+
+### 10. Create Mixtape from Liked Songs
+
+**Flow**:
+
+1. User clicks "Lag mixtape av likte sanger" button at the top of the history panel
+2. Backend finds all songs with feedback = 'up' and a local MP3 file
+3. Songs are concatenated in chronological order (oldest first)
+4. Browser downloads the combined MP3 file
+
+**Constraints**:
+
+- Button is disabled if no liked songs with local MP3 exist
+- Button is disabled while request is in progress
+- Uses ffmpeg concat demuxer with no re-encoding (-c copy)
+- Returns 400 if no liked songs are found
 
 ---
 

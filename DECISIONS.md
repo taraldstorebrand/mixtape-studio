@@ -600,3 +600,23 @@ Rationale:
 - Enables future features (backup, export, cross-device sync)
 - UI preferences are cosmetic and appropriately stored client-side
 - SQLite is simple, file-based, requires no external database server
+
+---
+
+## D-043 – Mixtape from liked songs
+Status: Accepted
+
+Decision:
+A "Lag mixtape av likte sanger" button creates a downloadable MP3 by concatenating all liked songs.
+Backend uses ffmpeg-static (bundled binary) with concat demuxer and -c copy (no re-encoding).
+Songs are ordered chronologically (createdAt ASC).
+
+Constraints:
+- Only songs with feedback = 'up' and a valid sunoLocalUrl are included
+- Returns 400 if no liked songs exist
+- No playlist management, no custom ordering, no stored mixtapes
+
+Rationale:
+- Simple feature for users to export their favorite songs
+- Using ffmpeg-static removes dependency on system-installed ffmpeg
+- Concat demuxer with -c copy is fast and preserves audio quality

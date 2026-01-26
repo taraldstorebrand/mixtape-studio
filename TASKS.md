@@ -1,6 +1,27 @@
 # TASKS.md
 
-## Iteration 021 – Delete MP3 files on history deletion (D-043)
+## Iteration 022 – Mixtape from liked songs (D-043)
+
+### Goal
+Add a "Lag mixtape av likte sanger" button that creates a downloadable MP3 from all liked songs.
+
+---
+
+## Files Changed
+- backend/src/routes/mixtape.ts (new) ✅
+- backend/src/server.ts ✅
+- backend/package.json (added ffmpeg-static) ✅
+- frontend/src/components/history/MixtapeButton/MixtapeButton.tsx (new) ✅
+- frontend/src/components/history/HistoryList.tsx ✅
+- frontend/src/services/api.ts ✅
+- frontend/src/App.css ✅
+- SPEC.md ✅
+- API.md ✅
+- DECISIONS.md ✅
+
+---
+
+## Iteration 021 – Delete MP3 files on history deletion
 
 ### Goal
 When a history item is deleted, also delete the associated MP3 file from `backend/mp3s/` if it exists.

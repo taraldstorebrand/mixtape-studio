@@ -22,7 +22,7 @@ test-cursor/
 ├── backend/           # Express REST API + WebSocket server
 │   ├── src/
 │   │   ├── db/           # SQLite database layer (index.ts)
-│   │   ├── routes/       # Express route handlers (chatgpt.ts, suno.ts, history.ts, genres.ts)
+│   │   ├── routes/       # Express route handlers (chatgpt.ts, suno.ts, history.ts, genres.ts, mixtape.ts)
 │   │   ├── services/     # External API integrations (openai.ts, suno.ts)
 │   │   ├── middleware/   # Express middleware (errorHandler.ts)
 │   │   ├── utils/        # Utility functions (logger.ts)

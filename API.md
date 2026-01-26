@@ -377,6 +377,39 @@ In development mode (`NODE_ENV=development`), the error handler also includes a 
 
 ---
 
+## Mixtape Endpoints
+
+### POST /api/mixtape/liked
+
+Create a mixtape from all liked songs (feedback = 'up').
+
+**Behavior**
+
+- Finds all history items with `feedback: 'up'` and a valid `sunoLocalUrl`
+- Concatenates MP3 files in chronological order (`createdAt ASC`)
+- Uses ffmpeg concat demuxer with `-c copy` (no re-encoding)
+- Returns the combined MP3 as a download
+
+**Success Response (200)**
+
+- Content-Type: `audio/mpeg`
+- Content-Disposition: `attachment; filename="mixtape_likte_sanger.mp3"`
+- Body: Binary MP3 data
+
+**Error Response (400)**
+
+```json
+{ "error": "Ingen likte sanger funnet" }
+```
+
+**Error Response (500)**
+
+```json
+{ "error": "Kunne ikke lage mixtape" }
+```
+
+---
+
 ## Implementation Notes
 
 1. **Suno job completion**: The backend uses polling only. No callback endpoint is implemented. The backend polls Suno every 5 seconds and pushes updates to clients via WebSocket.
@@ -384,3 +417,5 @@ In development mode (`NODE_ENV=development`), the error handler also includes a 
 2. **WebSocket broadcast**: Status updates are broadcast to all connected clients via `io.emit()`. This is accepted behavior (see D-002 in DECISIONS.md).
 
 3. **OpenAI model**: The backend uses `gpt-5.2` (GPT-5.2 Thinking) for lyrics generation.
+
+4. **Mixtape generation**: Uses `ffmpeg-static` for bundled ffmpeg binary, no system ffmpeg required.

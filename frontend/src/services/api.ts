@@ -199,3 +199,26 @@ export async function removeGenre(genre: string): Promise<void> {
     throw new Error(error.error || 'Kunne ikke fjerne sjanger');
   }
 }
+
+// Mixtape API
+
+export async function downloadLikedMixtape(): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/mixtape/liked`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke lage mixtape');
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mixtape_likte_sanger.mp3';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
