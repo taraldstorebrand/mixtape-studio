@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import type { HistoryItem } from '../../../shared/types';
 
 const API_BASE_URL = '/api';
 
@@ -89,4 +90,112 @@ export async function getSongStatus(jobId: string): Promise<{ status: string; au
 
   const data = await response.json();
   return data;
+}
+
+// History API
+
+export async function fetchHistory(): Promise<HistoryItem[]> {
+  const response = await fetch(`${API_BASE_URL}/history`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke hente historikk');
+  }
+
+  return response.json();
+}
+
+export async function createHistoryItem(item: HistoryItem): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/history`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(item),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke opprette historikk-element');
+  }
+}
+
+export async function createHistoryItemsBulk(items: HistoryItem[]): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/history/bulk`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(items),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke opprette historikk-elementer');
+  }
+}
+
+export async function updateHistoryItem(id: string, updates: Partial<HistoryItem>): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/history/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updates),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke oppdatere historikk-element');
+  }
+}
+
+export async function deleteHistoryItem(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/history/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke slette historikk-element');
+  }
+}
+
+// Genre API
+
+export async function fetchGenres(): Promise<string[]> {
+  const response = await fetch(`${API_BASE_URL}/genres`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke hente sjangre');
+  }
+
+  return response.json();
+}
+
+export async function addGenre(genre: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/genres`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ genre }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke legge til sjanger');
+  }
+}
+
+export async function removeGenre(genre: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/genres/${encodeURIComponent(genre)}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke fjerne sjanger');
+  }
 }

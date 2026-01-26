@@ -13,7 +13,7 @@ Replace localStorage-based persistence with SQLite backend storage. Increase his
 |-------|-------------|--------|
 | 1 | Backend Database Layer | ✅ Done |
 | 2 | Backend REST Endpoints | ✅ Done |
-| 3 | Frontend API Client | ⬜ Pending |
+| 3 | Frontend API Client | ✅ Done |
 | 4 | Frontend Hook Updates | ⬜ Pending |
 | 5 | One-Time Migration | ⬜ Pending |
 
@@ -62,24 +62,19 @@ Genres:
 
 ---
 
-## Phase 3: Frontend API Client ⬜
+## Phase 3: Frontend API Client ✅
 
 **File:** `frontend/src/services/api.ts`
 
-Add new API functions:
-```typescript
-// History
-export async function fetchHistory(): Promise<HistoryItem[]>
-export async function createHistoryItem(item: HistoryItem): Promise<void>
-export async function createHistoryItemsBulk(items: HistoryItem[]): Promise<void>
-export async function updateHistoryItem(id: string, updates: Partial<HistoryItem>): Promise<void>
-export async function deleteHistoryItem(id: string): Promise<void>
-
-// Genres
-export async function fetchGenres(): Promise<string[]>
-export async function addGenre(genre: string): Promise<void>
-export async function removeGenre(genre: string): Promise<void>
-```
+**Implemented:**
+- `fetchHistory()` - GET /api/history
+- `createHistoryItem(item)` - POST /api/history
+- `createHistoryItemsBulk(items)` - POST /api/history/bulk
+- `updateHistoryItem(id, updates)` - PATCH /api/history/:id
+- `deleteHistoryItem(id)` - DELETE /api/history/:id
+- `fetchGenres()` - GET /api/genres
+- `addGenre(genre)` - POST /api/genres
+- `removeGenre(genre)` - DELETE /api/genres/:genre (URL-encoded)
 
 ---
 
