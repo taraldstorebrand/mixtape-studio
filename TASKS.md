@@ -7,26 +7,117 @@ Replace localStorage-based persistence with SQLite backend storage. Increase his
 
 ---
 
-## In Scope
+## Progress
 
-### Backend
-- Add SQLite database (`better-sqlite3`)
-- Create `data/sangtekst.db` with `history_items` and `genre_history` tables
-- Implement REST endpoints for history and genre CRUD
-- Add database initialization on server startup
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Backend Database Layer | ✅ Done |
+| 2 | Backend REST Endpoints | ✅ Done |
+| 3 | Frontend API Client | ⬜ Pending |
+| 4 | Frontend Hook Updates | ⬜ Pending |
+| 5 | One-Time Migration | ⬜ Pending |
 
-### Frontend
-- Create API client for history and genre endpoints
-- Update `useHistoryAtom` to fetch/mutate via API
-- Update `useGenreHistoryAtom` to fetch/mutate via API
-- Remove localStorage usage for `sangtekst_history` and `sangtekst_genre_history`
-- Keep `sangtekst_panel_width` in localStorage
-- Add one-time migration from localStorage to backend
+---
 
-### Documentation
-- Add D-042 to DECISIONS.md
-- Update D-020 (history limit 100 → 10,000)
-- Update SPEC.md data persistence section
+## Phase 1: Backend Database Layer ✅
+
+**Files created/changed:**
+- `backend/package.json` – added `better-sqlite3`
+- `backend/src/db/index.ts` – SQLite database with tables and CRUD functions
+
+**Implemented:**
+- SQLite database at `backend/data/sangtekst.db`
+- `history_items` table with all HistoryItem fields
+- `genre_history` table with genre and last_used_at
+- CRUD functions for history (get all, get by id, create, bulk create, update, delete)
+- CRUD functions for genres (get all, add, remove)
+- Automatic limit enforcement (10,000 history items, 50 genres)
+
+---
+
+## Phase 2: Backend REST Endpoints ✅
+
+**Files created/changed:**
+- `backend/src/routes/history.ts` – history REST routes
+- `backend/src/routes/genres.ts` – genre REST routes
+- `backend/src/server.ts` – mount routes, initialize database
+
+**Endpoints:**
+
+History:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/history` | Fetch all history items |
+| POST | `/api/history` | Create new history item |
+| POST | `/api/history/bulk` | Bulk create (for migration) |
+| PATCH | `/api/history/:id` | Update history item |
+| DELETE | `/api/history/:id` | Delete history item |
+
+Genres:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/genres` | Fetch all genres |
+| POST | `/api/genres` | Add genre |
+| DELETE | `/api/genres/:genre` | Remove genre |
+
+---
+
+## Phase 3: Frontend API Client ⬜
+
+**File:** `frontend/src/services/api.ts`
+
+Add new API functions:
+```typescript
+// History
+export async function fetchHistory(): Promise<HistoryItem[]>
+export async function createHistoryItem(item: HistoryItem): Promise<void>
+export async function createHistoryItemsBulk(items: HistoryItem[]): Promise<void>
+export async function updateHistoryItem(id: string, updates: Partial<HistoryItem>): Promise<void>
+export async function deleteHistoryItem(id: string): Promise<void>
+
+// Genres
+export async function fetchGenres(): Promise<string[]>
+export async function addGenre(genre: string): Promise<void>
+export async function removeGenre(genre: string): Promise<void>
+```
+
+---
+
+## Phase 4: Frontend Hook Updates ⬜
+
+### 4.1 Update `frontend/src/store/useHistoryAtom.ts`
+- Change from sync localStorage to async API calls
+- Load history on mount via `fetchHistory()`
+- Replace storage service calls with API calls
+- Use optimistic updates for better UX
+
+### 4.2 Update `frontend/src/store/useGenreHistoryAtom.ts`
+- Change from direct localStorage to async API calls
+- Load genres on mount via `fetchGenres()`
+- Replace localStorage operations with API calls
+
+### 4.3 Update `frontend/src/services/storage.ts`
+- Add migration function: `migrateToBackend()`
+- Check if localStorage has data, if so POST bulk to backend and clear
+- Keep `sangtekst_panel_width` localStorage operations
+
+---
+
+## Phase 5: One-Time Migration ⬜
+
+### 5.1 Add migration logic to `useHistoryAtom.ts`
+On mount:
+1. Check localStorage for `sangtekst_history`
+2. If exists and non-empty, POST bulk to `/api/history/bulk`
+3. Clear `sangtekst_history` from localStorage
+4. Then fetch from API as normal
+
+### 5.2 Add migration logic to `useGenreHistoryAtom.ts`
+On mount:
+1. Check localStorage for `sangtekst_genre_history`
+2. If exists and non-empty, POST each to `/api/genres`
+3. Clear `sangtekst_genre_history` from localStorage
+4. Then fetch from API as normal
 
 ---
 
@@ -38,18 +129,18 @@ Replace localStorage-based persistence with SQLite backend storage. Increase his
 
 ---
 
-## Files Changed
-- backend/package.json
-- backend/src/db/index.ts (new)
-- backend/src/routes/history.ts (new)
-- backend/src/routes/genres.ts (new)
-- backend/src/server.ts
-- frontend/src/services/api.ts (new)
+## Files Changed (Complete)
+- backend/package.json ✅
+- backend/src/db/index.ts (new) ✅
+- backend/src/routes/history.ts (new) ✅
+- backend/src/routes/genres.ts (new) ✅
+- backend/src/server.ts ✅
+- frontend/src/services/api.ts
 - frontend/src/store/useHistoryAtom.ts
 - frontend/src/store/useGenreHistoryAtom.ts
 - frontend/src/services/storage.ts
 - SPEC.md
-- DECISIONS.md
+- DECISIONS.md ✅
 
 ---
 

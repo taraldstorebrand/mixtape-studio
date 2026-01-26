@@ -20,6 +20,214 @@ Health check endpoint.
 
 ---
 
+## History Endpoints
+
+### GET /api/history
+
+Fetch all history items.
+
+**Success Response (200)**
+
+```json
+[
+  {
+    "id": "string",
+    "prompt": "string",
+    "title": "string",
+    "lyrics": "string",
+    "genre": "string (optional)",
+    "createdAt": "string (ISO date)",
+    "feedback": "up" | "down" | null,
+    "sunoJobId": "string (optional)",
+    "sunoClipId": "string (optional)",
+    "sunoStatus": "pending" | "completed" | "failed" | null,
+    "sunoAudioUrl": "string (optional)",
+    "sunoLocalUrl": "string (optional)",
+    "variationIndex": 0 | 1 | null
+  }
+]
+```
+
+---
+
+### POST /api/history
+
+Create a new history item.
+
+**Request Body**
+
+```json
+{
+  "id": "string (required)",
+  "prompt": "string (required)",
+  "title": "string (required)",
+  "lyrics": "string (required)",
+  "createdAt": "string (required, ISO date)",
+  "genre": "string (optional)",
+  "feedback": "up" | "down" (optional),
+  "sunoJobId": "string (optional)",
+  "sunoClipId": "string (optional)",
+  "sunoStatus": "pending" | "completed" | "failed" (optional),
+  "sunoAudioUrl": "string (optional)",
+  "sunoLocalUrl": "string (optional)",
+  "variationIndex": 0 | 1 (optional)
+}
+```
+
+**Success Response (201)**
+
+```json
+{ "success": true, "id": "string" }
+```
+
+**Error Response (400)**
+
+```json
+{ "error": "Mangler påkrevde felt: id, prompt, title, lyrics, createdAt" }
+```
+
+---
+
+### POST /api/history/bulk
+
+Bulk create history items (for migration from localStorage).
+
+**Request Body**
+
+```json
+[
+  { ... HistoryItem ... },
+  { ... HistoryItem ... }
+]
+```
+
+**Success Response (201)**
+
+```json
+{ "success": true, "count": 42 }
+```
+
+**Error Response (400)**
+
+```json
+{ "error": "Body må være en array av historikk-elementer" }
+```
+
+---
+
+### PATCH /api/history/:id
+
+Update a history item.
+
+**Path Parameters**
+
+- `id`: string (required) - The history item ID
+
+**Request Body**
+
+```json
+{
+  "feedback": "up" | "down" | null,
+  "sunoStatus": "completed",
+  "sunoAudioUrl": "string",
+  "sunoLocalUrl": "string"
+}
+```
+
+Any subset of HistoryItem fields can be provided.
+
+**Success Response (200)**
+
+```json
+{ "success": true, "id": "string" }
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Historikk-element ikke funnet" }
+```
+
+---
+
+### DELETE /api/history/:id
+
+Delete a history item.
+
+**Path Parameters**
+
+- `id`: string (required) - The history item ID
+
+**Success Response (200)**
+
+```json
+{ "success": true, "id": "string" }
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Historikk-element ikke funnet" }
+```
+
+---
+
+## Genre Endpoints
+
+### GET /api/genres
+
+Fetch all genres (sorted by most recently used).
+
+**Success Response (200)**
+
+```json
+["Pop", "Rock", "Jazz", "Electronic"]
+```
+
+---
+
+### POST /api/genres
+
+Add or update a genre (updates last_used_at if exists).
+
+**Request Body**
+
+```json
+{ "genre": "string (required, non-empty)" }
+```
+
+**Success Response (201)**
+
+```json
+{ "success": true, "genre": "Pop" }
+```
+
+**Error Response (400)**
+
+```json
+{ "error": "Genre er påkrevd og må være en ikke-tom streng" }
+```
+
+---
+
+### DELETE /api/genres/:genre
+
+Remove a genre from history.
+
+**Path Parameters**
+
+- `genre`: string (required, URL-encoded) - The genre to remove
+
+**Success Response (200)**
+
+```json
+{ "success": true, "genre": "Pop" }
+```
+
+---
+
+## ChatGPT Endpoints
+
 ### POST /api/chatgpt/generate-lyrics
 
 Generate song lyrics using OpenAI GPT.

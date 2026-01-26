@@ -21,12 +21,14 @@ test-cursor/
 │   └── vite.config.ts
 ├── backend/           # Express REST API + WebSocket server
 │   ├── src/
-│   │   ├── routes/       # Express route handlers (chatgpt.ts, suno.ts)
+│   │   ├── db/           # SQLite database layer (index.ts)
+│   │   ├── routes/       # Express route handlers (chatgpt.ts, suno.ts, history.ts, genres.ts)
 │   │   ├── services/     # External API integrations (openai.ts, suno.ts)
 │   │   ├── middleware/   # Express middleware (errorHandler.ts)
-│   │   ├── utils/        # Utility functions
+│   │   ├── utils/        # Utility functions (logger.ts)
 │   │   ├── config.ts     # Environment configuration
 │   │   └── server.ts     # Express + Socket.IO server entry
+│   ├── data/             # SQLite database file (sangtekst.db, gitignored)
 │   ├── mp3s/             # Downloaded Suno audio files ({title}_{index}.mp3, gitignored)
 │   └── package.json
 ├── shared/            # Shared TypeScript types
@@ -43,12 +45,13 @@ test-cursor/
 │  localhost:5173 │                  │  localhost:3001 │
 └─────────────────┘                  └────────┬────────┘
         │                                     │
-        │ localStorage                        │ HTTPS
-        ▼                                     ▼
-┌─────────────────┐                  ┌─────────────────┐
-│  Browser Store  │                  │  External APIs  │
-│  (history)      │                  │  - OpenAI       │
-└─────────────────┘                  │  - Suno API     │
+        │ localStorage                        ├──────────────┐
+        │ (panel width)                       │              │
+        ▼                                     ▼              ▼
+┌─────────────────┐                  ┌─────────────────┐ ┌──────────┐
+│  Browser Store  │                  │  External APIs  │ │  SQLite  │
+│  (UI prefs)     │                  │  - OpenAI       │ │  (data)  │
+└─────────────────┘                  │  - Suno API     │ └──────────┘
                                      └─────────────────┘
 ```
 
@@ -56,7 +59,7 @@ test-cursor/
 
 - **Technology**: React 19, TypeScript, Vite 7
 - **Port**: http://localhost:5173
-- **Persistence**: localStorage (client-side only)
+- **Persistence**: localStorage for UI preferences (panel width)
 - **State Management**: React useState hooks
 - **Proxy**: Vite dev server proxies `/api/*`, `/mp3s/*`, and `/socket.io` to backend
 
@@ -66,6 +69,7 @@ test-cursor/
 - **Port**: http://localhost:3001
 - **HTTP Server**: Express with CORS enabled
 - **WebSocket**: Socket.IO for real-time Suno status updates
+- **Database**: SQLite via better-sqlite3 (file: `backend/data/sangtekst.db`)
 - **Static Files**: `/mp3s/*` serves downloaded audio from `backend/mp3s/`
 
 ## Communication Patterns
@@ -98,15 +102,15 @@ Environment variables (`.env` in backend/):
 ## Non-Goals
 
 - No server-side rendering (SSR)
-- No server-side database persistence
 - No user authentication
 - No session management
 - No multi-user support
+- No cloud database (SQLite is local file-based)
 
 ## Notes
 
 1. **Suno integration**: The backend uses polling to check Suno job status (every 5 seconds, up to 5 minutes). Status updates are pushed to clients via Socket.IO `suno-update` events.
 
-2. **Shared types usage**: The shared/ folder contains types, but it's unclear if the backend uses them (frontend imports via re-export, backend imports from environment directly).
+2. **Shared types usage**: Both frontend and backend import types from `shared/types/index.ts`. The `HistoryItem` interface is the primary shared type.
 
-3. **utils/ folder**: The backend has a `utils/` directory but its contents were not examined. Purpose unclear.
+3. **SQLite database**: The backend uses better-sqlite3 for persistence. Tables: `history_items` (song history), `genre_history` (used genres). Database file is gitignored.

@@ -223,7 +223,7 @@ UI-related state remains in localStorage:
 ## Known Limitations
 
 1. **Single-device storage**: SQLite database is local to the server; no cloud sync
-2. **No cross-device sync**: Data is local to the browser
+2. **No cross-device sync**: Data is stored on the server, but no sync to external services
 3. **No authentication**: Anyone with access to the app can use it
 4. **Single user**: No concept of user accounts or separate histories
 5. **No offline support**: Requires network connection for all features
