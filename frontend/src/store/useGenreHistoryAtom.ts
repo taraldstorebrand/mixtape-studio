@@ -1,48 +1,77 @@
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { genreHistoryAtom } from './atoms';
-
-const GENRE_HISTORY_KEY = 'sangtekst_genre_history';
-const MAX_GENRES = 50;
-
-const loadGenreHistory = (): string[] => {
-  const saved = localStorage.getItem(GENRE_HISTORY_KEY);
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return [];
-    }
-  }
-  return [];
-};
+import {
+  fetchGenres,
+  addGenre as apiAddGenre,
+  removeGenre as apiRemoveGenre,
+} from '../services/api';
 
 export function useGenreHistoryAtom() {
   const [genres, setGenres] = useAtom(genreHistoryAtom);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    setGenres(loadGenreHistory());
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
+    const initializeGenres = async () => {
+      try {
+        const items = await fetchGenres();
+        setGenres(items);
+      } catch (error) {
+        console.error('Failed to fetch genres:', error);
+      }
+    };
+
+    initializeGenres();
   }, [setGenres]);
 
-  useEffect(() => {
-    if (genres.length > 0) {
-      localStorage.setItem(GENRE_HISTORY_KEY, JSON.stringify(genres));
-    }
-  }, [genres]);
+  const addGenre = useCallback(
+    async (genre: string) => {
+      const trimmed = genre.trim();
+      if (!trimmed) return;
 
-  const addGenre = (genre: string) => {
-    const trimmed = genre.trim();
-    if (!trimmed) return;
+      setGenres((prev) => {
+        const filtered = prev.filter(
+          (g) => g.toLowerCase() !== trimmed.toLowerCase()
+        );
+        return [trimmed, ...filtered];
+      });
 
-    setGenres((prev) => {
-      const filtered = prev.filter((g) => g.toLowerCase() !== trimmed.toLowerCase());
-      return [trimmed, ...filtered].slice(0, MAX_GENRES);
-    });
-  };
+      try {
+        await apiAddGenre(trimmed);
+      } catch (error) {
+        console.error('Failed to add genre:', error);
+        try {
+          const items = await fetchGenres();
+          setGenres(items);
+        } catch {
+          // Keep optimistic state if fetch also fails
+        }
+      }
+    },
+    [setGenres]
+  );
 
-  const removeGenre = (genre: string) => {
-    setGenres((prev) => prev.filter((g) => g !== genre));
-  };
+  const removeGenre = useCallback(
+    async (genre: string) => {
+      setGenres((prev) => prev.filter((g) => g !== genre));
+
+      try {
+        await apiRemoveGenre(genre);
+      } catch (error) {
+        console.error('Failed to remove genre:', error);
+        try {
+          const items = await fetchGenres();
+          setGenres(items);
+        } catch {
+          // Keep optimistic state if fetch also fails
+        }
+      }
+    },
+    [setGenres]
+  );
 
   return { genres, addGenre, removeGenre };
 }

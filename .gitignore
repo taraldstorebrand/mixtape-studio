@@ -14,6 +14,9 @@ build/
 */dist/
 */build/
 
+# Database
+backend/data/
+
 # Logs
 *.log
 npm-debug.log*

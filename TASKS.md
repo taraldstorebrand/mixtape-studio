@@ -14,8 +14,8 @@ Replace localStorage-based persistence with SQLite backend storage. Increase his
 | 1 | Backend Database Layer | ✅ Done |
 | 2 | Backend REST Endpoints | ✅ Done |
 | 3 | Frontend API Client | ✅ Done |
-| 4 | Frontend Hook Updates | ⬜ Pending |
-| 5 | One-Time Migration | ⬜ Pending |
+| 4 | Frontend Hook Updates | ✅ Done |
+| 5 | One-Time Migration | ✅ Done |
 
 ---
 
@@ -78,41 +78,26 @@ Genres:
 
 ---
 
-## Phase 4: Frontend Hook Updates ⬜
+## Phase 4: Frontend Hook Updates ✅
 
-### 4.1 Update `frontend/src/store/useHistoryAtom.ts`
-- Change from sync localStorage to async API calls
-- Load history on mount via `fetchHistory()`
-- Replace storage service calls with API calls
-- Use optimistic updates for better UX
+**Files changed:**
+- `frontend/src/store/useHistoryAtom.ts` – async API calls with optimistic updates
+- `frontend/src/store/useGenreHistoryAtom.ts` – async API calls with optimistic updates
+- `frontend/src/services/storage.ts` – simplified to migration helpers only
+- `frontend/src/hooks/useHistory.ts` – deleted (unused legacy hook)
 
-### 4.2 Update `frontend/src/store/useGenreHistoryAtom.ts`
-- Change from direct localStorage to async API calls
-- Load genres on mount via `fetchGenres()`
-- Replace localStorage operations with API calls
-
-### 4.3 Update `frontend/src/services/storage.ts`
-- Add migration function: `migrateToBackend()`
-- Check if localStorage has data, if so POST bulk to backend and clear
-- Keep `sangtekst_panel_width` localStorage operations
+**Implemented:**
+- Load history/genres from backend on mount
+- Optimistic updates with rollback on error
+- One-time migration integrated (Phase 5)
 
 ---
 
-## Phase 5: One-Time Migration ⬜
+## Phase 5: One-Time Migration ✅
 
-### 5.1 Add migration logic to `useHistoryAtom.ts`
-On mount:
-1. Check localStorage for `sangtekst_history`
-2. If exists and non-empty, POST bulk to `/api/history/bulk`
-3. Clear `sangtekst_history` from localStorage
-4. Then fetch from API as normal
-
-### 5.2 Add migration logic to `useGenreHistoryAtom.ts`
-On mount:
-1. Check localStorage for `sangtekst_genre_history`
-2. If exists and non-empty, POST each to `/api/genres`
-3. Clear `sangtekst_genre_history` from localStorage
-4. Then fetch from API as normal
+**Implemented in Phase 4:**
+- `useHistoryAtom.ts`: On mount, migrates `sangtekst_history` from localStorage to backend via bulk API, then clears localStorage
+- `useGenreHistoryAtom.ts`: On mount, migrates `sangtekst_genre_history` from localStorage to backend, then clears localStorage
 
 ---
 

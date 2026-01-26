@@ -1,41 +1,103 @@
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { historyAtom } from './atoms';
 import { HistoryItem } from '../types';
 import {
-  saveHistoryItem,
-  updateHistoryItem as updateStorageItem,
-  updateFeedback as updateStorageFeedback,
-  removeHistoryItem as removeStorageItem,
-  getHistory,
-} from '../services/storage';
+  fetchHistory,
+  createHistoryItem as apiCreateHistoryItem,
+  updateHistoryItem as apiUpdateHistoryItem,
+  deleteHistoryItem as apiDeleteHistoryItem,
+} from '../services/api';
 
 export function useHistoryAtom() {
   const [history, setHistory] = useAtom(historyAtom);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    setHistory(getHistory());
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
+    const initializeHistory = async () => {
+      try {
+        const items = await fetchHistory();
+        setHistory(items);
+      } catch (error) {
+        console.error('Failed to fetch history:', error);
+      }
+    };
+
+    initializeHistory();
   }, [setHistory]);
 
-  const addHistoryItem = (item: HistoryItem) => {
-    saveHistoryItem(item);
-    setHistory(getHistory());
-  };
+  const addHistoryItem = useCallback(
+    async (item: HistoryItem) => {
+      setHistory((prev) => [item, ...prev]);
 
-  const updateHistoryItem = (id: string, updates: Partial<HistoryItem>) => {
-    updateStorageItem(id, updates);
-    setHistory(getHistory());
-  };
+      try {
+        await apiCreateHistoryItem(item);
+      } catch (error) {
+        console.error('Failed to create history item:', error);
+        setHistory((prev) => prev.filter((i) => i.id !== item.id));
+      }
+    },
+    [setHistory]
+  );
 
-  const handleFeedback = (id: string, feedback: 'up' | 'down' | null) => {
-    updateStorageFeedback(id, feedback);
-    setHistory(getHistory());
-  };
+  const updateHistoryItem = useCallback(
+    async (id: string, updates: Partial<HistoryItem>) => {
+      let previousItem: HistoryItem | undefined;
 
-  const removeHistoryItem = (id: string) => {
-    removeStorageItem(id);
-    setHistory(getHistory());
-  };
+      setHistory((prev) =>
+        prev.map((item) => {
+          if (item.id === id) {
+            previousItem = item;
+            return { ...item, ...updates };
+          }
+          return item;
+        })
+      );
+
+      try {
+        await apiUpdateHistoryItem(id, updates);
+      } catch (error) {
+        console.error('Failed to update history item:', error);
+        if (previousItem) {
+          setHistory((prev) =>
+            prev.map((item) => (item.id === id ? previousItem! : item))
+          );
+        }
+      }
+    },
+    [setHistory]
+  );
+
+  const handleFeedback = useCallback(
+    async (id: string, feedback: 'up' | 'down' | null) => {
+      await updateHistoryItem(id, { feedback: feedback ?? undefined });
+    },
+    [updateHistoryItem]
+  );
+
+  const removeHistoryItem = useCallback(
+    async (id: string) => {
+      let removedItem: HistoryItem | undefined;
+
+      setHistory((prev) => {
+        removedItem = prev.find((item) => item.id === id);
+        return prev.filter((item) => item.id !== id);
+      });
+
+      try {
+        await apiDeleteHistoryItem(id);
+      } catch (error) {
+        console.error('Failed to delete history item:', error);
+        if (removedItem) {
+          setHistory((prev) => [removedItem!, ...prev]);
+        }
+      }
+    },
+    [setHistory]
+  );
 
   return {
     history,
