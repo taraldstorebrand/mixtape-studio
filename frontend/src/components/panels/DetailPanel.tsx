@@ -70,17 +70,24 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
         onAddGenre(genre.trim());
       }
 
-      const newItem: HistoryItem = {
-        id: Date.now().toString(),
-        prompt: prompt,
-        title: title,
-        lyrics: currentLyrics,
-        createdAt: new Date().toISOString(),
-        sunoJobId: result.jobId,
-        sunoStatus: 'pending',
-        genre: genre || undefined,
-      };
-      onAddHistoryItem(newItem);
+      const timestamp = Date.now();
+      const createdAt = new Date().toISOString();
+
+      // Create two history items, one for each Suno variation (D-041)
+      for (let i = 0; i < 2; i++) {
+        const newItem: HistoryItem = {
+          id: `${timestamp}_${i}`,
+          prompt: prompt,
+          title: title,
+          lyrics: currentLyrics,
+          createdAt: createdAt,
+          sunoJobId: result.jobId,
+          sunoStatus: 'pending',
+          genre: genre || undefined,
+          variationIndex: i,
+        };
+        onAddHistoryItem(newItem);
+      }
     } catch (err: any) {
       setError(err.message || 'Kunne ikke generere sang');
       console.error('Error generating song:', err);

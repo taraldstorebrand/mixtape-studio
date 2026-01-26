@@ -10,10 +10,9 @@ interface HistoryListProps {
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onSelect: (item: HistoryItemType) => void;
   onDeleteItem: (id: string) => void;
-  onDeleteTrack: (id: string, trackIndex: number) => void;
 }
 
-export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDeleteItem, onDeleteTrack }: HistoryListProps) {
+export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDeleteItem }: HistoryListProps) {
   const [filter, setFilter] = useState<FilterType>('default');
 
   const filteredItems = items.filter(item => {
@@ -63,7 +62,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
           onFeedback={onFeedback}
           onSelect={onSelect}
           onDelete={() => onDeleteItem(item.id)}
-          onDeleteTrack={(trackIndex) => onDeleteTrack(item.id, trackIndex)}
         />
       ))}
     </div>

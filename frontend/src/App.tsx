@@ -29,31 +29,38 @@ function App() {
 
   const handleSunoUpdate = (data: SunoUpdateData) => {
     console.log('Received Suno update:', data);
-    
-    const historyItem = history.find(item => item.sunoJobId === data.jobId);
-    if (historyItem) {
-      if (data.status === 'completed') {
-        updateHistoryItem(historyItem.id, {
+
+    // Find all history items with matching jobId (one per variation)
+    const matchingItems = history.filter(item => item.sunoJobId === data.jobId);
+    if (matchingItems.length === 0) return;
+
+    if (data.status === 'completed') {
+      // Update each variation with its corresponding URL
+      matchingItems.forEach(item => {
+        const index = item.variationIndex ?? 0;
+        updateHistoryItem(item.id, {
           sunoStatus: 'completed',
-          sunoAudioUrls: data.audio_urls,
-          sunoLocalUrls: data.local_urls,
+          sunoAudioUrl: data.audio_urls?.[index],
+          sunoLocalUrl: data.local_urls?.[index],
         });
-        setSongGenerationStatus('completed');
-        detailPanelRef.current?.notifySongGenerationComplete();
-      } else if (data.status === 'partial') {
-        updateHistoryItem(historyItem.id, {
-          sunoStatus: 'partial',
-          sunoAudioUrls: data.audio_urls,
-        });
-      } else if (data.status === 'failed') {
-        removeHistoryItem(historyItem.id);
-        setSongGenerationStatus('failed');
-        detailPanelRef.current?.notifySongGenerationComplete();
-      } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
-        updateHistoryItem(historyItem.id, {
-          sunoAudioUrls: data.audio_urls,
-        });
-      }
+      });
+      setSongGenerationStatus('completed');
+      detailPanelRef.current?.notifySongGenerationComplete();
+    } else if (data.status === 'failed') {
+      // Remove all variations for this job
+      matchingItems.forEach(item => removeHistoryItem(item.id));
+      setSongGenerationStatus('failed');
+      detailPanelRef.current?.notifySongGenerationComplete();
+    } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
+      // Update with partial audio URLs as they become available
+      matchingItems.forEach(item => {
+        const index = item.variationIndex ?? 0;
+        if (data.audio_urls?.[index]) {
+          updateHistoryItem(item.id, {
+            sunoAudioUrl: data.audio_urls[index],
+          });
+        }
+      });
     }
   };
 
@@ -73,26 +80,6 @@ function App() {
 
   const handleDeleteItem = (id: string) => {
     removeHistoryItem(id);
-  };
-
-  const handleDeleteTrack = (id: string, trackIndex: number) => {
-    const item = history.find(h => h.id === id);
-    if (!item) return;
-
-    const localUrls = item.sunoLocalUrls ? [...item.sunoLocalUrls] : [];
-    const audioUrls = item.sunoAudioUrls ? [...item.sunoAudioUrls] : [];
-    
-    if (localUrls.length > 0) {
-      localUrls.splice(trackIndex, 1);
-    }
-    if (audioUrls.length > 0) {
-      audioUrls.splice(trackIndex, 1);
-    }
-
-    updateHistoryItem(id, {
-      sunoLocalUrls: localUrls,
-      sunoAudioUrls: audioUrls,
-    });
   };
 
   return (
@@ -127,7 +114,6 @@ function App() {
             onFeedback={handleFeedback}
             onSelect={handleSelect}
             onDeleteItem={handleDeleteItem}
-            onDeleteTrack={handleDeleteTrack}
           />
         </div>
       </main>

@@ -6,28 +6,26 @@ interface HistoryItemProps {
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onSelect: (item: HistoryItemType) => void;
   onDelete: () => void;
-  onDeleteTrack: (trackIndex: number) => void;
 }
 
-export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete, onDeleteTrack }: HistoryItemProps) {
+export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }: HistoryItemProps) {
   const getStatusBadge = () => {
     if (!item.sunoStatus) return null;
-    
-    const statusMap = {
+
+    const statusMap: Record<string, { text: string; className: string }> = {
       pending: { text: 'Venter...', className: 'status-pending' },
-      partial: { text: 'Delvis', className: 'status-partial' },
       completed: { text: 'Ferdig', className: 'status-completed' },
       failed: { text: 'Feilet', className: 'status-failed' },
     };
-    
+
     const status = statusMap[item.sunoStatus];
+    if (!status) return null;
     return <span className={`status-badge ${status.className}`}>{status.text}</span>;
   };
 
   const displayTitle = item.title || item.prompt || 'Uten tittel';
-  const hasAudio = (item.sunoLocalUrls && item.sunoLocalUrls.length > 0) || 
-                   (item.sunoAudioUrls && item.sunoAudioUrls.length > 0) || 
-                   item.sunoAudioUrl;
+  const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
+  const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
 
   const handleClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -38,13 +36,13 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete, 
   };
 
   return (
-    <div 
+    <div
       className={`history-item ${isSelected ? 'selected' : ''}`}
       onClick={handleClick}
     >
       <div className="history-header">
         <div className="history-meta">
-          <strong className="history-title">{displayTitle}</strong>
+          <strong className="history-title">{displayTitle}{variationLabel}</strong>
           {getStatusBadge()}
           <span className="history-date">
             {new Date(item.createdAt).toLocaleDateString('no-NO')}
@@ -76,49 +74,11 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete, 
           </button>
         </div>
       </div>
-      {hasAudio && (
+      {audioUrl && (
         <div className="audio-previews">
-          {(item.sunoLocalUrls && item.sunoLocalUrls.length > 0) ? (
-            item.sunoLocalUrls.map((url, index) => (
-              <div key={index} className="audio-preview">
-                <label>#{index + 1}</label>
-                <audio controls src={url} />
-                <button
-                  onClick={() => onDeleteTrack(index)}
-                  className="delete-track-button"
-                  title="Slett spor"
-                >
-                  🗑
-                </button>
-              </div>
-            ))
-          ) : item.sunoAudioUrls ? (
-            item.sunoAudioUrls.map((url, index) => (
-              <div key={index} className="audio-preview">
-                <label>#{index + 1}</label>
-                <audio controls src={url} />
-                <button
-                  onClick={() => onDeleteTrack(index)}
-                  className="delete-track-button"
-                  title="Slett spor"
-                >
-                  🗑
-                </button>
-              </div>
-            ))
-          ) : item.sunoAudioUrl ? (
-            <div className="audio-preview">
-              <label>#1</label>
-              <audio controls src={item.sunoAudioUrl} />
-              <button
-                onClick={() => onDeleteTrack(0)}
-                className="delete-track-button"
-                title="Slett spor"
-              >
-                🗑
-              </button>
-            </div>
-          ) : null}
+          <div className="audio-preview">
+            <audio controls src={audioUrl} />
+          </div>
         </div>
       )}
     </div>

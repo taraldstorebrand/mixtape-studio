@@ -292,15 +292,14 @@ export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> 
     }
 
     // For frontend compatibility, map to expected status strings
+    // D-041: Removed 'partial' status - each song variation is now a separate history item
     let frontendStatus: string = 'pending';
     if (mappedStatus === 'SUCCESS') {
       frontendStatus = 'completed';
-    } else if (mappedStatus === 'FIRST_SUCCESS') {
-      frontendStatus = 'partial'; // New status for when first song is ready
     } else if (mappedStatus === 'FAILED') {
       frontendStatus = 'failed';
     } else {
-      frontendStatus = 'pending'; // PENDING, GENERATING, etc.
+      frontendStatus = 'pending'; // PENDING, GENERATING, FIRST_SUCCESS, etc.
     }
 
     return {

@@ -13,26 +13,7 @@ export function saveHistoryItem(item: HistoryItem): void {
 export function getHistory(): HistoryItem[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    const history = stored ? JSON.parse(stored) : [];
-    
-    // Migrate old items with sunoAudioUrl to sunoAudioUrls
-    const migratedHistory = history.map((item: any) => {
-      if (item.sunoAudioUrl && !item.sunoAudioUrls) {
-        return {
-          ...item,
-          sunoAudioUrls: [item.sunoAudioUrl],
-          sunoAudioUrl: undefined, // Remove old field
-        };
-      }
-      return item;
-    });
-    
-    // Save migrated history if any changes were made
-    if (migratedHistory.some((item: any, index: number) => item !== history[index])) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedHistory));
-    }
-    
-    return migratedHistory;
+    return stored ? JSON.parse(stored) : [];
   } catch (error) {
     console.error('Error reading history from localStorage:', error);
     return [];

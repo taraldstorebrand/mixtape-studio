@@ -1,39 +1,59 @@
 # TASKS.md
 
-## Iteration 018 – Refine Jotai atoms
+## Iteration 019 – One history item per song variation (D-041)
 
 ### Goal
-Remove side effects from atom initialization; use explicit initialization in hooks. Replace boolean `isGeneratingSongAtom` with semantic `songGenerationStatusAtom`.
+Refactor the domain model so each Suno song variation is stored as a separate history item, instead of storing both variations in arrays on a single item.
 
 ---
 
 ## In Scope
 
+### Shared Types
+- Change `sunoAudioUrls[]` → `sunoAudioUrl` (single URL)
+- Change `sunoLocalUrls[]` → `sunoLocalUrl` (single URL)
+- Remove `'partial'` from `sunoStatus`
+- Add `sunoClipId` and `variationIndex` fields
+- Add `LegacyHistoryItem` interface for migration
+
 ### Frontend
-- Initialize atoms with empty/default values (no localStorage or service calls in atom definitions)
-- Add `useEffect` in hook wrappers to load initial data on mount
-- Replace `isGeneratingSongAtom: boolean` with `songGenerationStatusAtom: 'idle' | 'pending' | 'completed' | 'failed'`
-- Update App.tsx and DetailPanel to use new status atom
+- Create migration script (`migration-v041.ts`) to split legacy items
+- Update `DetailPanel` to create 2 history items per Suno generation
+- Update `handleSunoUpdate` to update items by `variationIndex`
+- Simplify `HistoryItem` component to single audio player
+- Remove track-level delete functionality
+- Show variation number in title (#1, #2)
+
+### Backend
+- Remove `'partial'` status mapping from Suno service
+
+### Documentation
+- Add D-041 to DECISIONS.md
+- Supersede D-025 (partial status)
+- Update D-031 (remove track delete)
+- Update SPEC.md data structure and descriptions
 
 ---
 
-## Files Allowed to Change
-- frontend/src/store/atoms.ts
-- frontend/src/store/useHistoryAtom.ts
-- frontend/src/store/useGenreHistoryAtom.ts
-- frontend/src/store/index.ts
+## Files Changed
+- shared/types/index.ts
+- frontend/src/services/migration-v041.ts (new, delete after use)
+- frontend/src/services/storage.ts
 - frontend/src/App.tsx
 - frontend/src/components/panels/DetailPanel.tsx
+- frontend/src/components/panels/HistoryPanel.tsx
+- frontend/src/components/history/HistoryList.tsx
+- frontend/src/components/history/HistoryItem.tsx
+- backend/src/services/suno.ts
+- SPEC.md
 - DECISIONS.md
 
 ---
 
-## Acceptance Criteria
-- Atoms initialize without side effects
-- Hook wrappers load initial data via `useEffect`
-- Song generation status uses semantic values
-- All existing behavior preserved
-- D-040 added to DECISIONS.md
+## Post-Migration Cleanup
+After running the app once to migrate localStorage:
+1. Remove import from App.tsx: `import './services/migration-v041';`
+2. Delete file: `frontend/src/services/migration-v041.ts`
 
 ---
 
@@ -41,6 +61,7 @@ Remove side effects from atom initialization; use explicit initialization in hoo
 
 | Iteration | Description |
 |-----------|-------------|
+| 018 | Refine Jotai atoms (no side effects, semantic status) |
 | 017 | Introduce Jotai for shared state |
 | 016 | DetailPanel owns editor draft state |
 | 015 | Split App.tsx into panels and resize hook |

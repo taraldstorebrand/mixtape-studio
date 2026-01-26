@@ -307,15 +307,7 @@ Rationale:
 ---
 
 ## D-025 – Suno "partial" status definition
-Status: Accepted
-
-Decision:
-The `sunoStatus: 'partial'` means at least one (but not all) audio files are available.
-Suno generates 2 variations; "partial" indicates 1 of 2 is ready.
-
-Rationale:
-- Allows UI to show available audio while waiting for remaining tracks
-- Provides incremental feedback during long generation
+Status: Superseded by D-041
 
 ---
 
@@ -394,17 +386,16 @@ Rationale:
 
 ---
 
-## D-031 – Delete history items and tracks
-Status: Accepted
+## D-031 – Delete history items
+Status: Accepted (Updated by D-041)
 
 Decision:
-Each history item displays a trashcan icon button to delete the entire item.
-Each audio track displays a trashcan icon button to delete that individual track.
+Each history item displays a trashcan icon button to delete that item.
 Deletions are immediate with no confirmation dialog.
 
 Rationale:
 - Gives users full control over their history
-- Individual track deletion allows keeping partial results
+- Each item represents one song, so no track-level deletion needed
 - No confirmation for MVP simplicity
 
 ---
@@ -561,3 +552,27 @@ Rationale:
 - Makes atoms pure and predictable
 - Semantic status provides richer state information than boolean
 - Explicit initialization in hooks ensures proper React lifecycle integration
+
+---
+
+## D-041 – One history item per song variation
+Status: Accepted
+
+Decision:
+Each Suno song variation is stored as a separate history item.
+When Suno generates 2 variations from one request, 2 history items are created.
+Both items share the same `sunoJobId` but have unique `sunoClipId` and `variationIndex`.
+
+Changes from previous model:
+- `sunoAudioUrls` (array) → `sunoAudioUrl` (string)
+- `sunoLocalUrls` (array) → `sunoLocalUrl` (string)
+- `sunoStatus: 'partial'` is removed (each item is either pending, completed, or failed)
+- New field `sunoClipId` identifies the specific Suno clip
+- New field `variationIndex` (0 or 1) identifies which variation
+
+Rationale:
+- Simplifies data model (each item = one song)
+- Enables per-song feedback (like/dislike applies to one song, not two)
+- Enables per-song deletion without affecting the other variation
+- Removes need for track-level delete buttons
+- More intuitive mental model for users

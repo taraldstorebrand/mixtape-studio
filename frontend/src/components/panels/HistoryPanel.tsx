@@ -7,7 +7,6 @@ interface HistoryPanelProps {
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onSelect: (item: HistoryItem) => void;
   onDeleteItem: (id: string) => void;
-  onDeleteTrack: (id: string, trackIndex: number) => void;
 }
 
 export function HistoryPanel({
@@ -16,7 +15,6 @@ export function HistoryPanel({
   onFeedback,
   onSelect,
   onDeleteItem,
-  onDeleteTrack,
 }: HistoryPanelProps) {
   return (
     <HistoryList
@@ -25,7 +23,6 @@ export function HistoryPanel({
       onFeedback={onFeedback}
       onSelect={onSelect}
       onDeleteItem={onDeleteItem}
-      onDeleteTrack={onDeleteTrack}
     />
   );
 }

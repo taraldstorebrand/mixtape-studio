@@ -89,8 +89,8 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 - Lyrics must be non-empty
 - Lyrics truncated to 500 characters (only when genre is not provided)
 - Generation can take several minutes
-- Suno generates 2 song variations
-- Button remains disabled with spinner until status is "completed" or "failed"
+- Suno generates 2 song variations, each stored as a separate history item
+- Button remains disabled with spinner until both variations are "completed" or "failed"
 
 **Note:** Suno allocates all song variations upfront; individual track fields such as `audioUrl` are populated asynchronously and may change without any change in job status. Clients must react to payload changes, not only status transitions.
 
@@ -100,12 +100,12 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 **Flow**:
 
 1. Songs appear in a compact scrollable list in the right panel
-2. Each item shows: title, status badge, timestamp, audio players (if completed)
-3. Lyrics are not displayed in the list (use "Gjenbruk" to view)
-4. Completed items have inline audio players
-5. Filter bar at top with "Default", "Liked", "All" options
-6. Each item has a trashcan delete button
-7. Each audio track has a trashcan delete button
+2. Each item represents one song (Suno generates 2 variations per request, each becomes a separate item)
+3. Each item shows: title, status badge, timestamp, audio player (if completed)
+4. Lyrics are not displayed in the list (use "Gjenbruk" to view)
+5. Completed items have inline audio player
+6. Filter bar at top with "Default", "Liked", "All" options
+7. Each item has a trashcan delete button
 
 **Filtering**:
 - Default (initial): Shows everything except items with feedback = 'down'
@@ -113,8 +113,8 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 - All: Shows everything including disliked items
 
 **Deletion**:
-- History item delete removes the entire entry from localStorage
-- Track delete removes only that audio URL from the item (keeps other tracks)
+- History item delete removes that song entry from localStorage
+- Each variation can be deleted independently
 
 **Storage rules**:
 - Only Suno song generations create history entries (not ChatGPT lyrics alone)
@@ -185,12 +185,13 @@ interface HistoryItem {
   lyrics: string;                // Generated or edited lyrics
   createdAt: string;             // ISO 8601 timestamp
   feedback?: 'up' | 'down';      // User feedback
-  sunoJobId?: string;            // Suno task ID
-  sunoStatus?: 'pending' | 'partial' | 'completed' | 'failed';
-  sunoAudioUrls?: string[];      // Array of generated audio URLs (CDN)
-  sunoLocalUrls?: string[];      // Array of local audio URLs (/mp3s/...)
+  sunoJobId?: string;            // Suno task ID (shared by both variations)
+  sunoClipId?: string;           // Suno clip ID (unique per song)
+  sunoStatus?: 'pending' | 'completed' | 'failed';
+  sunoAudioUrl?: string;         // Generated audio URL (CDN)
+  sunoLocalUrl?: string;         // Local audio URL (/mp3s/...)
   genre?: string;                // User-specified genre
-  sunoAudioUrl?: string;         // Legacy field (migrated to sunoAudioUrls)
+  variationIndex?: number;       // 0 or 1, identifies which variation from the Suno job
 }
 ```
 
@@ -201,7 +202,8 @@ interface HistoryItem {
 
 ### Migration
 
-- Legacy `sunoAudioUrl` (single URL) is automatically migrated to `sunoAudioUrls` (array) on read
+- Legacy items with `sunoAudioUrls` (array) are automatically migrated to separate history items on read
+- Each array element becomes its own HistoryItem with `sunoAudioUrl` (single URL)
 
 ---
 
