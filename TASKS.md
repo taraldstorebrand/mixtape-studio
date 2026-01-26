@@ -1,5 +1,58 @@
 # TASKS.md
 
+## Iteration 020 – Backend persistence with SQLite (D-042)
+
+### Goal
+Replace localStorage-based persistence with SQLite backend storage. Increase history limit to 10,000 items.
+
+---
+
+## In Scope
+
+### Backend
+- Add SQLite database (`better-sqlite3`)
+- Create `data/sangtekst.db` with `history_items` and `genre_history` tables
+- Implement REST endpoints for history and genre CRUD
+- Add database initialization on server startup
+
+### Frontend
+- Create API client for history and genre endpoints
+- Update `useHistoryAtom` to fetch/mutate via API
+- Update `useGenreHistoryAtom` to fetch/mutate via API
+- Remove localStorage usage for `sangtekst_history` and `sangtekst_genre_history`
+- Keep `sangtekst_panel_width` in localStorage
+- Add one-time migration from localStorage to backend
+
+### Documentation
+- Add D-042 to DECISIONS.md
+- Update D-020 (history limit 100 → 10,000)
+- Update SPEC.md data persistence section
+
+---
+
+## Out of Scope
+- User authentication
+- Multi-user support
+- Cloud sync
+- `user_preferences` table
+
+---
+
+## Files Changed
+- backend/package.json
+- backend/src/db/index.ts (new)
+- backend/src/routes/history.ts (new)
+- backend/src/routes/genres.ts (new)
+- backend/src/server.ts
+- frontend/src/services/api.ts (new)
+- frontend/src/store/useHistoryAtom.ts
+- frontend/src/store/useGenreHistoryAtom.ts
+- frontend/src/services/storage.ts
+- SPEC.md
+- DECISIONS.md
+
+---
+
 ## Iteration 019 – One history item per song variation (D-041)
 
 ### Goal

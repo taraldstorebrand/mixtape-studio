@@ -167,49 +167,62 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 ## Data Persistence
 
-### Location
+### Backend Storage (SQLite)
 
-All data is stored in the browser's `localStorage`.
+History items and genre history are persisted server-side in a SQLite database.
 
-### Storage Key
+**Database file**: `backend/data/sangtekst.db`
 
-`sangtekst_history`
+#### Tables
 
-### Data Structure (HistoryItem)
+**history_items**
+| Column | Type | Description |
+|--------|------|-------------|
+| id | TEXT PRIMARY KEY | Unique ID (timestamp-based) |
+| prompt | TEXT NOT NULL | Original user prompt |
+| title | TEXT NOT NULL | Song title |
+| lyrics | TEXT NOT NULL | Generated or edited lyrics |
+| genre | TEXT | User-specified genre |
+| created_at | TEXT NOT NULL | ISO 8601 timestamp |
+| feedback | TEXT | 'up' or 'down' |
+| suno_job_id | TEXT | Suno task ID |
+| suno_clip_id | TEXT | Suno clip ID |
+| suno_status | TEXT | 'pending', 'completed', or 'failed' |
+| suno_audio_url | TEXT | CDN audio URL |
+| suno_local_url | TEXT | Local audio URL |
+| variation_index | INTEGER | 0 or 1 |
 
-```typescript
-interface HistoryItem {
-  id: string;                    // Unique ID (timestamp-based)
-  prompt: string;                // Original user prompt
-  title: string;                 // Song title (required)
-  lyrics: string;                // Generated or edited lyrics
-  createdAt: string;             // ISO 8601 timestamp
-  feedback?: 'up' | 'down';      // User feedback
-  sunoJobId?: string;            // Suno task ID (shared by both variations)
-  sunoClipId?: string;           // Suno clip ID (unique per song)
-  sunoStatus?: 'pending' | 'completed' | 'failed';
-  sunoAudioUrl?: string;         // Generated audio URL (CDN)
-  sunoLocalUrl?: string;         // Local audio URL (/mp3s/...)
-  genre?: string;                // User-specified genre
-  variationIndex?: number;       // 0 or 1, identifies which variation from the Suno job
-}
-```
+**genre_history**
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INTEGER PRIMARY KEY | Auto-increment |
+| genre | TEXT UNIQUE NOT NULL | Genre name |
+| last_used_at | TEXT NOT NULL | ISO 8601 timestamp |
+
+### Client-Side Storage (localStorage)
+
+UI-related state remains in localStorage:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `sangtekst_panel_width` | number | Resizable panel width percentage |
 
 ### Limits
 
-- Maximum 100 history items stored
-- Older items are dropped when limit is exceeded
+- Maximum **10,000** history items stored
+- Maximum **50** genres stored in genre history
+- Oldest items are removed when limits are exceeded (FIFO)
 
 ### Migration
 
-- Legacy items with `sunoAudioUrls` (array) are automatically migrated to separate history items on read
-- Each array element becomes its own HistoryItem with `sunoAudioUrl` (single URL)
+- On first backend connection, existing localStorage data is migrated to SQLite
+- localStorage keys `sangtekst_history` and `sangtekst_genre_history` are cleared after migration
 
 ---
 
 ## Known Limitations
 
-1. **No persistence beyond browser**: History is lost if localStorage is cleared
+1. **Single-device storage**: SQLite database is local to the server; no cloud sync
 2. **No cross-device sync**: Data is local to the browser
 3. **No authentication**: Anyone with access to the app can use it
 4. **Single user**: No concept of user accounts or separate histories

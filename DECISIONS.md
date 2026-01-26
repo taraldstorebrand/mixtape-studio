@@ -238,14 +238,15 @@ Rationale:
 ---
 
 ## D-020 – History item limit
-Status: Accepted
+Status: Accepted (Updated by D-042)
 
 Decision:
-Maximum 100 history items are stored in localStorage.
+Maximum **10,000** history items are stored in the database.
 When limit is exceeded, the oldest items are removed first (FIFO).
 
 Rationale:
-- Prevents localStorage from growing unbounded
+- SQLite handles larger datasets than localStorage
+- 10,000 items provides ample history for typical usage
 - FIFO ensures recent work is preserved
 
 ---
@@ -576,3 +577,26 @@ Rationale:
 - Enables per-song deletion without affecting the other variation
 - Removes need for track-level delete buttons
 - More intuitive mental model for users
+
+---
+
+## D-042 – Backend persistence with SQLite
+Status: Accepted
+
+Decision:
+History items and genre history are persisted server-side using SQLite.
+UI-related state (panel width) remains in localStorage.
+
+Storage locations:
+- History items: SQLite `history_items` table
+- Genre history: SQLite `genre_history` table
+- Panel width: localStorage `sangtekst_panel_width`
+
+No `user_preferences` table is created; UI state stays client-side.
+
+Rationale:
+- SQLite provides durable storage not affected by browser cache clearing
+- Supports larger datasets (10,000 items vs previous 100)
+- Enables future features (backup, export, cross-device sync)
+- UI preferences are cosmetic and appropriately stored client-side
+- SQLite is simple, file-based, requires no external database server
