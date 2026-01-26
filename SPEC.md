@@ -143,10 +143,10 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 3. Left panel switches to read-only mode showing all saved fields (title, lyrics, genre, prompt)
 4. Audio players and status remain visible in the history item
 5. Clicking the same item again deselects it
-6. Deselecting resets left panel to "new draft" state with only ChatGPT prompt visible
+6. Deselecting resets left panel to "new draft" state with empty editor fields
 
 **States**:
-- **New draft state**: Only ChatGPT prompt input is visible; title, lyrics, genre fields are hidden or empty
+- **New draft state**: All editor fields visible (prompt, title, lyrics editor, genre, generate button); user can write lyrics directly or generate via ChatGPT
 - **Read-only state**: All fields displayed but not editable; shows the selected song's complete state; includes "Kopier" button
 
 ### 8. Copy Song as New Draft

@@ -1,5 +1,19 @@
 # TASKS.md
 
+## Iteration 023 – Always-visible editor fields (D-044)
+
+### Goal
+Show all editor fields (title, lyrics, genre, generate button) in "new draft" state, allowing users to write lyrics directly without generating via ChatGPT first.
+
+---
+
+## Files Changed
+- frontend/src/components/lyrics/LyricsTextarea.tsx ✅
+- SPEC.md ✅
+- DECISIONS.md ✅
+
+---
+
 ## Iteration 022 – Mixtape from liked songs (D-043)
 
 ### Goal

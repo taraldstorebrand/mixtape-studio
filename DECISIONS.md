@@ -450,12 +450,12 @@ Rationale:
 ---
 
 ## D-035 – Song selection and draft state restoration
-Status: Accepted
+Status: Accepted (Updated by D-044)
 
 Decision:
 Clicking a history item selects it and displays its complete state in read-only mode in the left panel.
 Clicking the already-selected item deselects it and resets the left panel to "new draft" state.
-"New draft" state shows only the ChatGPT prompt input; title, lyrics, and genre fields are hidden or cleared.
+"New draft" state shows all editor fields (prompt, title, lyrics, genre, generate button) with empty values.
 Read-only view includes a "Kopier" button to create an editable copy (replaces the "Gjenbruk" button on history items).
 History items store complete draft state (prompt, title, lyrics, genre) to enable full restoration on selection.
 
@@ -620,3 +620,17 @@ Rationale:
 - Simple feature for users to export their favorite songs
 - Using ffmpeg-static removes dependency on system-installed ffmpeg
 - Concat demuxer with -c copy is fast and preserves audio quality
+
+---
+
+## D-044 – Always-visible editor fields
+Status: Accepted
+
+Decision:
+All editor fields (title, lyrics textarea, genre, generate button) are always visible in "new draft" state.
+Users can write lyrics directly without first generating them via ChatGPT.
+
+Rationale:
+- Allows users to manually write or paste lyrics without using ChatGPT
+- Simpler UX: no hidden fields that appear conditionally
+- ChatGPT prompt remains optional for generating lyrics

@@ -35,10 +35,6 @@ export function LyricsTextarea({
     );
   }
 
-  if (!lyrics) {
-    return null;
-  }
-
   return (
     <div className="lyrics-container">
       <div className="title-input-container">
