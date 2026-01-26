@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../types';
-import { HistoryItem } from './HistoryItem';
+import { HistoryItem } from './HistoryItem/HistoryItem';
 
 type FilterType = 'default' | 'liked' | 'all';
 
