@@ -1,5 +1,19 @@
 # TASKS.md
 
+## Iteration 021 – Delete MP3 files on history deletion (D-043)
+
+### Goal
+When a history item is deleted, also delete the associated MP3 file from `backend/mp3s/` if it exists.
+
+---
+
+## Files Changed
+- backend/src/routes/history.ts – extract filename from sunoLocalUrl and delete file
+- SPEC.md ✅
+- API.md ✅
+
+---
+
 ## Iteration 020 – Backend persistence with SQLite (D-042)
 
 ### Goal

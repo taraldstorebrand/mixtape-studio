@@ -143,30 +143,6 @@ export function createHistoryItem(item: HistoryItem): void {
   enforceHistoryLimit();
 }
 
-export function createHistoryItemsBulk(items: HistoryItem[]): void {
-  const insertMany = db.transaction((items: HistoryItem[]) => {
-    for (const item of items) {
-      insertHistoryStmt.run({
-        id: item.id,
-        prompt: item.prompt,
-        title: item.title,
-        lyrics: item.lyrics,
-        genre: item.genre ?? null,
-        createdAt: item.createdAt,
-        feedback: item.feedback ?? null,
-        sunoJobId: item.sunoJobId ?? null,
-        sunoClipId: item.sunoClipId ?? null,
-        sunoStatus: item.sunoStatus ?? null,
-        sunoAudioUrl: item.sunoAudioUrl ?? null,
-        sunoLocalUrl: item.sunoLocalUrl ?? null,
-        variationIndex: item.variationIndex ?? null,
-      });
-    }
-  });
-  insertMany(items);
-  enforceHistoryLimit();
-}
-
 export function updateHistoryItem(id: string, updates: Partial<HistoryItem>): void {
   updateHistoryStmt.run({
     id,

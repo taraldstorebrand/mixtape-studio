@@ -145,7 +145,6 @@ test-cursor/
 - `GET /api/genres` - Hent sjangerhistorikk
 - `POST /api/genres` - Lagre ny sjanger
 - `DELETE /api/genres/:genre` - Slett sjanger
-- `POST /api/migrate` - Migrer data fra localStorage
 - `GET /health` - Health check
 
 ### WebSocket

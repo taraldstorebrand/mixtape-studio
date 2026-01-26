@@ -88,33 +88,6 @@ Create a new history item.
 
 ---
 
-### POST /api/history/bulk
-
-Bulk create history items (for migration from localStorage).
-
-**Request Body**
-
-```json
-[
-  { ... HistoryItem ... },
-  { ... HistoryItem ... }
-]
-```
-
-**Success Response (201)**
-
-```json
-{ "success": true, "count": 42 }
-```
-
-**Error Response (400)**
-
-```json
-{ "error": "Body må være en array av historikk-elementer" }
-```
-
----
-
 ### PATCH /api/history/:id
 
 Update a history item.
@@ -152,11 +125,17 @@ Any subset of HistoryItem fields can be provided.
 
 ### DELETE /api/history/:id
 
-Delete a history item.
+Delete a history item and its associated MP3 file.
 
 **Path Parameters**
 
 - `id`: string (required) - The history item ID
+
+**Behavior**
+
+- Deletes the history item from the database
+- If the item has a `sunoLocalUrl`, deletes the corresponding MP3 file from `backend/mp3s/`
+- File deletion failures are logged but do not cause the request to fail
 
 **Success Response (200)**
 

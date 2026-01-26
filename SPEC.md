@@ -113,7 +113,8 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 - All: Shows everything including disliked items
 
 **Deletion**:
-- History item delete removes that song entry from localStorage
+- History item delete removes that song entry from database
+- Backend also deletes the associated MP3 file from `backend/mp3s/` if it exists
 - Each variation can be deleted independently
 
 **Storage rules**:
