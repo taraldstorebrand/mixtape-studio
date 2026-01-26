@@ -34,12 +34,12 @@ No user-level scoping or session isolation is implemented at this time.
 Status: Resolved
 
 Decision:
-The backend uses `gpt-5.2` via the OpenAI Responses API (not Chat Completions API).
+The backend uses `gpt-5.2` via the OpenAI Chat Completions API.
 The parameter `max_completion_tokens` is used (not `max_tokens`).
 This is part of the locked API contract.
 
 Rationale:
-- OpenAI Responses API is the chosen integration
+- OpenAI Chat Completions API is the chosen integration
 - `gpt-5.2` requires `max_completion_tokens` parameter
 - The model identifier and API choice are locked
 

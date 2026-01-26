@@ -55,7 +55,7 @@ npm install
 4. Opprett `.env` fil i `backend/` mappen:
 ```bash
 cd ../backend
-cp .env.example .env
+cp .env-template .env
 ```
 
 5. Rediger `.env` filen og legg inn dine API-nøkler:

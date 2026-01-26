@@ -187,7 +187,8 @@ interface HistoryItem {
   feedback?: 'up' | 'down';      // User feedback
   sunoJobId?: string;            // Suno task ID
   sunoStatus?: 'pending' | 'partial' | 'completed' | 'failed';
-  sunoAudioUrls?: string[];      // Array of generated audio URLs
+  sunoAudioUrls?: string[];      // Array of generated audio URLs (CDN)
+  sunoLocalUrls?: string[];      // Array of local audio URLs (/mp3s/...)
   genre?: string;                // User-specified genre
   sunoAudioUrl?: string;         // Legacy field (migrated to sunoAudioUrls)
 }
