@@ -193,6 +193,31 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 - Chapters are embedded in the file (no external chapter file)
 - Returns 400 if no liked songs are found
 
+### 11. Upload MP3 Files
+
+**Flow**:
+
+1. User clicks "Last opp MP3" button in history panel
+2. File picker opens, user can select one or multiple MP3 files
+3. For each selected file, a title input appears (pre-filled with filename)
+4. User can edit titles before uploading
+5. User clicks "Last opp" to upload all files
+6. Server saves files using sanitized title as filename
+7. Each file creates a separate history item with `isUploaded: true`
+
+**Filename rules**:
+
+- Title is sanitized (special characters → `_`)
+- If file exists: sequential suffix added (_1.mp3, _2.mp3, etc.)
+
+**Constraints**:
+
+- Maximum 10 files per upload
+- Maximum 10 MB per file
+- Only MP3 format accepted
+- Uploaded songs appear in history and can be liked/disliked
+- Uploaded songs are included in mixtape if liked
+
 ---
 
 ## Data Persistence

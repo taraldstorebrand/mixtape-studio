@@ -1,6 +1,25 @@
 # TASKS.md
 
-## Iteration 026 – Manual MP3 upload for mixtapes (D-048)
+## Iteration 027 – Multi-file MP3 upload (D-049)
+
+### Goal
+Enable uploading multiple MP3 files at once instead of one file at a time.
+Uploaded files use the user-provided title (or original filename) as the server filename.
+If a file with the same name exists, a sequential suffix is added (_1.mp3, _2.mp3, etc.).
+
+---
+
+## Files to Change
+- backend/src/routes/upload.ts – Accept multiple files, use title-based filenames with deduplication
+- frontend/src/components/history/UploadButton/UploadButton.tsx – Multi-file selection and title input
+- frontend/src/services/api.ts – Update uploadMp3 to handle multiple files
+- SPEC.md ✅
+- API.md ✅
+- DECISIONS.md ✅
+
+---
+
+## Iteration 026 – Manual MP3 upload for mixtapes (D-048) ✅
 
 ### Goal
 Allow users to upload existing MP3 files to include in mixtapes alongside generated songs.

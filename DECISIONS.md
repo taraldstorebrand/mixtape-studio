@@ -718,4 +718,33 @@ Rationale:
 - Leverages existing mp3s/ storage and history infrastructure
 - Simple addition to existing workflow
 
+---
+
+## D-049 – Multi-file MP3 upload
+Status: Accepted
+
+Decision:
+Users can select and upload multiple MP3 files in a single operation.
+Each file gets its own title (defaulting to filename without extension).
+Server filename uses the sanitized title with `.mp3` extension.
+If a file with the same name exists, a sequential suffix is added (_1.mp3, _2.mp3, etc.).
+
+Request format:
+- files: multiple MP3 files (field name: "files")
+- titles: JSON array of titles matching file order
+
+Filename examples:
+- "Min Sang" → `Min_Sang.mp3`
+- "Min Sang" (duplicate) → `Min_Sang_1.mp3`, `Min_Sang_2.mp3`
+
+Constraints:
+- Maximum 10 files per upload
+- Maximum 10 MB per file
+- Titles are sanitized (special characters replaced with `_`)
+
+Rationale:
+- Meaningful filenames are easier to identify on disk
+- Sequential suffix matches existing D-014 pattern for Suno downloads
+- Multi-file upload speeds up workflow
+
 

@@ -443,7 +443,22 @@
   gap: 0.5rem;
 }
 
+.upload-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.upload-file-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .upload-title-input {
+  flex: 1;
   padding: 0.5rem;
   background-color: #2a2a2a;
   border: 1px solid #444;
@@ -455,6 +470,21 @@
 .upload-title-input:focus {
   outline: none;
   border-color: #646cff;
+}
+
+.upload-remove-button {
+  padding: 0.25rem 0.5rem;
+  background-color: transparent;
+  color: #888;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.upload-remove-button:hover:not(:disabled) {
+  color: #ff6b6b;
 }
 
 .upload-actions {

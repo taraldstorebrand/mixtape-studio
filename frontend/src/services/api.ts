@@ -259,10 +259,13 @@ export async function downloadMixtape(downloadId: string): Promise<void> {
 
 // Upload API
 
-export async function uploadMp3(file: File, title: string): Promise<{ id: string; localUrl: string }> {
+export async function uploadMp3Files(
+  files: File[],
+  titles: string[]
+): Promise<{ id: string; localUrl: string }[]> {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('title', title);
+  files.forEach((file) => formData.append('files', file));
+  formData.append('titles', JSON.stringify(titles));
 
   const response = await fetch(`${API_BASE_URL}/upload`, {
     method: 'POST',
@@ -271,9 +274,9 @@ export async function uploadMp3(file: File, title: string): Promise<{ id: string
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke laste opp fil');
+    throw new Error(error.error || 'Kunne ikke laste opp filer');
   }
 
   const data = await response.json();
-  return { id: data.id, localUrl: data.localUrl };
+  return data.items;
 }

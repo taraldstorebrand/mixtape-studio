@@ -462,6 +462,50 @@ Download a generated mixtape file.
 
 ---
 
+## Upload Endpoints
+
+### POST /api/upload
+
+Upload one or more MP3 files and create history items.
+
+**Request Body (multipart/form-data)**
+
+- `files`: MP3 file(s) (max 10 files, max 10 MB each)
+- `titles`: JSON array of titles (must match number of files)
+
+**Success Response (201)**
+
+```json
+{
+  "success": true,
+  "items": [
+    { "id": "string", "localUrl": "string" },
+    { "id": "string", "localUrl": "string" }
+  ]
+}
+```
+
+**Error Response (400)**
+
+```json
+{ "error": "Ingen filer lastet opp" }
+```
+
+```json
+{ "error": "Antall titler må matche antall filer" }
+```
+
+```json
+{ "error": "Maksimalt 10 filer per opplasting" }
+```
+
+**Filename behavior**:
+
+- Server uses sanitized title as filename
+- If file exists, sequential suffix added (_1.mp3, _2.mp3, etc.)
+
+---
+
 ## Implementation Notes
 
 1. **Suno job completion**: The backend uses polling only. No callback endpoint is implemented. The backend polls Suno every 5 seconds and pushes updates to clients via WebSocket.
