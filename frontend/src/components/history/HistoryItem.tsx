@@ -1,5 +1,23 @@
 import { HistoryItem as HistoryItemType } from '../../types';
 
+interface StatusBadgeProps {
+  status: string | undefined;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
+  if (!status) return null;
+
+  const statusMap: Record<string, { text: string; className: string }> = {
+    pending: { text: 'Venter...', className: 'status-pending' },
+    completed: { text: 'Ferdig', className: 'status-completed' },
+    failed: { text: 'Feilet', className: 'status-failed' },
+  };
+
+  const statusInfo = statusMap[status];
+  if (!statusInfo) return null;
+  return <span className={`status-badge ${statusInfo.className}`}>{statusInfo.text}</span>;
+}
+
 interface HistoryItemProps {
   item: HistoryItemType;
   isSelected: boolean;
@@ -9,20 +27,6 @@ interface HistoryItemProps {
 }
 
 export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }: HistoryItemProps) {
-  const getStatusBadge = () => {
-    if (!item.sunoStatus) return null;
-
-    const statusMap: Record<string, { text: string; className: string }> = {
-      pending: { text: 'Venter...', className: 'status-pending' },
-      completed: { text: 'Ferdig', className: 'status-completed' },
-      failed: { text: 'Feilet', className: 'status-failed' },
-    };
-
-    const status = statusMap[item.sunoStatus];
-    if (!status) return null;
-    return <span className={`status-badge ${status.className}`}>{status.text}</span>;
-  };
-
   const displayTitle = item.title || item.prompt || 'Uten tittel';
   const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
@@ -43,7 +47,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
       <div className="history-header">
         <div className="history-meta">
           <strong className="history-title">{displayTitle}{variationLabel}</strong>
-          {getStatusBadge()}
+          <StatusBadge status={item.sunoStatus} />
           <span className="history-date">
             {new Date(item.createdAt).toLocaleDateString('no-NO')}
           </span>
