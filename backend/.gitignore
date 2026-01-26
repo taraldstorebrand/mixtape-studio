@@ -9,3 +9,6 @@ dist/
 
 # Downloaded audio files
 mp3s/
+
+# Temporary files (mixtapes)
+temp/

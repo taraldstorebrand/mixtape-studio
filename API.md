@@ -372,7 +372,7 @@ Server notifies clients when mixtape generation is complete.
 ```json
 {
   "taskId": "string",
-  "downloadUrl": "/mp3s/mixtape_1706000000000.m4b"
+  "downloadId": "string (unique ID for download endpoint)"
 }
 ```
 
@@ -388,7 +388,8 @@ Server notifies clients when mixtape generation is complete.
 **Notes**:
 
 - Frontend should match taskId to the pending request
-- downloadUrl is a path to the static file served by backend
+- Frontend fetches file via `GET /api/mixtape/download/:downloadId`
+- Backend deletes temp file after successful download
 
 ---
 
@@ -431,14 +432,33 @@ Start async mixtape generation from all liked songs (feedback = 'up').
 { "error": "Ingen likte sanger funnet" }
 ```
 
-### GET /mp3s/mixtape_{taskId}.m4b
+---
+
+### GET /api/mixtape/download/:downloadId
 
 Download a generated mixtape file.
+
+**Path Parameters**
+
+- `downloadId`: string (required) - Unique ID from `mixtape-ready` event
 
 **Success Response (200)**
 
 - Content-Type: `audio/mp4`
-- Body: Binary M4B data with embedded chapters
+- Content-Disposition: `attachment; filename="mixtape_likte_sanger.m4b"`
+- Body: M4B file stream
+
+**Behavior**
+
+- Streams the file to client
+- Deletes the temp file immediately after successful transfer
+- Returns 404 if file not found (expired or already downloaded)
+
+**Error Response (404)**
+
+```json
+{ "error": "Fil ikke funnet eller utløpt" }
+```
 
 ---
 

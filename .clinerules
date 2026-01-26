@@ -1,0 +1,52 @@
+# Claude Code Rules for Sangtekst Generator
+
+## Default Context Loading
+
+When starting a new task:
+1. ALWAYS read @QUICKREF.md first
+2. ALWAYS read @AGENTS.md for coding constraints
+3. ALWAYS read @TASKS.md to verify current iteration scope
+4. Only load other specs (@SPEC.md, @ARCHITECTURE.md, @API.md, @DECISIONS.md) when:
+   - Implementing new features not covered in QUICKREF
+   - Resolving ambiguities
+   - Making architectural decisions
+   - Modifying API contracts
+
+## Coding Standards
+
+- TypeScript strict mode
+- Functional React components only (no classes)
+- NO useCallback, useMemo, or React.memo unless absolutely required for correctness
+- NO render functions inside components - extract as separate components
+- File names MUST match exported component name
+- Helper components go in parent component subfolder
+
+## Safety Rules
+
+- Modify ONLY files listed in current iteration (TASKS.md)
+- Do NOT refactor unrelated code
+- Do NOT introduce new dependencies without explicit instruction
+- Do NOT create new endpoints or features outside iteration scope
+- Preserve existing behavior unless explicitly told to change it
+
+## When Unsure
+
+STOP and ask for clarification if:
+- There's a conflict between SPEC.md and ARCHITECTURE.md
+- The task requires files not listed in TASKS.md
+- The requested change contradicts AGENTS.md rules
+- The change might break existing functionality
+
+## Output Format
+
+- Prefer minimal diffs
+- Explain any deviations from specs explicitly
+- Show which files were changed and why
+- Note any assumptions made
+
+## Token Efficiency
+
+- Use QUICKREF.md instead of loading all specs for routine tasks
+- Reference full specs only when necessary
+- Be explicit about what context is needed per task
+- Don't repeat information already in QUICKREF.md

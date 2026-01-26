@@ -20,17 +20,21 @@ export function MixtapeButton({ hasLikedSongs }: MixtapeButtonProps) {
     try {
       const taskId = await startMixtapeGeneration();
 
-      onceMixtapeReady(taskId, (data) => {
-        setIsLoading(false);
-
+      onceMixtapeReady(taskId, async (data) => {
         if (data.error) {
+          setIsLoading(false);
           setError(data.error);
           return;
         }
 
-        if (data.downloadUrl) {
-          downloadMixtape(data.downloadUrl);
+        if (data.downloadId) {
+          try {
+            await downloadMixtape(data.downloadId);
+          } catch (downloadErr: any) {
+            setError(downloadErr.message || 'Kunne ikke laste ned mixtape');
+          }
         }
+        setIsLoading(false);
       });
     } catch (err: any) {
       setIsLoading(false);

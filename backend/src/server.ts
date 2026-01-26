@@ -8,9 +8,12 @@ import chatgptRoutes from './routes/chatgpt';
 import sunoRoutes from './routes/suno';
 import historyRoutes from './routes/history';
 import genresRoutes from './routes/genres';
-import mixtapeRoutes from './routes/mixtape';
+import mixtapeRoutes, { cleanupOldTempFiles } from './routes/mixtape';
 import { errorHandler } from './middleware/errorHandler';
 import './db';
+
+cleanupOldTempFiles();
+setInterval(cleanupOldTempFiles, 5 * 60 * 1000);
 
 const app = express();
 const server = createServer(app);

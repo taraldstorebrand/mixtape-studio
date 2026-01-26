@@ -30,6 +30,7 @@ test-cursor/
 │   │   └── server.ts     # Express + Socket.IO server entry
 │   ├── data/             # SQLite database file (sangtekst.db, gitignored)
 │   ├── mp3s/             # Downloaded Suno audio files ({title}_{index}.mp3, gitignored)
+│   ├── temp/             # Temporary mixtape files (auto-deleted, gitignored)
 │   └── package.json
 ├── shared/            # Shared TypeScript types
 │   └── types/

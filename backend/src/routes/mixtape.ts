@@ -8,6 +8,33 @@ import { io } from '../server';
 
 const router = Router();
 
+const TEMP_DIR = path.join(__dirname, '../../temp');
+const TEMP_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+function ensureTempDir(): void {
+  if (!fs.existsSync(TEMP_DIR)) {
+    fs.mkdirSync(TEMP_DIR, { recursive: true });
+  }
+}
+
+export function cleanupOldTempFiles(): void {
+  ensureTempDir();
+  const now = Date.now();
+  try {
+    const files = fs.readdirSync(TEMP_DIR);
+    for (const file of files) {
+      const filePath = path.join(TEMP_DIR, file);
+      const stat = fs.statSync(filePath);
+      if (now - stat.mtimeMs > TEMP_TTL_MS) {
+        fs.unlinkSync(filePath);
+        console.log(`Cleaned up old temp file: ${file}`);
+      }
+    }
+  } catch (err) {
+    console.error('Error cleaning up temp files:', err);
+  }
+}
+
 function getAudioDurationMs(filePath: string): number {
   const result = spawnSync(ffmpegPath!, ['-i', filePath, '-hide_banner'], {
     encoding: 'utf-8',
@@ -51,6 +78,7 @@ function generateChapterMetadata(
 
 async function generateMixtape(taskId: string): Promise<void> {
   const mp3sDir = path.join(__dirname, '../../mp3s');
+  ensureTempDir();
 
   try {
     const items = getAllHistoryItems();
@@ -66,9 +94,10 @@ async function generateMixtape(taskId: string): Promise<void> {
       return;
     }
 
-    const timestamp = Date.now();
-    const tempListFile = path.join(mp3sDir, `concat_${timestamp}.txt`);
-    const tempMetadataFile = path.join(mp3sDir, `metadata_${timestamp}.txt`);
+    const downloadId = `${taskId}_${Date.now()}`;
+    const tempListFile = path.join(TEMP_DIR, `concat_${downloadId}.txt`);
+    const tempMetadataFile = path.join(TEMP_DIR, `metadata_${downloadId}.txt`);
+    const outputFile = path.join(TEMP_DIR, `${downloadId}.m4b`);
 
     const songData = likedItems.map((item) => {
       const filename = item.sunoLocalUrl!.replace(/^\/mp3s\//, '');
@@ -84,9 +113,6 @@ async function generateMixtape(taskId: string): Promise<void> {
 
     const metadataContent = generateChapterMetadata(songData);
     fs.writeFileSync(tempMetadataFile, metadataContent);
-
-    const outputFilename = `mixtape_${taskId}.m4b`;
-    const outputFile = path.join(mp3sDir, outputFilename);
 
     await new Promise<void>((resolve, reject) => {
       const ffmpeg = spawn(ffmpegPath!, [
@@ -128,10 +154,7 @@ async function generateMixtape(taskId: string): Promise<void> {
       });
     });
 
-    io.emit('mixtape-ready', {
-      taskId,
-      downloadUrl: `/mp3s/${outputFilename}`,
-    });
+    io.emit('mixtape-ready', { taskId, downloadId });
   } catch (error: any) {
     console.error('Error creating mixtape:', error);
     io.emit('mixtape-ready', { taskId, error: 'Kunne ikke lage mixtape' });
@@ -154,6 +177,43 @@ router.post('/liked', async (req: Request, res: Response) => {
   generateMixtape(taskId);
 
   res.json({ taskId });
+});
+
+// GET /api/mixtape/download/:downloadId - Download generated mixtape
+router.get('/download/:downloadId', (req: Request, res: Response) => {
+  const { downloadId } = req.params;
+  const filePath = path.join(TEMP_DIR, `${downloadId}.m4b`);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Fil ikke funnet eller utløpt' });
+  }
+
+  res.setHeader('Content-Type', 'audio/mp4');
+  res.setHeader(
+    'Content-Disposition',
+    'attachment; filename="mixtape_likte_sanger.m4b"'
+  );
+
+  const stream = fs.createReadStream(filePath);
+
+  stream.on('end', () => {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Error deleting temp file after download:', err);
+      } else {
+        console.log(`Deleted temp file after download: ${downloadId}.m4b`);
+      }
+    });
+  });
+
+  stream.on('error', (err) => {
+    console.error('Error streaming mixtape file:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Kunne ikke laste ned fil' });
+    }
+  });
+
+  stream.pipe(res);
 });
 
 export default router;

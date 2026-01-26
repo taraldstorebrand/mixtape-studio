@@ -1,6 +1,28 @@
 # TASKS.md
 
-## Iteration 024 – Mixtape with embedded chapters (D-045, D-046)
+## Iteration 025 – Temporary mixtape file storage (D-047)
+
+### Goal
+Change mixtape delivery from base64 over WebSocket to temporary file download.
+Backend stores generated M4B in `backend/temp/`, frontend downloads via HTTP endpoint.
+Files are deleted after download or after 10-minute TTL.
+
+---
+
+## Files Changed
+- backend/src/routes/mixtape.ts ✅
+- backend/src/server.ts ✅
+- backend/.gitignore ✅
+- frontend/src/components/history/MixtapeButton/MixtapeButton.tsx ✅
+- frontend/src/services/api.ts ✅
+- SPEC.md ✅
+- API.md ✅
+- ARCHITECTURE.md ✅
+- DECISIONS.md ✅
+
+---
+
+## Iteration 024 – Mixtape with embedded chapters (D-045, D-046) ✅
 
 ### Goal
 Change mixtape output from MP3 to M4B with embedded chapter markers for iPhone compatibility.

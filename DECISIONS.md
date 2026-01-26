@@ -661,23 +661,39 @@ Rationale:
 ---
 
 ## D-046 – Async mixtape generation via WebSocket
-Status: Accepted
+Status: Accepted (Updated by D-047)
 
 Decision:
 Mixtape generation runs asynchronously with progress notification via WebSocket.
 POST /api/mixtape/liked returns immediately with a taskId.
-When generation completes, server emits `mixtape-ready` event with downloadUrl.
-Frontend listens for the event and triggers download automatically.
-
-Flow:
-1. Frontend calls POST /api/mixtape/liked
-2. Backend validates (returns 400 if no liked songs), then returns { taskId }
-3. Backend generates mixtape in background
-4. Backend emits `mixtape-ready` with { taskId, downloadUrl } or { taskId, error }
-5. Frontend matches taskId and triggers download or shows error
+When generation completes, server emits `mixtape-ready` event with downloadId.
+Frontend fetches file via GET /api/mixtape/download/:downloadId.
 
 Rationale:
 - Mixtape generation can take significant time with many songs
 - Async approach prevents HTTP timeout issues
 - WebSocket notification is consistent with existing Suno update pattern
 - HTTP download provides proper Content-Disposition and progress support
+
+---
+
+## D-047 – Temporary mixtape file storage
+Status: Accepted
+
+Decision:
+Mixtape files are stored temporarily on disk during generation, then deleted after download.
+Files are stored in `backend/temp/` (gitignored).
+
+Lifecycle:
+1. Backend generates M4B to `backend/temp/{downloadId}.m4b`
+2. Backend emits `mixtape-ready` with `downloadId`
+3. Frontend fetches via `GET /api/mixtape/download/:downloadId`
+4. Backend streams file and deletes it immediately after successful transfer
+5. Fallback cleanup: Files older than 10 minutes are deleted on server startup and periodically
+
+Rationale:
+- Avoids sending large files over WebSocket (base64 bloat, memory pressure)
+- Disk storage handles large files better than in-memory buffers
+- Immediate deletion after download prevents disk accumulation
+- 10-minute TTL handles edge cases (client disconnect, download failure)
+- Temp folder is gitignored to keep repo clean

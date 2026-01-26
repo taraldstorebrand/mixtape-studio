@@ -172,9 +172,17 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 1. User clicks "Lag mixtape av likte sanger" button at the top of the history panel
 2. Button shows "Lager mixtape..." and is disabled
 3. Backend validates and returns taskId immediately
-4. Backend generates mixtape in background (may take time for many songs)
-5. When complete, backend sends WebSocket event `mixtape-ready`
-6. Browser automatically downloads the M4B file with embedded chapters
+4. Backend generates mixtape in background to `backend/temp/` (may take time for many songs)
+5. When complete, backend sends WebSocket event `mixtape-ready` with `downloadId`
+6. Frontend fetches file via `GET /api/mixtape/download/:downloadId`
+7. Backend streams file and deletes it immediately after successful download
+8. Browser automatically downloads the M4B file with embedded chapters
+
+**Temporary file handling**:
+
+- Mixtape files are stored temporarily in `backend/temp/` (gitignored)
+- Files are deleted immediately after frontend downloads them
+- Fallback cleanup: Files older than 10 minutes are deleted on server startup and periodically
 
 **Constraints**:
 
