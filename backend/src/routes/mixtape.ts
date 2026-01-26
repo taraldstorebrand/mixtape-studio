@@ -129,7 +129,13 @@ async function generateMixtape(taskId: string): Promise<void> {
         '-c:a',
         'aac',
         '-b:a',
-        '192k',
+        '256k',
+        '-metadata',
+        'title=Liked Songs – Mixtape',
+        '-metadata',
+        'album=Suno and others Mixtape',
+        '-metadata',
+        'artist=Tarald',
         outputFile,
       ]);
 

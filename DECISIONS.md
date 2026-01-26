@@ -643,19 +643,26 @@ Status: Accepted
 Decision:
 Mixtape output uses M4B format (AAC audio with chapter markers) instead of MP3.
 Chapters are embedded in the file using ffmpeg metadata, one chapter per song.
-Audio is transcoded to AAC at 192 kbps (good quality/size balance).
+Audio is transcoded to AAC at 256 kbps (high quality for archival).
 File extension: `.m4b` (recognized as audiobook by iPhone/iOS).
+
+Global metadata embedded in output file:
+- title: "Liked Songs – Mixtape"
+- album: "Suno and others Mixtape"
+- artist: "Tarald"
 
 Technical approach:
 - Generate ffmpeg metadata file with chapter start/end times and titles
 - Use `-f concat` to combine MP3 inputs
-- Transcode to AAC: `-c:a aac -b:a 192k`
+- Transcode to AAC: `-c:a aac -b:a 256k`
 - Embed chapters: `-i metadata.txt -map_metadata 1`
+- Embed global metadata via `-metadata` flags
 
 Rationale:
 - M4B is natively supported by iPhone as audiobook format
 - Embedded chapters allow skipping between songs
-- 192 kbps AAC provides good quality while keeping file size reasonable
+- 256 kbps AAC provides high quality for archival purposes
+- Global metadata ensures proper display in audiobook players
 - No GUI tools or third-party libraries beyond ffmpeg required
 
 ---
