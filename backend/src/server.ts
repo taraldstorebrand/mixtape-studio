@@ -9,6 +9,7 @@ import sunoRoutes from './routes/suno';
 import historyRoutes from './routes/history';
 import genresRoutes from './routes/genres';
 import mixtapeRoutes, { cleanupOldTempFiles } from './routes/mixtape';
+import uploadRoutes from './routes/upload';
 import { errorHandler } from './middleware/errorHandler';
 import './db';
 
@@ -40,6 +41,7 @@ app.use('/api/suno', sunoRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/genres', genresRoutes);
 app.use('/api/mixtape', mixtapeRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

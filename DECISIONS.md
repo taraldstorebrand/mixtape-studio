@@ -697,3 +697,25 @@ Rationale:
 - Immediate deletion after download prevents disk accumulation
 - 10-minute TTL handles edge cases (client disconnect, download failure)
 - Temp folder is gitignored to keep repo clean
+
+
+## D-048 – Manual MP3 upload for mixtapes
+Status: Accepted
+
+Decision:
+Users can upload existing MP3 files to include in mixtapes alongside generated songs.
+Upload endpoint saves files to `backend/mp3s/` and creates a history item.
+Uploaded items have Suno fields set to null and are marked with `isUploaded: true`.
+
+Constraints:
+- Files must be MP3 format
+- Maximum file size: 10 MB
+- User must provide a title for the uploaded song
+- Uploaded songs appear in history and can be liked/disliked like generated songs
+
+Rationale:
+- Enables mixtapes with personal music collection
+- Leverages existing mp3s/ storage and history infrastructure
+- Simple addition to existing workflow
+
+

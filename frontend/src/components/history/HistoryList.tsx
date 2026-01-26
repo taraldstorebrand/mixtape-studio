@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../types';
 import { HistoryItem } from './HistoryItem/HistoryItem';
 import { MixtapeButton } from './MixtapeButton/MixtapeButton';
+import { UploadButton } from './UploadButton/UploadButton';
 
 type FilterType = 'default' | 'liked' | 'all';
 
@@ -34,7 +35,10 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
 
   return (
     <div className="history-list">
-      <MixtapeButton hasLikedSongs={hasLikedSongs} />
+      <div className="history-actions">
+        <UploadButton />
+        <MixtapeButton hasLikedSongs={hasLikedSongs} />
+      </div>
       <div className="history-header-bar">
         <h2>Sanger ({filteredItems.length})</h2>
         <div className="filter-buttons">

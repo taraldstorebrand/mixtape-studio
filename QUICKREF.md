@@ -6,7 +6,7 @@
 
 ## Gjeldende Status
 
-- **Iterasjon**: 025 (Temporary mixtape file storage)
+- **Iterasjon**: 026 (Manual MP3 upload for mixtapes)
 - **Stack**: React 19, TypeScript, Express 5, Node.js, SQLite, Socket.IO
 - **Ports**: Frontend (5173), Backend (3001)
 
@@ -74,6 +74,7 @@ Frontend (React SPA)          Backend (Express + Socket.IO)
   sunoAudioUrl?: string
   sunoLocalUrl?: string
   variationIndex?: 0 | 1
+  isUploaded?: boolean
 }
 ```
 
@@ -88,6 +89,7 @@ Frontend (React SPA)          Backend (Express + Socket.IO)
 - `POST /api/history` - Opprett item
 - `PATCH /api/history/:id` - Oppdater item
 - `DELETE /api/history/:id` - Slett item (+ MP3 fil)
+- `POST /api/upload` - Last opp MP3-fil
 - `POST /api/mixtape/liked` - Start mixtape-generering
 - `GET /api/mixtape/download/:downloadId` - Last ned mixtape
 
@@ -97,24 +99,26 @@ Frontend (React SPA)          Backend (Express + Socket.IO)
 
 ---
 
-## Nåværende Iterasjon (025)
+## Nåværende Iterasjon (026)
 
-**Mål**: Endre mixtape fra base64 over WebSocket til temp fil-nedlasting
+**Mål**: La brukere laste opp eksisterende MP3-filer til mixtapes
 
 **Endrede filer**:
-- `backend/src/routes/mixtape.ts` - Lagre til temp/, returner downloadId
-- `backend/src/server.ts` - Serve download endpoint
-- `backend/.gitignore` - Legg til temp/
-- `frontend/src/components/history/MixtapeButton/MixtapeButton.tsx` - Fetch file via HTTP
-- `frontend/src/services/api.ts` - Download endpoint
+- `shared/types/index.ts` - Legg til isUploaded felt
+- `backend/src/routes/upload.ts` (ny) - Upload endpoint med multer
+- `backend/src/server.ts` - Mount upload routes
+- `backend/src/db/index.ts` - Håndter isUploaded i CRUD
+- `frontend/src/components/history/UploadButton/UploadButton.tsx` (ny) - Upload-knapp
+- `frontend/src/components/history/HistoryList.tsx` - Inkluder upload-knapp
+- `frontend/src/services/api.ts` - Upload API-funksjon
 - Spec-filer (SPEC.md, API.md, ARCHITECTURE.md, DECISIONS.md)
 
 **Oppførsel**:
-- Backend lagrer M4B i `backend/temp/`
-- Frontend får downloadId via WebSocket
-- Frontend henter fil via GET endpoint
-- Backend sletter fil etter vellykket nedlasting
-- Fallback: Slett filer eldre enn 10 min
+- Bruker velger MP3-fil og angir tittel
+- Backend lagrer fil i `backend/mp3s/`
+- Backend oppretter history item med `isUploaded: true`
+- Opplastede sanger vises i historikk og kan likes/dislikes
+- Maks filstørrelse: 10 MB
 
 ---
 
@@ -182,5 +186,5 @@ const result = stmt.get(id);
 
 ## Siste Oppdatering
 
-**Dato**: Iterasjon 025
+**Dato**: Iterasjon 026
 **Av**: Oppdater denne når nye iterasjoner fullføres

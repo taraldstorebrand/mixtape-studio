@@ -8,7 +8,8 @@
       "Bash(findstr:*)",
       "Bash(dir /s /b \"C:\\\\Users\\\\Tarald\\\\Desktop\\\\Test Cursor\\\\*.md\")",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

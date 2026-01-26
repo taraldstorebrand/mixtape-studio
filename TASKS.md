@@ -1,6 +1,29 @@
 # TASKS.md
 
-## Iteration 025 – Temporary mixtape file storage (D-047)
+## Iteration 026 – Manual MP3 upload for mixtapes (D-048)
+
+### Goal
+Allow users to upload existing MP3 files to include in mixtapes alongside generated songs.
+Uploaded files are saved to `backend/mp3s/` and create a history item with `isUploaded: true`.
+
+---
+
+## Files to Change
+- shared/types/index.ts – Add `isUploaded` field to HistoryItem
+- backend/src/routes/upload.ts (new) – Upload endpoint with multer
+- backend/src/server.ts – Mount upload routes
+- backend/src/db/index.ts – Handle isUploaded field in CRUD
+- frontend/src/components/history/UploadButton/UploadButton.tsx (new) – Upload button component
+- frontend/src/components/history/HistoryList.tsx – Include upload button
+- frontend/src/services/api.ts – Upload API function
+- SPEC.md
+- API.md
+- ARCHITECTURE.md
+- DECISIONS.md ✅
+
+---
+
+## Iteration 025 – Temporary mixtape file storage (D-047) ✅
 
 ### Goal
 Change mixtape delivery from base64 over WebSocket to temporary file download.

@@ -256,3 +256,24 @@ export async function downloadMixtape(downloadId: string): Promise<void> {
 
   URL.revokeObjectURL(url);
 }
+
+// Upload API
+
+export async function uploadMp3(file: File, title: string): Promise<{ id: string; localUrl: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('title', title);
+
+  const response = await fetch(`${API_BASE_URL}/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke laste opp fil');
+  }
+
+  const data = await response.json();
+  return { id: data.id, localUrl: data.localUrl };
+}

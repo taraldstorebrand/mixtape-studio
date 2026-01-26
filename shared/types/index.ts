@@ -12,4 +12,5 @@ export interface HistoryItem {
   sunoLocalUrl?: string;
   genre?: string;
   variationIndex?: number;
+  isUploaded?: boolean;
 }
