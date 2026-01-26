@@ -634,3 +634,50 @@ Rationale:
 - Allows users to manually write or paste lyrics without using ChatGPT
 - Simpler UX: no hidden fields that appear conditionally
 - ChatGPT prompt remains optional for generating lyrics
+
+---
+
+## D-045 – Mixtape output format with chapters
+Status: Accepted
+
+Decision:
+Mixtape output uses M4B format (AAC audio with chapter markers) instead of MP3.
+Chapters are embedded in the file using ffmpeg metadata, one chapter per song.
+Audio is transcoded to AAC at 192 kbps (good quality/size balance).
+File extension: `.m4b` (recognized as audiobook by iPhone/iOS).
+
+Technical approach:
+- Generate ffmpeg metadata file with chapter start/end times and titles
+- Use `-f concat` to combine MP3 inputs
+- Transcode to AAC: `-c:a aac -b:a 192k`
+- Embed chapters: `-i metadata.txt -map_metadata 1`
+
+Rationale:
+- M4B is natively supported by iPhone as audiobook format
+- Embedded chapters allow skipping between songs
+- 192 kbps AAC provides good quality while keeping file size reasonable
+- No GUI tools or third-party libraries beyond ffmpeg required
+
+---
+
+## D-046 – Async mixtape generation via WebSocket
+Status: Accepted
+
+Decision:
+Mixtape generation runs asynchronously with progress notification via WebSocket.
+POST /api/mixtape/liked returns immediately with a taskId.
+When generation completes, server emits `mixtape-ready` event with downloadUrl.
+Frontend listens for the event and triggers download automatically.
+
+Flow:
+1. Frontend calls POST /api/mixtape/liked
+2. Backend validates (returns 400 if no liked songs), then returns { taskId }
+3. Backend generates mixtape in background
+4. Backend emits `mixtape-ready` with { taskId, downloadUrl } or { taskId, error }
+5. Frontend matches taskId and triggers download or shows error
+
+Rationale:
+- Mixtape generation can take significant time with many songs
+- Async approach prevents HTTP timeout issues
+- WebSocket notification is consistent with existing Suno update pattern
+- HTTP download provides proper Content-Disposition and progress support

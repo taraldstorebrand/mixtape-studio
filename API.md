@@ -363,6 +363,35 @@ Server pushes Suno job status updates to clients.
 
 ---
 
+### Event: `mixtape-ready`
+
+Server notifies clients when mixtape generation is complete.
+
+**Payload (success)**
+
+```json
+{
+  "taskId": "string",
+  "downloadUrl": "/mp3s/mixtape_1706000000000.m4b"
+}
+```
+
+**Payload (error)**
+
+```json
+{
+  "taskId": "string",
+  "error": "Kunne ikke lage mixtape"
+}
+```
+
+**Notes**:
+
+- Frontend should match taskId to the pending request
+- downloadUrl is a path to the static file served by backend
+
+---
+
 ## Error Handling
 
 All endpoints return errors in this format:
@@ -381,20 +410,20 @@ In development mode (`NODE_ENV=development`), the error handler also includes a 
 
 ### POST /api/mixtape/liked
 
-Create a mixtape from all liked songs (feedback = 'up').
+Start async mixtape generation from all liked songs (feedback = 'up').
 
 **Behavior**
 
-- Finds all history items with `feedback: 'up'` and a valid `sunoLocalUrl`
-- Concatenates MP3 files in chronological order (`createdAt ASC`)
-- Uses ffmpeg concat demuxer with `-c copy` (no re-encoding)
-- Returns the combined MP3 as a download
+- Validates that liked songs with local MP3 files exist
+- Returns immediately with a taskId
+- Generates M4B file with embedded chapters in background
+- Emits `mixtape-ready` WebSocket event when complete
 
 **Success Response (200)**
 
-- Content-Type: `audio/mpeg`
-- Content-Disposition: `attachment; filename="mixtape_likte_sanger.mp3"`
-- Body: Binary MP3 data
+```json
+{ "taskId": "1706000000000" }
+```
 
 **Error Response (400)**
 
@@ -402,11 +431,14 @@ Create a mixtape from all liked songs (feedback = 'up').
 { "error": "Ingen likte sanger funnet" }
 ```
 
-**Error Response (500)**
+### GET /mp3s/mixtape_{taskId}.m4b
 
-```json
-{ "error": "Kunne ikke lage mixtape" }
-```
+Download a generated mixtape file.
+
+**Success Response (200)**
+
+- Content-Type: `audio/mp4`
+- Body: Binary M4B data with embedded chapters
 
 ---
 

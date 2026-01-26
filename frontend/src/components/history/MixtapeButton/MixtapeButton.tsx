@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { downloadLikedMixtape } from '../../../services/api';
+import {
+  startMixtapeGeneration,
+  downloadMixtape,
+  onceMixtapeReady,
+} from '../../../services/api';
 
 interface MixtapeButtonProps {
   hasLikedSongs: boolean;
@@ -7,25 +11,43 @@ interface MixtapeButtonProps {
 
 export function MixtapeButton({ hasLikedSongs }: MixtapeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleClick() {
     setIsLoading(true);
+    setError(null);
+
     try {
-      await downloadLikedMixtape();
-    } catch (error) {
-      console.error('Mixtape error:', error);
-    } finally {
+      const taskId = await startMixtapeGeneration();
+
+      onceMixtapeReady(taskId, (data) => {
+        setIsLoading(false);
+
+        if (data.error) {
+          setError(data.error);
+          return;
+        }
+
+        if (data.downloadUrl) {
+          downloadMixtape(data.downloadUrl);
+        }
+      });
+    } catch (err: any) {
       setIsLoading(false);
+      setError(err.message || 'Kunne ikke starte mixtape-generering');
     }
   }
 
   return (
-    <button
-      className="mixtape-button"
-      onClick={handleClick}
-      disabled={!hasLikedSongs || isLoading}
-    >
-      {isLoading ? 'Lager mixtape...' : 'Lag mixtape av likte sanger'}
-    </button>
+    <div>
+      <button
+        className="mixtape-button"
+        onClick={handleClick}
+        disabled={!hasLikedSongs || isLoading}
+      >
+        {isLoading ? 'Lager mixtape...' : 'Lag mixtape av likte sanger'}
+      </button>
+      {error && <div className="mixtape-error">{error}</div>}
+    </div>
   );
 }

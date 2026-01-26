@@ -170,15 +170,19 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 **Flow**:
 
 1. User clicks "Lag mixtape av likte sanger" button at the top of the history panel
-2. Backend finds all songs with feedback = 'up' and a local MP3 file
-3. Songs are concatenated in chronological order (oldest first)
-4. Browser downloads the combined MP3 file
+2. Button shows "Lager mixtape..." and is disabled
+3. Backend validates and returns taskId immediately
+4. Backend generates mixtape in background (may take time for many songs)
+5. When complete, backend sends WebSocket event `mixtape-ready`
+6. Browser automatically downloads the M4B file with embedded chapters
 
 **Constraints**:
 
 - Button is disabled if no liked songs with local MP3 exist
-- Button is disabled while request is in progress
-- Uses ffmpeg concat demuxer with no re-encoding (-c copy)
+- Button is disabled while generation is in progress
+- Output format: M4B (AAC audio, 192 kbps)
+- Each song becomes a chapter with the song title as chapter name
+- Chapters are embedded in the file (no external chapter file)
 - Returns 400 if no liked songs are found
 
 ---

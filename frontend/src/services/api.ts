@@ -44,6 +44,26 @@ export function offSunoUpdate(callback?: (data: any) => void) {
   }
 }
 
+export function onceMixtapeReady(
+  taskId: string,
+  callback: (data: { downloadUrl?: string; error?: string }) => void
+) {
+  const s = connectSocket();
+
+  function handler(data: {
+    taskId: string;
+    downloadUrl?: string;
+    error?: string;
+  }) {
+    if (data.taskId === taskId) {
+      s.off('mixtape-ready', handler);
+      callback(data);
+    }
+  }
+
+  s.on('mixtape-ready', handler);
+}
+
 export async function generateLyrics(prompt: string): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/chatgpt/generate-lyrics`, {
     method: 'POST',
@@ -202,23 +222,25 @@ export async function removeGenre(genre: string): Promise<void> {
 
 // Mixtape API
 
-export async function downloadLikedMixtape(): Promise<void> {
+export async function startMixtapeGeneration(): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/mixtape/liked`, {
     method: 'POST',
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke lage mixtape');
+    throw new Error(error.error || 'Kunne ikke starte mixtape-generering');
   }
 
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
+  const data = await response.json();
+  return data.taskId;
+}
+
+export function downloadMixtape(downloadUrl: string): void {
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'mixtape_likte_sanger.mp3';
+  a.href = downloadUrl;
+  a.download = 'mixtape_likte_sanger.m4b';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }

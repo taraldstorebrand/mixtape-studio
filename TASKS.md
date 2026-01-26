@@ -1,5 +1,23 @@
 # TASKS.md
 
+## Iteration 024 – Mixtape with embedded chapters (D-045, D-046)
+
+### Goal
+Change mixtape output from MP3 to M4B with embedded chapter markers for iPhone compatibility.
+Use WebSocket to notify when generation is complete.
+
+---
+
+## Files Changed
+- backend/src/routes/mixtape.ts ✅
+- frontend/src/services/api.ts ✅
+- frontend/src/components/history/MixtapeButton/MixtapeButton.tsx ✅
+- SPEC.md ✅
+- API.md ✅
+- DECISIONS.md ✅
+
+---
+
 ## Iteration 023 – Always-visible editor fields (D-044)
 
 ### Goal
