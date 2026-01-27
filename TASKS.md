@@ -33,6 +33,23 @@
 - [x] Identify any UX improvements that should be intentionally deferred to avoid over-onboarding
 
 
+## Iteration 032 – Viewing Mode Escape Action (UX-018)
+
+### Implemented
+- [x] UX-018: "← Nytt utkast" button visible only in read-only view (when song selected)
+- [x] On click: de-selects song, returns to draft state
+- [x] Minimal secondary text button styling
+
+---
+
+## Iteration 031 – Sticky Right Panel Actions (UX-017)
+
+### Implemented
+- [x] UX-017: "Last opp MP3" and "Lag mixtape" buttons are sticky at top of right panel
+- [x] Upload form remains sticky when expanded
+
+---
+
 ## Iteration 030 – AI Toggle and Primary Action Placement (UX-014, UX-015, UX-016)
 
 ### Implemented

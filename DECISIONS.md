@@ -989,3 +989,39 @@ Rationale:
 - localStorage is the simplest persistence mechanism for user preferences
 
 ---
+
+## UX-017 – Right panel action buttons are sticky
+Status: Accepted
+
+Decision:
+The "Last opp MP3" and "Lag mixtape" buttons in the right panel are sticky at the top. When the upload form is expanded, it also remains in the sticky area. This mirrors the left panel where "Generer sang" is sticky (UX-015).
+
+Rationale:
+- Primary/secondary actions should always be visible without scrolling
+- Consistent behavior across both panels
+- Upload form benefits from staying visible while scrolling the song list
+
+---
+
+## UX-018 – Viewing mode escape action
+Status: Accepted
+
+Decision:
+A small, secondary text button labeled "← Nytt utkast" is shown in the left panel when a song is selected (read-only view). Clicking it de-selects the song and returns to the default draft state.
+
+Placement:
+- Visible only when viewing a selected song
+- Positioned at the top of the read-only view, above the header
+
+Behavior:
+- De-selects the selected song in the right panel
+- Resets the left panel to the default editable draft template
+- Does not create, delete, or modify any data
+- Does not change scroll position or show toasts
+
+Rationale:
+- Provides an explicit, discoverable escape hatch from viewing mode
+- Reduces reliance on implicit gestures (clicking elsewhere or using keyboard)
+- Minimal styling keeps it secondary to the primary content
+
+---

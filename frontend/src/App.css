@@ -373,6 +373,21 @@
   gap: 1rem;
 }
 
+.new-draft-button {
+  align-self: flex-start;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.new-draft-button:hover {
+  color: #bbb;
+}
+
 .readonly-header {
   display: flex;
   justify-content: space-between;
@@ -437,6 +452,8 @@
 
 .history-list {
   margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .mixtape-button {
@@ -462,10 +479,22 @@
   cursor: not-allowed;
 }
 
-.history-actions {
+.history-panel-actions {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+  background-color: #0f0f0f;
+}
+
+.history-panel-actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .upload-container {
@@ -499,6 +528,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
+}
+
+.upload-container:has(.upload-form) {
+  flex-basis: 100%;
 }
 
 .upload-file-list {

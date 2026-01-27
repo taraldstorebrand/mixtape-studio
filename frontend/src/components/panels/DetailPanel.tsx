@@ -124,6 +124,9 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
 
       {selectedItem ? (
         <div className="readonly-view">
+          <button className="new-draft-button" onClick={onClearSelection}>
+            ← Nytt utkast
+          </button>
           <div className="readonly-header">
             <h2>Valgt sang</h2>
             <button className="copy-button" onClick={handleCopy}>

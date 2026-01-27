@@ -35,9 +35,11 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
 
   return (
     <div className="history-list">
-      <div className="history-actions">
-        <UploadButton />
-        <MixtapeButton likedItems={likedItems} />
+      <div className="history-panel-actions">
+        <div className="history-panel-actions-buttons">
+          <UploadButton />
+          <MixtapeButton likedItems={likedItems} />
+        </div>
       </div>
       <div className="history-header-bar">
         <h2>Sanger ({filteredItems.length})</h2>
