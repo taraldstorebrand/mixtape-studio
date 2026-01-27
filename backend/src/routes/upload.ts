@@ -5,8 +5,34 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 import { createHistoryItem } from '../db';
 import type { HistoryItem } from '../../../shared/types';
+import * as musicMetadata from 'music-metadata';
 
 const ffmpegPath = require('ffmpeg-static') as string;
+
+const imagesDir = path.join(__dirname, '../../images');
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir, { recursive: true });
+}
+
+const PLACEHOLDER_IMAGE_URL = '/images/placeholder.jpg';
+
+async function extractCoverArt(filePath: string, baseFilename: string): Promise<string> {
+  try {
+    const metadata = await musicMetadata.parseFile(filePath);
+    const picture = metadata.common.picture?.[0];
+    
+    if (picture) {
+      const ext = picture.format === 'image/png' ? '.png' : '.jpg';
+      const imageFilename = `${baseFilename}${ext}`;
+      const imagePath = path.join(imagesDir, imageFilename);
+      fs.writeFileSync(imagePath, picture.data);
+      return `/images/${imageFilename}`;
+    }
+  } catch (err) {
+    console.error('Could not extract cover art:', err);
+  }
+  return PLACEHOLDER_IMAGE_URL;
+}
 
 function getMp3Duration(filePath: string): number | undefined {
   try {
@@ -81,7 +107,7 @@ const upload = multer({
   },
 });
 
-router.post('/', upload.array('files', 10), (req: Request, res: Response) => {
+router.post('/', upload.array('files', 10), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
     
@@ -104,7 +130,7 @@ router.post('/', upload.array('files', 10), (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Antall titler må matche antall filer' });
     }
 
-    const items: { id: string; localUrl: string; duration?: number }[] = [];
+    const items: { id: string; localUrl: string; duration?: number; imageUrl: string }[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -121,6 +147,7 @@ router.post('/', upload.array('files', 10), (req: Request, res: Response) => {
       fs.writeFileSync(filePath, file.buffer);
 
       const duration = getMp3Duration(filePath);
+      const imageUrl = await extractCoverArt(filePath, sanitized);
       const id = `upload-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const localUrl = `/mp3s/${filename}`;
 
@@ -131,12 +158,13 @@ router.post('/', upload.array('files', 10), (req: Request, res: Response) => {
         lyrics: '',
         createdAt: new Date().toISOString(),
         sunoLocalUrl: localUrl,
+        sunoImageUrl: imageUrl,
         isUploaded: true,
         duration,
       };
 
       createHistoryItem(historyItem);
-      items.push({ id, localUrl, duration });
+      items.push({ id, localUrl, duration, imageUrl });
     }
 
     res.status(201).json({ success: true, items });

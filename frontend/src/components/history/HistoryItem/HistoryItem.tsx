@@ -28,13 +28,11 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
       onClick={handleClick}
     >
       <div className="history-header">
-        {item.sunoImageUrl && (
-          <img
-            src={item.sunoImageUrl}
-            alt=""
-            className="history-thumbnail"
-          />
-        )}
+        <img
+          src={item.sunoImageUrl || '/images/placeholder.jpg'}
+          alt=""
+          className="history-thumbnail"
+        />
         <div className="history-meta">
           <strong className="history-title">{displayTitle}{variationLabel}</strong>
           <StatusBadge status={item.sunoStatus} />

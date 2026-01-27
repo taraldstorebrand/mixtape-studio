@@ -74,6 +74,7 @@ export function UploadButton() {
         lyrics: '',
         createdAt: new Date().toISOString(),
         sunoLocalUrl: result.localUrl,
+        sunoImageUrl: result.imageUrl,
         isUploaded: true,
         duration: result.duration,
       }));
