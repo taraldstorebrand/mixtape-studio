@@ -72,7 +72,7 @@ export function MixtapeButton({ likedItems }: MixtapeButtonProps) {
         onClick={handleClick}
         disabled={!hasLikedSongs || isLoading}
       >
-        {label}
+        {isLoading ? <span className="button-loading"><span className="spinner" />{label}</span> : label}
       </button>
       {error && <div className="mixtape-error">{error}</div>}
     </div>

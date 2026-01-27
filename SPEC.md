@@ -287,6 +287,39 @@ UI-related state remains in localStorage:
 
 ---
 
+## Loading States
+
+All long-running operations provide visual feedback to the user.
+
+### Loading Components
+
+**Skeleton Loaders**: Pulsating placeholder content that mimics the shape of the expected result.
+
+**Spinner with Text**: Rotating circle icon with contextual message on buttons that trigger actions.
+
+### Operation-Specific Loading States
+
+| Operation | Duration | Loading UI |
+|-----------|----------|------------|
+| Tekst-generering (OpenAI) | 2-10 sek | Skeleton lines in lyrics textarea + button spinner with "Genererer tekst..." |
+| Sang-generering (Suno) | 1-5 min | Button spinner with "Genererer sang... (1-5 min)" + skeleton in history list for pending items |
+| Mixtape-generering | 10-60 sek | Button spinner with "Lager mixtape..." + disabled state |
+
+### Skeleton Loader Specifications
+
+- **Lyrics skeleton**: 4-6 animated horizontal bars of varying width (60-90%) in the textarea area
+- **History item skeleton**: Thumbnail placeholder (48×48) + title bar + status badge placeholder
+- **Animation**: CSS pulse animation (opacity 0.4 → 1.0, 1.5s duration, infinite)
+
+### Button States During Loading
+
+- Disabled (no hover effects)
+- Shows spinner icon (CSS animated rotate)
+- Text changes to action-specific message
+- For Suno: includes estimated time range
+
+---
+
 ## Known Limitations
 
 1. **Single-device storage**: SQLite database is local to the server; no cloud sync

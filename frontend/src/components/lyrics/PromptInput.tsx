@@ -32,7 +32,7 @@ export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
           disabled={!prompt.trim() || isLoading}
           className="generate-button"
         >
-          {isLoading ? 'Genererer...' : 'Generer Tekst'}
+          {isLoading ? <span className="button-loading"><span className="spinner" />Genererer tekst...</span> : 'Generer tekst'}
         </button>
       </div>
     </form>

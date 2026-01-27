@@ -26,7 +26,19 @@ export function LyricsTextarea({
   if (isLoading) {
     return (
       <div className="lyrics-container">
-        <div className="loading">Genererer sangtekst...</div>
+        <div className="title-input-container">
+          <label className="title-label">Sangtittel (påkrevd):</label>
+          <div className="skeleton" style={{ height: '2.5rem', width: '100%' }} />
+        </div>
+        <label className="lyrics-label">Sangtekst:</label>
+        <div className="skeleton-lyrics">
+          <div className="skeleton-line" />
+          <div className="skeleton-line" />
+          <div className="skeleton-line" />
+          <div className="skeleton-line" />
+          <div className="skeleton-line" />
+          <div className="skeleton-line" />
+        </div>
       </div>
     );
   }

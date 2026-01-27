@@ -890,6 +890,102 @@
   background-color: rgba(255, 68, 68, 0.1);
 }
 
+/* Loading States - Skeleton Loaders */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1.0; }
+}
+
+.skeleton {
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-lyrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #1a1a1a;
+  border-radius: 6px;
+  min-height: 220px;
+}
+
+.skeleton-line {
+  height: 1rem;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line:nth-child(1) { width: 85%; animation-delay: 0s; }
+.skeleton-line:nth-child(2) { width: 70%; animation-delay: 0.1s; }
+.skeleton-line:nth-child(3) { width: 90%; animation-delay: 0.2s; }
+.skeleton-line:nth-child(4) { width: 60%; animation-delay: 0.3s; }
+.skeleton-line:nth-child(5) { width: 75%; animation-delay: 0.4s; }
+.skeleton-line:nth-child(6) { width: 80%; animation-delay: 0.5s; }
+
+.skeleton-history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-title {
+  height: 1rem;
+  width: 60%;
+}
+
+.skeleton-badge {
+  height: 0.75rem;
+  width: 4rem;
+  border-radius: 10px;
+}
+
+/* Loading States - Spinner */
+@keyframes spinner-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-rotate 0.75s linear infinite;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.button-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 768px) {
   .app-main {
     flex-direction: column;

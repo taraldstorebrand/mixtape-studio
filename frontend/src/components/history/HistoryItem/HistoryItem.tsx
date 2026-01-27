@@ -22,6 +22,18 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
     onSelect(item);
   };
 
+  if (item.sunoStatus === 'pending' && !audioUrl) {
+    return (
+      <div className="skeleton-history-item" onClick={handleClick}>
+        <div className="skeleton skeleton-thumbnail" />
+        <div className="skeleton-content">
+          <div className="skeleton skeleton-title" />
+          <div className="skeleton skeleton-badge" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`history-item ${isSelected ? 'selected' : ''}`}

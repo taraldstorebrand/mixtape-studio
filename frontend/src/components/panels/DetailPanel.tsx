@@ -163,7 +163,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
               disabled={!currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
               className="generate-song-button primary"
             >
-              {songGenerationStatus === 'pending' ? '⏳ Genererer sang...' : 'Generer sang'}
+              {songGenerationStatus === 'pending' ? <span className="button-loading"><span className="spinner" />Genererer sang... (1-5 min)</span> : 'Generer sang'}
             </button>
           </div>
 
