@@ -3,10 +3,9 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  if (!status || status === 'completed') return null;
+  if (!status || status === 'completed' || status === 'pending') return null;
 
   const statusMap: Record<string, { text: string; className: string }> = {
-    pending: { text: 'Venter...', className: 'status-pending' },
     failed: { text: 'Feilet', className: 'status-failed' },
   };
 
