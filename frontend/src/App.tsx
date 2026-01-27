@@ -88,7 +88,7 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>Mixtape Studio</h1>
-        <p>Lag musikk og mixtapes med AI</p>
+        <p>Lag musikk med AI og bygg dine egne mixtapes</p>
       </header>
 
       <main className="app-main" ref={containerRef}>
