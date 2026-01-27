@@ -1,8 +1,8 @@
-# 🎵 Mixamp Studio
+# 🎵 Mixtape Studio
 
 Lag musikk og mixtapes med AI. En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
 
-![Mixamp Studio Screenshot](docs/hero-screenshot.png)
+![Mixtape Studio Screenshot](docs/hero-screenshot.png)
 
 ## Krav til abonnementer
 

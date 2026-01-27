@@ -86,7 +86,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Mixamp Studio</h1>
+        <h1>Mixtape Studio</h1>
         <p>Lag musikk og mixtapes med AI</p>
       </header>
 
