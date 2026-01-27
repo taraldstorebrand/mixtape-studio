@@ -1,6 +1,6 @@
 # 🎵 Mixtape Studio
 
-Lag musikk og mixtapes med AI. En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
+Lag musikk med AI og bygg dine egne mixtapes. En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
 
 ![Mixtape Studio Screenshot](docs/hero-screenshot.png)
 
@@ -105,7 +105,7 @@ npm run dev
 
 ### Lag en sang
 
-1. **Skriv sangtekst**: Skriv teksten direkte i tekstfeltet, eller aktiver "Hjelp meg å skrive teksten (AI)" for ChatGPT-assistanse
+1. **Skriv sangtekst**: Skriv teksten direkte i tekstfeltet, eller aktiver "Bruk AI til å generere tekst" for ChatGPT-assistanse
 2. **Rediger tekst**: Juster teksten etter behov
 3. **Angi tittel**: Fyll inn tittel (påkrevd) og eventuelt sjanger
 4. **Generer sang**: Klikk "Generer sang" for å lage musikk fra teksten

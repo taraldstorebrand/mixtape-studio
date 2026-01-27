@@ -930,7 +930,7 @@ No list of intentionally deferred UX improvements is maintained. The UX review (
 Status: Accepted
 
 Decision:
-An explicit checkbox/toggle labeled "Hjelp meg å skrive teksten (AI)" is added to control AI usage.
+An explicit checkbox/toggle labeled "Bruk AI til å generere tekst" is added to control AI usage.
 - Default state: OFF
 - When OFF: AI prompt input and "Generer tekst" button are hidden
 - When ON: AI prompt input and "Generer tekst" button are shown
@@ -981,7 +981,7 @@ Rationale:
 Status: Accepted
 
 Decision:
-The "Hjelp meg å skrive teksten (AI)" checkbox state is persisted in localStorage under the key `aiAssistEnabled`. On component mount, the stored value is read to restore the user's preference.
+The "Bruk AI til å generere tekst" checkbox state is persisted in localStorage under the key `aiAssistEnabled`. On component mount, the stored value is read to restore the user's preference.
 
 Rationale:
 - Users who prefer manual lyric writing should not have to disable AI assist on every session

@@ -187,7 +187,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
                 onChange={(e) => handleAiAssistToggle(e.target.checked)}
                 className="ai-toggle-checkbox"
               />
-              Hjelp meg å skrive teksten (AI)
+              Bruk AI til å generere tekst
             </label>
 
             {aiAssistEnabled && (

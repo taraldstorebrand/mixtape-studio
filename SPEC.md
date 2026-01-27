@@ -29,7 +29,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 **Flow (AI-Assisted)**:
 
-1. User enables "Hjelp meg å skrive teksten (AI)" toggle (default: OFF)
+1. User enables "Bruk AI til å generere tekst" toggle (default: OFF)
 2. AI prompt input and "Generer tekst" button appear
 3. User enters a text prompt describing the desired song (e.g., "En sang om sommer")
 4. User clicks "Generer tekst" button
