@@ -171,7 +171,6 @@
   cursor: not-allowed;
 }
 
-.generate-button,
 .generate-song-button {
   padding: 0.5rem 1.25rem;
   font-size: 0.95rem;
@@ -184,14 +183,34 @@
   transition: background-color 0.2s;
 }
 
-.generate-button:hover:not(:disabled),
 .generate-song-button:hover:not(:disabled) {
   background-color: #535bf2;
 }
 
-.generate-button:disabled,
 .generate-song-button:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.generate-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.generate-button:hover:not(:disabled) {
+  background-color: #555;
+}
+
+.generate-button:disabled {
+  background-color: #333;
+  color: #666;
   cursor: not-allowed;
 }
 
