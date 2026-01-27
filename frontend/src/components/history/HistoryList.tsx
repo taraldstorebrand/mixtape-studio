@@ -23,7 +23,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     return item.feedback !== 'down';
   });
 
-  const hasLikedSongs = items.some(item => item.feedback === 'up' && item.sunoLocalUrl);
+  const likedItems = items.filter(item => item.feedback === 'up' && item.sunoLocalUrl);
 
   if (items.length === 0) {
     return (
@@ -37,7 +37,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     <div className="history-list">
       <div className="history-actions">
         <UploadButton />
-        <MixtapeButton hasLikedSongs={hasLikedSongs} />
+        <MixtapeButton likedItems={likedItems} />
       </div>
       <div className="history-header-bar">
         <h2>Sanger ({filteredItems.length})</h2>

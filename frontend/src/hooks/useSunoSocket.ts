@@ -6,6 +6,7 @@ export interface SunoUpdateData {
   status: string;
   audio_urls?: string[];
   local_urls?: string[];
+  durations?: number[];
   error?: string;
 }
 

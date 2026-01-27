@@ -75,6 +75,7 @@ export function UploadButton() {
         createdAt: new Date().toISOString(),
         sunoLocalUrl: result.localUrl,
         isUploaded: true,
+        duration: result.duration,
       }));
 
       setHistory((prev) => [...newItems.reverse(), ...prev]);

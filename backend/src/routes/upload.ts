@@ -2,8 +2,41 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { execSync } from 'child_process';
 import { createHistoryItem } from '../db';
 import type { HistoryItem } from '../../../shared/types';
+
+const ffmpegPath = require('ffmpeg-static') as string;
+
+function getMp3Duration(filePath: string): number | undefined {
+  try {
+    const output = execSync(
+      `"${ffmpegPath}" -i "${filePath}" -f null - 2>&1`,
+      { encoding: 'utf-8', timeout: 10000 }
+    );
+    const match = output.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
+    if (match) {
+      const hours = parseInt(match[1], 10);
+      const minutes = parseInt(match[2], 10);
+      const seconds = parseInt(match[3], 10);
+      const centiseconds = parseInt(match[4], 10);
+      return hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
+    }
+  } catch (err: any) {
+    // ffmpeg writes to stderr, parse it from the error output
+    const stderr = err.stderr?.toString() || err.stdout?.toString() || '';
+    const match = stderr.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
+    if (match) {
+      const hours = parseInt(match[1], 10);
+      const minutes = parseInt(match[2], 10);
+      const seconds = parseInt(match[3], 10);
+      const centiseconds = parseInt(match[4], 10);
+      return hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
+    }
+    console.error('Could not determine MP3 duration:', err.message);
+  }
+  return undefined;
+}
 
 const router = Router();
 
@@ -87,6 +120,7 @@ router.post('/', upload.array('files', 10), (req: Request, res: Response) => {
 
       fs.writeFileSync(filePath, file.buffer);
 
+      const duration = getMp3Duration(filePath);
       const id = `upload-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const localUrl = `/mp3s/${filename}`;
 
@@ -98,10 +132,11 @@ router.post('/', upload.array('files', 10), (req: Request, res: Response) => {
         createdAt: new Date().toISOString(),
         sunoLocalUrl: localUrl,
         isUploaded: true,
+        duration,
       };
 
       createHistoryItem(historyItem);
-      items.push({ id, localUrl });
+      items.push({ id, localUrl, duration });
     }
 
     res.status(201).json({ success: true, items });

@@ -13,4 +13,5 @@ export interface HistoryItem {
   genre?: string;
   variationIndex?: number;
   isUploaded?: boolean;
+  duration?: number;
 }

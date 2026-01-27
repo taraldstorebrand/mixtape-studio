@@ -34,7 +34,8 @@ db.exec(`
     suno_audio_url TEXT,
     suno_local_url TEXT,
     variation_index INTEGER,
-    is_uploaded INTEGER DEFAULT 0
+    is_uploaded INTEGER DEFAULT 0,
+    duration REAL
   );
 
   CREATE TABLE IF NOT EXISTS genre_history (
@@ -53,6 +54,10 @@ const hasIsUploaded = columns.some(col => col.name === 'is_uploaded');
 if (!hasIsUploaded) {
   db.exec('ALTER TABLE history_items ADD COLUMN is_uploaded INTEGER DEFAULT 0');
 }
+const hasDuration = columns.some(col => col.name === 'duration');
+if (!hasDuration) {
+  db.exec('ALTER TABLE history_items ADD COLUMN duration REAL');
+}
 
 // ============== History Items ==============
 
@@ -67,10 +72,10 @@ const getHistoryByIdStmt = db.prepare(`
 const insertHistoryStmt = db.prepare(`
   INSERT INTO history_items (
     id, prompt, title, lyrics, genre, created_at, feedback,
-    suno_job_id, suno_clip_id, suno_status, suno_audio_url, suno_local_url, variation_index, is_uploaded
+    suno_job_id, suno_clip_id, suno_status, suno_audio_url, suno_local_url, variation_index, is_uploaded, duration
   ) VALUES (
     @id, @prompt, @title, @lyrics, @genre, @createdAt, @feedback,
-    @sunoJobId, @sunoClipId, @sunoStatus, @sunoAudioUrl, @sunoLocalUrl, @variationIndex, @isUploaded
+    @sunoJobId, @sunoClipId, @sunoStatus, @sunoAudioUrl, @sunoLocalUrl, @variationIndex, @isUploaded, @duration
   )
 `);
 
@@ -87,7 +92,8 @@ const updateHistoryStmt = db.prepare(`
     suno_audio_url = COALESCE(@sunoAudioUrl, suno_audio_url),
     suno_local_url = COALESCE(@sunoLocalUrl, suno_local_url),
     variation_index = COALESCE(@variationIndex, variation_index),
-    is_uploaded = COALESCE(@isUploaded, is_uploaded)
+    is_uploaded = COALESCE(@isUploaded, is_uploaded),
+    duration = COALESCE(@duration, duration)
   WHERE id = @id
 `);
 
@@ -121,6 +127,7 @@ function rowToHistoryItem(row: Record<string, unknown>): HistoryItem {
     sunoLocalUrl: row.suno_local_url as string | undefined,
     variationIndex: row.variation_index as number | undefined,
     isUploaded: row.is_uploaded === 1 ? true : undefined,
+    duration: row.duration as number | undefined,
   };
 }
 
@@ -150,6 +157,7 @@ export function createHistoryItem(item: HistoryItem): void {
     sunoLocalUrl: item.sunoLocalUrl ?? null,
     variationIndex: item.variationIndex ?? null,
     isUploaded: item.isUploaded ? 1 : 0,
+    duration: item.duration ?? null,
   });
   enforceHistoryLimit();
 }
@@ -169,6 +177,7 @@ export function updateHistoryItem(id: string, updates: Partial<HistoryItem>): vo
     sunoLocalUrl: updates.sunoLocalUrl ?? null,
     variationIndex: updates.variationIndex ?? null,
     isUploaded: updates.isUploaded !== undefined ? (updates.isUploaded ? 1 : 0) : null,
+    duration: updates.duration ?? null,
   });
 }
 

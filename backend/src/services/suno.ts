@@ -64,6 +64,7 @@ export interface SunoStatusResponse {
   status: string;
   audio_urls?: string[];
   local_urls?: string[];
+  durations?: number[];
   error?: string;
 }
 
@@ -278,6 +279,9 @@ export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> 
     const audioUrls = tracks
       .map(track => track.sourceAudioUrl)
       .filter(url => url) as string[];
+    const durations = tracks
+      .map(track => track.duration)
+      .filter((d): d is number => d != null);
 
     // Map API status to our expected status values
     let mappedStatus = data.status;
@@ -305,6 +309,7 @@ export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> 
     return {
       status: frontendStatus,
       audio_urls: audioUrls.length > 0 ? audioUrls : undefined,
+      durations: durations.length > 0 ? durations : undefined,
       error: data.status === 'FAILED' || data.errorCode ? (data.errorMessage || response.data.msg) : undefined,
     };
   } catch (error: any) {

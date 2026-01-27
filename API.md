@@ -479,8 +479,8 @@ Upload one or more MP3 files and create history items.
 {
   "success": true,
   "items": [
-    { "id": "string", "localUrl": "string" },
-    { "id": "string", "localUrl": "string" }
+    { "id": "string", "localUrl": "string", "duration": 123.45 },
+    { "id": "string", "localUrl": "string", "duration": 234.56 }
   ]
 }
 ```

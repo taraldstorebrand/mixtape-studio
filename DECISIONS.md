@@ -727,6 +727,26 @@ Rationale:
 
 ---
 
+## D-050 – Duration tracking for mixtape button
+Status: Accepted
+
+Decision:
+Each history item stores a `duration` field (seconds, nullable number).
+MixtapeButton displays the total duration of all liked songs in HH:MM:SS format.
+Duration updates reactively as likes change.
+
+Sources:
+- Suno API: `duration` from `SunoRecordInfoTrack` is saved when song generation completes
+- Uploaded MP3s: duration extracted via ffmpeg at upload time
+- Database: `duration REAL` column in `history_items` table
+
+Rationale:
+- Users can see total mixtape length before generating
+- Duration from Suno API is already available but was not persisted
+- ffmpeg is already a dependency (via ffmpeg-static) so no new dependencies needed
+
+---
+
 ## D-049 – Multi-file MP3 upload
 Status: Accepted
 
@@ -753,5 +773,23 @@ Rationale:
 - Meaningful filenames are easier to identify on disk
 - Sequential suffix matches existing D-014 pattern for Suno downloads
 - Multi-file upload speeds up workflow
+
+---
+
+## D-050 – Upload endpoint returns duration
+Status: Accepted
+
+Decision:
+The POST /api/upload endpoint includes `duration` (in seconds) in the response for each uploaded file.
+
+Response format:
+```json
+{ "id": "string", "localUrl": "string", "duration": 123.45 }
+```
+
+Rationale:
+- Duration is calculated server-side via ffmpeg during upload
+- Frontend needs duration immediately to update MixtapeButton reactively
+- Returning duration in response avoids requiring a page refresh to see updated totals
 
 

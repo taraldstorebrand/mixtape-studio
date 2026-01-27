@@ -4,14 +4,28 @@ import {
   downloadMixtape,
   onceMixtapeReady,
 } from '../../../services/api';
+import type { HistoryItem } from '../../../types';
 
-interface MixtapeButtonProps {
-  hasLikedSongs: boolean;
+function formatDuration(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-export function MixtapeButton({ hasLikedSongs }: MixtapeButtonProps) {
+interface MixtapeButtonProps {
+  likedItems: HistoryItem[];
+}
+
+export function MixtapeButton({ likedItems }: MixtapeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const hasLikedSongs = likedItems.length > 0;
+  const totalDuration = likedItems.reduce((sum, item) => sum + (item.duration ?? 0), 0);
 
   async function handleClick() {
     setIsLoading(true);
@@ -42,6 +56,12 @@ export function MixtapeButton({ hasLikedSongs }: MixtapeButtonProps) {
     }
   }
 
+  const label = isLoading
+    ? 'Lager mixtape...'
+    : totalDuration > 0
+      ? `Lag mixtape av likte sanger (${formatDuration(totalDuration)})`
+      : 'Lag mixtape av likte sanger';
+
   return (
     <div>
       <button
@@ -49,7 +69,7 @@ export function MixtapeButton({ hasLikedSongs }: MixtapeButtonProps) {
         onClick={handleClick}
         disabled={!hasLikedSongs || isLoading}
       >
-        {isLoading ? 'Lager mixtape...' : 'Lag mixtape av likte sanger'}
+        {label}
       </button>
       {error && <div className="mixtape-error">{error}</div>}
     </div>

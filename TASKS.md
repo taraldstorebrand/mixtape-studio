@@ -1,5 +1,36 @@
 # TASKS.md
 
+## Iteration 028 – Mixtape-knapp viser total varighet
+
+### Goal
+MixtapeButton viser total varighet (timer, minutter, sekunder) av alle likte sanger.
+Varigheten oppdateres live når bruker legger til eller fjerner likes.
+
+### Prerequisites
+Duration er ikke lagret i dag. Suno API returnerer `duration` per clip, og backend kan hente varighet fra MP3-filer via ffmpeg. Varighet må persisteres slik at frontend kan vise den.
+
+### Approach
+1. Legg til `duration` (sekunder, number, nullable) i `HistoryItem` type og database-skjema
+2. Backend: Lagre `duration` fra Suno API-respons når clip er ferdig (allerede tilgjengelig i `SunoRecordInfoTrack.duration`)
+3. Backend: For opplastede filer, hent varighet via ffmpeg ved upload
+4. Frontend: `MixtapeButton` mottar likte items, summerer `duration`, og viser formatert tid (HH:MM:SS)
+5. Frontend: Verdien oppdateres reaktivt når likes endres i `HistoryList`
+
+---
+
+## Files to Change
+- shared/types/index.ts – Legg til `duration?: number` i HistoryItem ✅
+- backend/src/db/index.ts – Legg til `duration` kolonne, oppdater CRUD ✅
+- backend/src/services/suno.ts – Lagre duration fra Suno API-respons ✅
+- backend/src/routes/upload.ts – Hent og lagre duration ved MP3-upload ✅
+- frontend/src/components/history/MixtapeButton/MixtapeButton.tsx – Vis total varighet ✅
+- frontend/src/components/history/HistoryList.tsx – Send likte items med duration til MixtapeButton ✅
+- frontend/src/hooks/useSunoSocket.ts – Legg til `durations` i SunoUpdateData ✅
+- frontend/src/App.tsx – Pass duration ved Suno-oppdatering ✅
+- DECISIONS.md ✅
+
+---
+
 ## Iteration 027 – Multi-file MP3 upload (D-049)
 
 ### Goal
