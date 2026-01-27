@@ -9,6 +9,7 @@ import { io } from '../server';
 const router = Router();
 
 const TEMP_DIR = path.join(__dirname, '../../temp');
+const PLACEHOLDER_IMAGE = path.join(__dirname, '../assets/placeholder.png');
 const TEMP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 function ensureTempDir(): void {
@@ -115,7 +116,8 @@ async function generateMixtape(taskId: string): Promise<void> {
     fs.writeFileSync(tempMetadataFile, metadataContent);
 
     await new Promise<void>((resolve, reject) => {
-      const ffmpeg = spawn(ffmpegPath!, [
+      // All inputs first
+      const ffmpegArgs = [
         '-f',
         'concat',
         '-safe',
@@ -124,6 +126,15 @@ async function generateMixtape(taskId: string): Promise<void> {
         tempListFile,
         '-i',
         tempMetadataFile,
+      ];
+
+      const hasImage = fs.existsSync(PLACEHOLDER_IMAGE);
+      if (hasImage) {
+        ffmpegArgs.push('-i', PLACEHOLDER_IMAGE);
+      }
+
+      // Output options after all inputs
+      ffmpegArgs.push(
         '-map_metadata',
         '1',
         '-c:a',
@@ -136,10 +147,27 @@ async function generateMixtape(taskId: string): Promise<void> {
         'album=Suno and others Mixtape',
         '-metadata',
         'artist=Tarald',
-        outputFile,
-      ]);
+      );
+
+      if (hasImage) {
+        ffmpegArgs.push('-map', '0:a', '-map', '2:v');
+        ffmpegArgs.push('-c:v', 'mjpeg', '-q:v', '2');
+        ffmpegArgs.push('-disposition:v:0', 'attached_pic');
+      }
+
+      ffmpegArgs.push(outputFile);
+
+      const ffmpeg = spawn(ffmpegPath!, ffmpegArgs);
+
+      let stderrOutput = '';
+      ffmpeg.stderr?.on('data', (data: Buffer) => {
+        stderrOutput += data.toString();
+      });
 
       ffmpeg.on('close', (code) => {
+        if (code !== 0) {
+          console.error('ffmpeg stderr:', stderrOutput);
+        }
         try {
           fs.unlinkSync(tempListFile);
           fs.unlinkSync(tempMetadataFile);

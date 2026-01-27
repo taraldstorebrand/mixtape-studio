@@ -14,7 +14,7 @@ if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir, { recursive: true });
 }
 
-const PLACEHOLDER_IMAGE_URL = '/images/placeholder.jpg';
+const PLACEHOLDER_IMAGE_URL = '/assets/placeholder.png';
 
 async function extractCoverArt(filePath: string, baseFilename: string): Promise<string> {
   try {

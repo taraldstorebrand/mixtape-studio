@@ -134,7 +134,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
             </button>
           </div>
           <div className="readonly-cover-image">
-            <img src={selectedItem.sunoImageUrl || '/images/placeholder.jpg'} alt={selectedItem.title} />
+            <img src={selectedItem.sunoImageUrl || '/assets/placeholder.png'} alt={selectedItem.title} />
           </div>
           <div className="readonly-field">
             <label>ChatGPT-prompt:</label>

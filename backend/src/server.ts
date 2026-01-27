@@ -38,6 +38,9 @@ app.use('/mp3s', express.static(path.join(__dirname, '../mp3s')));
 // Static file serving for downloaded cover images
 app.use('/images', express.static(path.join(__dirname, '../images')));
 
+// Static file serving for assets (placeholder images etc.)
+app.use('/assets', express.static(path.join(__dirname, './assets')));
+
 // Routes
 app.use('/api/chatgpt', chatgptRoutes);
 app.use('/api/suno', sunoRoutes);

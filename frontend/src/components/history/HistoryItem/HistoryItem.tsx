@@ -29,7 +29,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
     >
       <div className="history-header">
         <img
-          src={item.sunoImageUrl || '/images/placeholder.jpg'}
+          src={item.sunoImageUrl || '/assets/placeholder.png'}
           alt=""
           className="history-thumbnail"
         />
