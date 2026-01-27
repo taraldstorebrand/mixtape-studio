@@ -33,6 +33,15 @@
 - [x] Identify any UX improvements that should be intentionally deferred to avoid over-onboarding
 
 
+## Iteration 030 – AI Toggle and Primary Action Placement (UX-014, UX-015, UX-016)
+
+### Implemented
+- [x] UX-014: AI assistance toggle "Hjelp meg å skrive teksten (AI)" controls AI prompt/button visibility
+- [x] UX-015: "Generer sang" button moved to top of left panel (sticky, disabled until title+lyrics filled)
+- [x] UX-016: Visual hierarchy separates primary action from secondary AI assistance
+
+---
+
 ## Iteration 029 – UX Decision Implementation
 
 ### Implemented

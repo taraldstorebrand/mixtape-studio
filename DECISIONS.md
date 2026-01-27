@@ -925,3 +925,67 @@ Decision:
 No list of intentionally deferred UX improvements is maintained. The UX review (UX-003 through UX-012) already rejected every proposed onboarding or explanatory addition on its own merits. The restraint principle is demonstrated by the decisions themselves — a meta-policy restating it adds nothing.
 
 ---
+
+## UX-014 – AI assistance toggle (explicit control)
+Status: Accepted
+
+Decision:
+An explicit checkbox/toggle labeled "Hjelp meg å skrive teksten (AI)" is added to control AI usage.
+- Default state: OFF
+- When OFF: AI prompt input and "Generer tekst" button are hidden
+- When ON: AI prompt input and "Generer tekst" button are shown
+- The lyrics textarea is always visible and always editable
+
+Rationale:
+- Makes AI usage an explicit, opt-in choice
+- Removes ambiguity about whether AI is required
+- Preserves user ownership of the text at all times
+
+---
+
+## UX-015 – Primary action placement
+Status: Accepted
+
+Decision:
+"Generer sang" is the primary commit action.
+- Placed at the top of the left panel
+- Remains visible (sticky if applicable)
+- Disabled until required fields (title + lyrics) are filled
+- Always generates a song from the current contents of the lyrics textarea
+
+Rationale:
+- Primary actions must be visible without scrolling
+- Matches a write → commit mental model
+- Eliminates competition between AI and Suno actions
+
+---
+
+## UX-016 – Visual hierarchy and flow
+Status: Accepted
+
+Decision:
+Visual hierarchy clearly distinguishes:
+- Primary action: "Generer sang"
+- Secondary, optional assistance: AI text generation
+
+No combined buttons, auto-chaining, or hidden pipelines are introduced.
+
+Rationale:
+- Prevents "magic" flows
+- Keeps AI as a helper, not a controller
+- Maintains predictable, user-driven flow
+
+---
+
+## D-047 – AI assist toggle persisted in localStorage
+Status: Accepted
+
+Decision:
+The "Hjelp meg å skrive teksten (AI)" checkbox state is persisted in localStorage under the key `aiAssistEnabled`. On component mount, the stored value is read to restore the user's preference.
+
+Rationale:
+- Users who prefer manual lyric writing should not have to disable AI assist on every session
+- Users who rely on AI assistance should not have to enable it repeatedly
+- localStorage is the simplest persistence mechanism for user preferences
+
+---

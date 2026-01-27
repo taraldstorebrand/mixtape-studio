@@ -20,25 +20,34 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 ## User-Visible Features
 
-### 1. Generate Lyrics
+### 1. Write or Generate Lyrics
 
-**Flow**:
+**Flow (Manual)**:
 
-1. User enters a text prompt describing the desired song (e.g., "En sang om sommer")
-2. User clicks "Generer Tekst" button
-3. System sends prompt to backend → OpenAI API
-4. Generated lyrics appear in the text area
+1. User writes lyrics directly in the lyrics textarea
+2. Lyrics textarea is always visible and editable
+
+**Flow (AI-Assisted)**:
+
+1. User enables "Hjelp meg å skrive teksten (AI)" toggle (default: OFF)
+2. AI prompt input and "Generer tekst" button appear
+3. User enters a text prompt describing the desired song (e.g., "En sang om sommer")
+4. User clicks "Generer tekst" button
+5. System sends prompt to backend → OpenAI API
+6. Generated lyrics appear in the text area
 
 **Constraints**:
 
-- Prompt must be non-empty
-- Loading state shown during generation
+- AI toggle defaults to OFF (UX-014)
+- When AI is disabled, prompt input and generate button are hidden
+- Lyrics textarea is always visible regardless of AI toggle state
+- Loading state shown during AI generation
 
 ### 2. Edit Lyrics
 
 **Flow**:
 
-1. User modifies the generated lyrics directly in the text area
+1. User modifies lyrics directly in the text area (whether written manually or AI-generated)
 2. Changes are local only (not saved until song generation)
 
 ### 3. Set Genre (Optional)
@@ -76,7 +85,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 **Flow**:
 
-1. User clicks "Generer Sang med Suno" button
+1. User clicks "Generer sang" button (primary action at top of left panel, UX-015)
 2. Button shows spinner and is disabled during generation
 3. System sends title, lyrics (and optional genre) to backend → Suno API
 4. History item is updated with job ID and "pending" status
@@ -87,6 +96,8 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 - Title must be non-empty
 - Lyrics must be non-empty
+- Button is disabled until both title and lyrics are filled (UX-015)
+- Button is positioned at the top of the left panel and remains visible (sticky)
 - Lyrics truncated to 500 characters (only when genre is not provided)
 - Generation can take several minutes
 - Suno generates 2 song variations, each stored as a separate history item
@@ -146,7 +157,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 6. Deselecting resets left panel to "new draft" state with empty editor fields
 
 **States**:
-- **New draft state**: All editor fields visible (prompt, title, lyrics editor, genre, generate button); user can write lyrics directly or generate via ChatGPT
+- **New draft state**: Primary "Generer sang" button at top (sticky), then title/lyrics/genre fields, then AI assistance toggle (collapsed by default). User can write lyrics directly or enable AI toggle to generate via ChatGPT (UX-014, UX-015, UX-016)
 - **Read-only state**: All fields displayed but not editable; shows the selected song's complete state; includes "Kopier" button
 
 ### 8. Copy Song as New Draft

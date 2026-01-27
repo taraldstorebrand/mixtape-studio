@@ -79,6 +79,64 @@
   gap: 1rem;
 }
 
+.primary-action-container {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #1a1a1f;
+  padding: 0.5rem 0;
+}
+
+.generate-song-button.primary {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.generate-song-button.primary:hover:not(:disabled) {
+  background-color: #535bf2;
+  transform: translateY(-1px);
+}
+
+.generate-song-button.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-assist-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+.ai-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-toggle-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #646cff;
+  cursor: pointer;
+}
+
 .prompt-form {
   width: 100%;
 }

@@ -7,9 +7,7 @@ interface LyricsTextareaProps {
   onTitleChange: (title: string) => void;
   genre: string;
   onGenreChange: (genre: string) => void;
-  onGenerateSong: () => void;
   isLoading: boolean;
-  isGeneratingSong: boolean;
   genreHistory: string[];
   onRemoveGenre: (genre: string) => void;
 }
@@ -21,9 +19,7 @@ export function LyricsTextarea({
   onTitleChange,
   genre,
   onGenreChange,
-  onGenerateSong,
   isLoading,
-  isGeneratingSong,
   genreHistory,
   onRemoveGenre,
 }: LyricsTextareaProps) {
@@ -59,7 +55,7 @@ export function LyricsTextarea({
         onChange={(e) => onChange(e.target.value)}
         className="lyrics-editor"
         rows={14}
-        placeholder="Sangteksten vil vises her..."
+        placeholder="Skriv sangteksten her..."
       />
       <div className="genre-input-container">
         <label className="genre-label">
@@ -72,13 +68,6 @@ export function LyricsTextarea({
           onRemoveGenre={onRemoveGenre}
         />
       </div>
-      <button
-        onClick={onGenerateSong}
-        disabled={!lyrics.trim() || !title.trim() || isGeneratingSong}
-        className="generate-song-button"
-      >
-        {isGeneratingSong ? '⏳ Genererer sang...' : 'Generer Sang med Suno'}
-      </button>
     </div>
   );
 }

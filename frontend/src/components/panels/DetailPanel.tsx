@@ -34,6 +34,15 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   const [isLoading, setIsLoading] = useState(false);
   const [songGenerationStatus, setSongGenerationStatus] = useAtom(songGenerationStatusAtom);
   const [error, setError] = useState<string | null>(null);
+  const [aiAssistEnabled, setAiAssistEnabled] = useState(() => {
+    const stored = localStorage.getItem('aiAssistEnabled');
+    return stored === 'true';
+  });
+
+  const handleAiAssistToggle = (enabled: boolean) => {
+    setAiAssistEnabled(enabled);
+    localStorage.setItem('aiAssistEnabled', String(enabled));
+  };
 
   useImperativeHandle(ref, () => ({
     notifySongGenerationComplete: () => {
@@ -142,10 +151,15 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
         </div>
       ) : (
         <div className="generation-section">
-          <PromptInput
-            onGenerate={handleGenerateLyrics}
-            isLoading={isLoading}
-          />
+          <div className="primary-action-container">
+            <button
+              onClick={handleGenerateSong}
+              disabled={!currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
+              className="generate-song-button primary"
+            >
+              {songGenerationStatus === 'pending' ? '⏳ Genererer sang...' : 'Generer sang'}
+            </button>
+          </div>
 
           <LyricsTextarea
             lyrics={currentLyrics}
@@ -154,12 +168,29 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
             onTitleChange={setTitle}
             genre={genre}
             onGenreChange={setGenre}
-            onGenerateSong={handleGenerateSong}
             isLoading={isLoading}
-            isGeneratingSong={songGenerationStatus === 'pending'}
             genreHistory={genreHistory}
             onRemoveGenre={onRemoveGenre}
           />
+
+          <div className="ai-assist-section">
+            <label className="ai-toggle-label">
+              <input
+                type="checkbox"
+                checked={aiAssistEnabled}
+                onChange={(e) => handleAiAssistToggle(e.target.checked)}
+                className="ai-toggle-checkbox"
+              />
+              Hjelp meg å skrive teksten (AI)
+            </label>
+
+            {aiAssistEnabled && (
+              <PromptInput
+                onGenerate={handleGenerateLyrics}
+                isLoading={isLoading}
+              />
+            )}
+          </div>
         </div>
       )}
     </>
