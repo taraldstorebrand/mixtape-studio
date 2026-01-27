@@ -42,6 +42,7 @@ function App() {
           sunoStatus: 'completed',
           sunoAudioUrl: data.audio_urls?.[index],
           sunoLocalUrl: data.local_urls?.[index],
+          sunoImageUrl: data.image_urls?.[index],
           duration: data.durations?.[index],
         });
       });

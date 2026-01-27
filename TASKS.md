@@ -1,5 +1,27 @@
 # TASKS.md
 
+## Iteration 033 – Suno cover images (D-051)
+
+### Goal
+Download and store cover images from Suno locally. Show thumbnails in history list and large image in detail view.
+
+### Files to Change
+- shared/types/index.ts – Add `sunoImageUrl?: string` to HistoryItem ✅
+- backend/src/db/index.ts – Add `suno_image_url` column, update CRUD ✅
+- backend/src/services/suno.ts – Download image from Suno CDN, save to `backend/images/`, add `image_urls` to WebSocket updates ✅
+- backend/src/server.ts – Serve static files from `/images/*` ✅
+- backend/.gitignore – Add `images/` directory ✅
+- frontend/src/hooks/useSunoSocket.ts – Add `image_urls` to SunoUpdateData ✅
+- frontend/src/App.tsx – Pass `sunoImageUrl` when handling Suno updates ✅
+- frontend/src/components/history/HistoryItem/HistoryItem.tsx – Show thumbnail (48x48) ✅
+- frontend/src/components/panels/DetailPanel.tsx – Show large cover image in read-only view ✅
+- frontend/vite.config.ts – Proxy `/images/*` to backend ✅
+- SPEC.md ✅
+- API.md ✅
+- DECISIONS.md ✅
+
+---
+
 ## UX Improvements – First-time Clarity & Mixtape Understanding
 
 ### AI Usage Clarity

@@ -30,6 +30,7 @@ test-cursor/
 │   │   └── server.ts     # Express + Socket.IO server entry
 │   ├── data/             # SQLite database file (sangtekst.db, gitignored)
 │   ├── mp3s/             # Downloaded Suno audio files ({title}_{index}.mp3, gitignored)
+│   ├── images/           # Downloaded Suno cover images ({title}_{index}.jpg, gitignored)
 │   ├── temp/             # Temporary mixtape files (auto-deleted, gitignored)
 │   └── package.json
 ├── shared/            # Shared TypeScript types
@@ -71,7 +72,7 @@ test-cursor/
 - **HTTP Server**: Express with CORS enabled
 - **WebSocket**: Socket.IO for real-time Suno status updates
 - **Database**: SQLite via better-sqlite3 (file: `backend/data/sangtekst.db`)
-- **Static Files**: `/mp3s/*` serves downloaded audio from `backend/mp3s/`
+- **Static Files**: `/mp3s/*` serves downloaded audio from `backend/mp3s/`, `/images/*` serves cover images from `backend/images/`
 
 ## Communication Patterns
 

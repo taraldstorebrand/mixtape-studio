@@ -112,7 +112,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 1. Songs appear in a compact scrollable list in the right panel
 2. Each item represents one song (Suno generates 2 variations per request, each becomes a separate item)
-3. Each item shows: title, status badge (only for non-completed), timestamp (dd.MM.yyyy HH:mm), audio player (if completed)
+3. Each item shows: cover image thumbnail (if available), title, status badge (only for non-completed), timestamp (dd.MM.yyyy HH:mm), audio player (if completed)
 4. Lyrics are not displayed in the list (use "Gjenbruk" to view)
 5. Completed items have inline audio player
 6. Filter bar at top with "Default", "Liked", "All" options
@@ -158,7 +158,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 **States**:
 - **New draft state**: Primary "Generer sang" button at top (sticky), then title/lyrics/genre fields, then AI assistance toggle (collapsed by default). User can write lyrics directly or enable AI toggle to generate via ChatGPT (UX-014, UX-015, UX-016)
-- **Read-only state**: All fields displayed but not editable; shows the selected song's complete state; includes "Kopier" button
+- **Read-only state**: All fields displayed but not editable; shows the selected song's complete state; includes cover image (large, if available) and "Kopier" button
 
 ### 8. Copy Song as New Draft
 
@@ -256,6 +256,7 @@ History items and genre history are persisted server-side in a SQLite database.
 | suno_status | TEXT | 'pending', 'completed', or 'failed' |
 | suno_audio_url | TEXT | CDN audio URL |
 | suno_local_url | TEXT | Local audio URL |
+| suno_image_url | TEXT | Suno cover image URL |
 | variation_index | INTEGER | 0 or 1 |
 
 **genre_history**

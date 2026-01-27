@@ -104,7 +104,7 @@ router.post('/', upload.array('files', 10), (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Antall titler må matche antall filer' });
     }
 
-    const items: { id: string; localUrl: string }[] = [];
+    const items: { id: string; localUrl: string; duration?: number }[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];

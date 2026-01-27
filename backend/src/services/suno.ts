@@ -5,6 +5,7 @@ import { io } from '../server';
 
 const SUNO_API_BASE_URL = 'https://api.sunoapi.org';
 const MP3_DIR = path.join(__dirname, '../../mp3s');
+const IMAGES_DIR = path.join(__dirname, '../../images');
 
 // Suno API docs (Quick Start):
 // - POST  /api/v1/generate
@@ -64,6 +65,7 @@ export interface SunoStatusResponse {
   status: string;
   audio_urls?: string[];
   local_urls?: string[];
+  image_urls?: string[];
   durations?: number[];
   error?: string;
 }
@@ -98,10 +100,26 @@ if (!fs.existsSync(MP3_DIR)) {
   fs.mkdirSync(MP3_DIR, { recursive: true });
 }
 
+// Ensure images directory exists
+if (!fs.existsSync(IMAGES_DIR)) {
+  fs.mkdirSync(IMAGES_DIR, { recursive: true });
+}
+
 // Download audio file and save locally
 async function downloadMp3(url: string, sanitizedTitle: string, index: number): Promise<string> {
   const filename = `${sanitizedTitle}_${index}.mp3`;
   const filepath = path.join(MP3_DIR, filename);
+  
+  const response = await axios.get(url, { responseType: 'arraybuffer' });
+  fs.writeFileSync(filepath, response.data);
+  
+  return filename;
+}
+
+// Download image file and save locally
+async function downloadImage(url: string, sanitizedTitle: string, index: number): Promise<string> {
+  const filename = `${sanitizedTitle}_${index}.jpg`;
+  const filepath = path.join(IMAGES_DIR, filename);
   
   const response = await axios.get(url, { responseType: 'arraybuffer' });
   fs.writeFileSync(filepath, response.data);
@@ -130,7 +148,7 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
   try {
     const status = await getSongStatus(jobId);
     
-    // Download MP3s when completed
+    // Download MP3s and images when completed
     if (status.status === 'completed' && status.audio_urls && status.audio_urls.length > 0) {
       const title = jobTitles.get(jobId) || jobId;
       const sanitizedTitle = sanitizeFilename(title);
@@ -144,6 +162,24 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
         );
         status.local_urls = localUrls;
         console.log('Downloaded MP3s, local URLs:', localUrls);
+
+        // Download cover images if available
+        if (status.image_urls && status.image_urls.length > 0) {
+          const localImageUrls = await Promise.all(
+            status.image_urls.map(async (url, i) => {
+              try {
+                const filename = await downloadImage(url, sanitizedTitle, startIndex + i);
+                return `/images/${filename}`;
+              } catch (imgErr) {
+                console.error('Error downloading image:', imgErr);
+                return null;
+              }
+            })
+          );
+          status.image_urls = localImageUrls.filter((url): url is string => url !== null);
+          console.log('Downloaded images, local URLs:', status.image_urls);
+        }
+
         jobTitles.delete(jobId);
       } catch (downloadError) {
         console.error('Error downloading MP3s:', downloadError);
@@ -279,6 +315,9 @@ export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> 
     const audioUrls = tracks
       .map(track => track.sourceAudioUrl)
       .filter(url => url) as string[];
+    const imageUrls = tracks
+      .map(track => track.imageUrl)
+      .filter(url => url) as string[];
     const durations = tracks
       .map(track => track.duration)
       .filter((d): d is number => d != null);
@@ -309,6 +348,7 @@ export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> 
     return {
       status: frontendStatus,
       audio_urls: audioUrls.length > 0 ? audioUrls : undefined,
+      image_urls: imageUrls.length > 0 ? imageUrls : undefined,
       durations: durations.length > 0 ? durations : undefined,
       error: data.status === 'FAILED' || data.errorCode ? (data.errorMessage || response.data.msg) : undefined,
     };

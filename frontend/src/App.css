@@ -394,6 +394,17 @@
   align-items: center;
 }
 
+.readonly-cover-image {
+  margin-bottom: 1rem;
+}
+
+.readonly-cover-image img {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 .readonly-header h2 {
   margin: 0;
   font-size: 1.2rem;
@@ -699,6 +710,14 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
+}
+
+.history-thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .history-meta {

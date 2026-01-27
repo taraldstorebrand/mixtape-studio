@@ -43,6 +43,7 @@ Fetch all history items.
     "sunoStatus": "pending" | "completed" | "failed" | null,
     "sunoAudioUrl": "string (optional)",
     "sunoLocalUrl": "string (optional)",
+    "sunoImageUrl": "string (optional)",
     "variationIndex": 0 | 1 | null
   }
 ]
@@ -70,6 +71,7 @@ Create a new history item.
   "sunoStatus": "pending" | "completed" | "failed" (optional),
   "sunoAudioUrl": "string (optional)",
   "sunoLocalUrl": "string (optional)",
+  "sunoImageUrl": "string (optional)",
   "variationIndex": 0 | 1 (optional)
 }
 ```
@@ -352,6 +354,7 @@ Server pushes Suno job status updates to clients.
   "jobId": "string",
   "status": "pending" | "partial" | "completed" | "failed",
   "audio_urls": ["string"] (optional),
+  "image_urls": ["string"] (optional),
   "error": "string" (optional)
 }
 ```
@@ -360,6 +363,7 @@ Server pushes Suno job status updates to clients.
 
 - Backend polls Suno every 5 seconds for up to 5 minutes (60 attempts)
 - Updates are broadcast to all connected clients
+- `image_urls` contains Suno-generated cover art URLs for each track
 
 ---
 

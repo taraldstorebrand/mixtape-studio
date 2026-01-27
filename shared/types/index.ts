@@ -10,6 +10,7 @@ export interface HistoryItem {
   sunoStatus?: 'pending' | 'completed' | 'failed';
   sunoAudioUrl?: string;
   sunoLocalUrl?: string;
+  sunoImageUrl?: string;
   genre?: string;
   variationIndex?: number;
   isUploaded?: boolean;

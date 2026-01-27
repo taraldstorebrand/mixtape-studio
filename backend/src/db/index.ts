@@ -33,6 +33,7 @@ db.exec(`
     suno_status TEXT,
     suno_audio_url TEXT,
     suno_local_url TEXT,
+    suno_image_url TEXT,
     variation_index INTEGER,
     is_uploaded INTEGER DEFAULT 0,
     duration REAL
@@ -58,6 +59,10 @@ const hasDuration = columns.some(col => col.name === 'duration');
 if (!hasDuration) {
   db.exec('ALTER TABLE history_items ADD COLUMN duration REAL');
 }
+const hasSunoImageUrl = columns.some(col => col.name === 'suno_image_url');
+if (!hasSunoImageUrl) {
+  db.exec('ALTER TABLE history_items ADD COLUMN suno_image_url TEXT');
+}
 
 // ============== History Items ==============
 
@@ -72,10 +77,10 @@ const getHistoryByIdStmt = db.prepare(`
 const insertHistoryStmt = db.prepare(`
   INSERT INTO history_items (
     id, prompt, title, lyrics, genre, created_at, feedback,
-    suno_job_id, suno_clip_id, suno_status, suno_audio_url, suno_local_url, variation_index, is_uploaded, duration
+    suno_job_id, suno_clip_id, suno_status, suno_audio_url, suno_local_url, suno_image_url, variation_index, is_uploaded, duration
   ) VALUES (
     @id, @prompt, @title, @lyrics, @genre, @createdAt, @feedback,
-    @sunoJobId, @sunoClipId, @sunoStatus, @sunoAudioUrl, @sunoLocalUrl, @variationIndex, @isUploaded, @duration
+    @sunoJobId, @sunoClipId, @sunoStatus, @sunoAudioUrl, @sunoLocalUrl, @sunoImageUrl, @variationIndex, @isUploaded, @duration
   )
 `);
 
@@ -91,6 +96,7 @@ const updateHistoryStmt = db.prepare(`
     suno_status = COALESCE(@sunoStatus, suno_status),
     suno_audio_url = COALESCE(@sunoAudioUrl, suno_audio_url),
     suno_local_url = COALESCE(@sunoLocalUrl, suno_local_url),
+    suno_image_url = COALESCE(@sunoImageUrl, suno_image_url),
     variation_index = COALESCE(@variationIndex, variation_index),
     is_uploaded = COALESCE(@isUploaded, is_uploaded),
     duration = COALESCE(@duration, duration)
@@ -125,6 +131,7 @@ function rowToHistoryItem(row: Record<string, unknown>): HistoryItem {
     sunoStatus: row.suno_status as 'pending' | 'completed' | 'failed' | undefined,
     sunoAudioUrl: row.suno_audio_url as string | undefined,
     sunoLocalUrl: row.suno_local_url as string | undefined,
+    sunoImageUrl: row.suno_image_url as string | undefined,
     variationIndex: row.variation_index as number | undefined,
     isUploaded: row.is_uploaded === 1 ? true : undefined,
     duration: row.duration as number | undefined,
@@ -155,6 +162,7 @@ export function createHistoryItem(item: HistoryItem): void {
     sunoStatus: item.sunoStatus ?? null,
     sunoAudioUrl: item.sunoAudioUrl ?? null,
     sunoLocalUrl: item.sunoLocalUrl ?? null,
+    sunoImageUrl: item.sunoImageUrl ?? null,
     variationIndex: item.variationIndex ?? null,
     isUploaded: item.isUploaded ? 1 : 0,
     duration: item.duration ?? null,
@@ -175,6 +183,7 @@ export function updateHistoryItem(id: string, updates: Partial<HistoryItem>): vo
     sunoStatus: updates.sunoStatus ?? null,
     sunoAudioUrl: updates.sunoAudioUrl ?? null,
     sunoLocalUrl: updates.sunoLocalUrl ?? null,
+    sunoImageUrl: updates.sunoImageUrl ?? null,
     variationIndex: updates.variationIndex ?? null,
     isUploaded: updates.isUploaded !== undefined ? (updates.isUploaded ? 1 : 0) : null,
     duration: updates.duration ?? null,

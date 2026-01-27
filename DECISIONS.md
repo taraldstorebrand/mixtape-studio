@@ -1025,3 +1025,33 @@ Rationale:
 - Minimal styling keeps it secondary to the primary content
 
 ---
+
+## D-051 – Suno cover images
+Status: Accepted
+
+Decision:
+Download and store cover images from Suno locally to avoid external API dependencies after generation.
+
+Data model:
+- Add `sunoImageUrl` field to HistoryItem (nullable string) – stores local path
+- Add `suno_image_url` column to database schema
+- Backend downloads image from Suno CDN and saves to `backend/images/`
+- Local URL format: `/images/{title}_{index}.jpg`
+
+Storage:
+- Images stored in `backend/images/` (gitignored, similar to `backend/mp3s/`)
+- Backend serves static files via `/images/*` route
+- Filename uses same sanitization as MP3s (D-014)
+- Downloaded alongside MP3 when Suno generation completes
+
+Display:
+- **History list**: Small thumbnail (48x48px) shown on left side of each song item
+- **Detail view**: Large cover image shown at top of read-only view when song is selected
+- Placeholder/fallback: No image shown if `sunoImageUrl` is null (uploaded songs, failed generations)
+
+Rationale:
+- Consistent with MP3 handling – no dependency on external CDN after generation
+- Suno CDN URLs may expire (similar to audio URLs per D-006)
+- Local storage ensures images remain available indefinitely
+
+---

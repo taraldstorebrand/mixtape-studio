@@ -133,6 +133,11 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
               Kopier
             </button>
           </div>
+          {selectedItem.sunoImageUrl && (
+            <div className="readonly-cover-image">
+              <img src={selectedItem.sunoImageUrl} alt={selectedItem.title} />
+            </div>
+          )}
           <div className="readonly-field">
             <label>ChatGPT-prompt:</label>
             <p>{selectedItem.prompt || '(ingen prompt)'}</p>
