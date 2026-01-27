@@ -2,6 +2,8 @@
 
 Lag musikk og mixtapes med AI. En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
 
+![Mixamp Studio Screenshot](docs/hero-screenshot.png)
+
 ## Krav til abonnementer
 
 Denne løsningen krever aktive abonnementer på:
@@ -14,15 +16,18 @@ Denne løsningen krever aktive abonnementer på:
 
 ## Funksjoner
 
-- ✍️ Generer sangtekster med ChatGPT basert på brukerprompts
-- 🎵 Send genererte tekster til Suno for musikkgenerering (2 variasjoner per request)
-- 📝 Rediger tekster før sending til Suno
-- 🎼 Angi tittel og sjanger for sangene
-- 📚 Historikk lagret i SQLite database
+- ✍️ Skriv sangtekster manuelt eller få hjelp av ChatGPT (valgfri AI-toggle)
+- 🎵 Generer musikk med Suno API (2 variasjoner per request)
+- 📝 Rediger tekster før musikkgenerering
+- 🎼 Angi tittel (påkrevd) og sjanger (valgfritt) med dropdown-historikk
+- 📚 Historikk lagret i SQLite database (maks 10 000 elementer)
 - 👍👎 Gi feedback med thumbs up/down på genererte sanger
+- 🔍 Filtrer historikk: Standard, Likte, eller Alle sanger
 - 🔄 Kopier tidligere sanger som nye utkast
 - 🎧 Spill av genererte sanger direkte i appen
-- 🔀 Resizable to-panel layout
+- 📤 Last opp egne MP3-filer (maks 10 filer, 10 MB per fil)
+- 🎶 Lag mixtape (M4B med kapitler) av likte sanger
+- 🔀 Resizable to-panel layout med sanntidsoppdateringer via WebSocket
 
 ## Teknisk Stack
 
@@ -98,14 +103,21 @@ npm run dev
 
 ## Bruk
 
-1. **Generer sangtekst**: Skriv inn en prompt (f.eks. "En sang om sommer") og klikk "Generer Tekst"
-2. **Rediger tekst**: Du kan redigere den genererte teksten før du sender den til Suno
+### Lag en sang
+
+1. **Skriv sangtekst**: Skriv teksten direkte i tekstfeltet, eller aktiver "Hjelp meg å skrive teksten (AI)" for ChatGPT-assistanse
+2. **Rediger tekst**: Juster teksten etter behov
 3. **Angi tittel**: Fyll inn tittel (påkrevd) og eventuelt sjanger
-4. **Generer sang**: Klikk "Generer Sang med Suno" for å lage musikk fra teksten
-5. **Se status**: Suno-generering vises med spinner og oppdateres via WebSocket
+4. **Generer sang**: Klikk "Generer sang" for å lage musikk fra teksten
+5. **Se status**: Suno-generering vises med spinner og oppdateres i sanntid via WebSocket
+
+### Administrer sanger
+
 6. **Spill av**: Ferdige sanger kan spilles direkte i historikklisten
 7. **Gi feedback**: Bruk thumbs up/down på historikk-elementer
-8. **Filtrer**: Bruk filterknappene for å vise standard, likede, eller alle sanger
+8. **Filtrer**: Bruk filterknappene for å vise Standard, Likte, eller Alle sanger
+9. **Last opp MP3**: Klikk "Last opp MP3" for å legge til egne sanger (maks 10 filer à 10 MB)
+10. **Lag mixtape**: Klikk "Lag mixtape" for å laste ned alle likte sanger som én M4B-fil med kapitler
 
 ## Prosjektstruktur
 
@@ -159,6 +171,8 @@ test-cursor/
 - Suno genererer 2 sangvariasjoner per request
 - Mislykkede genereringer fjernes automatisk fra historikk
 - API-nøkler må konfigureres i `.env` filen i backend-mappen
+- Resizable to-panel layout (30-70% bredde, huskes mellom økter)
+- Mixtape-filer er M4B (AAC, 192 kbps) med innebygde kapitler
 
 ## Lisens
 
