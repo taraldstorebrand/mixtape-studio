@@ -56,11 +56,14 @@ export function MixtapeButton({ likedItems }: MixtapeButtonProps) {
     }
   }
 
+  const songCount = likedItems.length;
   const label = isLoading
     ? 'Lager mixtape...'
-    : totalDuration > 0
-      ? `Lag mixtape av likte sanger (${formatDuration(totalDuration)})`
-      : 'Lag mixtape av likte sanger';
+    : songCount > 0 && totalDuration > 0
+      ? `Lag mixtape (${songCount} sanger · ${formatDuration(totalDuration)})`
+      : songCount > 0
+        ? `Lag mixtape (${songCount} sanger)`
+        : 'Lag mixtape av likte sanger';
 
   return (
     <div>

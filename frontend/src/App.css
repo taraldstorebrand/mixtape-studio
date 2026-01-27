@@ -632,6 +632,12 @@
   white-space: nowrap;
 }
 
+.uploaded-label {
+  margin-left: 0.5rem;
+  color: #888;
+  font-style: italic;
+}
+
 .history-actions {
   display: flex;
   gap: 0.25rem;

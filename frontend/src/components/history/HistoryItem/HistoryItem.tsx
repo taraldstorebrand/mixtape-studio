@@ -39,6 +39,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
               hour: '2-digit',
               minute: '2-digit',
             })}
+            {item.isUploaded && <span className="uploaded-label">Lastet opp</span>}
           </span>
         </div>
         <div className="history-actions">

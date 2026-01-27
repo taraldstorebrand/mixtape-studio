@@ -46,19 +46,19 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             className={`filter-button ${filter === 'default' ? 'active' : ''}`}
             onClick={() => setFilter('default')}
           >
-            Default
+            Sanger
           </button>
           <button
             className={`filter-button ${filter === 'liked' ? 'active' : ''}`}
             onClick={() => setFilter('liked')}
           >
-            Liked
+            Likte
           </button>
           <button
             className={`filter-button ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            All
+            Alle
           </button>
         </div>
       </div>

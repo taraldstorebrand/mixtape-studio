@@ -1,5 +1,48 @@
 # TASKS.md
 
+## UX Improvements – First-time Clarity & Mixtape Understanding
+
+### AI Usage Clarity
+- [x] Decide how to explicitly signal that AI-generated lyrics are optional (no default assumption of AI use)
+- [x] Add minimal microcopy that allows users to understand they can write lyrics manually without invoking AI
+- [x] Verify that AI-related affordances do not dominate the primary creation flow
+
+### Creation Flow Signaling
+- [x] Decide whether the app should visually suggest a "recommended first action" for first-time users (without enforcing a path)
+- [x] Clarify through UI signals when the user is in a draft state vs viewing an existing song
+- [x] Ensure transitions between draft → generated song feel intentional, not implicit
+
+### Song Source Transparency
+- [x] Decide how to visually distinguish between generated songs and uploaded songs
+- [x] Decide whether this distinction should be visible in the history list, detail view, or both
+- [x] Ensure source indicators are passive and do not increase cognitive load
+
+### Mixtape Understanding (Critical)
+- [x] Clarify what songs are included in a mixtape before generation (scope)
+- [x] Clarify how mixtape ordering is determined (e.g. liked order, creation order)
+- [x] Decide what level of mixtape preview is appropriate without introducing configuration UI
+- [x] Ensure mixtape creation feels like a predictable export, not a "magic" action
+
+### Library Mental Model
+- [x] Decide whether the history list should be framed as a "library" conceptually
+- [x] Ensure filtering (Default / Liked / All) communicates collection intent, not just sorting
+- [x] Clarify the relationship between liking a song and long-term ownership/collection
+
+### Restraint & Non-Goals
+- [x] Explicitly decide which advanced capabilities should remain undiscovered for first-time users
+- [x] Identify any UX improvements that should be intentionally deferred to avoid over-onboarding
+
+
+## Iteration 029 – UX Decision Implementation
+
+### Implemented
+- [x] UX-001: Mixtape button shows song count + duration ("Lag mixtape (7 sanger · 24:30)")
+- [x] UX-002: "Lastet opp" label for uploaded songs in history list
+- [x] UX-005: Right panel header renamed to "Sanger" (was already done)
+- [x] UX-006: Filter tabs renamed to "Sanger / Likte / Alle"
+
+---
+
 ## Iteration 028 – Mixtape-knapp viser total varighet
 
 ### Goal

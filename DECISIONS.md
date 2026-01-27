@@ -792,4 +792,136 @@ Rationale:
 - Frontend needs duration immediately to update MixtapeButton reactively
 - Returning duration in response avoids requiring a page refresh to see updated totals
 
+---
 
+## UX-001 – Mixtape button shows song count alongside duration
+Status: Accepted
+
+Decision:
+The mixtape button displays both the number of liked songs and total duration inline, e.g. "Lag mixtape (7 sanger · 24:30)". No confirmation dialog or preview list before generation.
+
+Rationale:
+- The core "magic" problem is invisible scope — users can't see what's included before pressing the button
+- Song count + duration makes the input fully transparent at zero interaction cost
+- A confirmation dialog was rejected as heavier than the problem warrants; the action is already low-risk (just discard the file)
+
+---
+
+## UX-003 – Draft vs viewing state: no additional signal needed
+Status: Rejected (no change)
+
+Decision:
+No visual indicator is added to distinguish draft state from viewing an existing song. The existing behavioral difference (editable fields vs read-only fields + "Kopier" button) is sufficient. Adding a label or banner would restate what the interaction already communicates.
+
+---
+
+## UX-004 – Mixtape ordering: no signal needed
+Status: Rejected (no change)
+
+Decision:
+No UX element is added to communicate mixtape track ordering. Chronological order (createdAt ASC, per D-043) matches the history list order users already see. Adding microcopy about ordering would over-explain a detail that is already consistent with the visible mental model.
+
+---
+
+## UX-002 – Song source distinction: label uploaded items only
+Status: Accepted
+
+Decision:
+Uploaded songs show a small, muted "Lastet opp" text label in the history list (alongside the timestamp line). Generated songs show no source indicator. Detail view has no source indicator — the absence of prompt/lyrics fields already communicates source implicitly.
+
+Rejected alternative:
+Icon badges on both generated and uploaded items were rejected. Marking every item adds visual noise for no gain since generated songs are the default expectation.
+
+Rationale:
+- Only the minority case (uploaded) needs marking; the default (generated) is self-evident
+- Passive text label adds near-zero cognitive load
+- Supports collection awareness when curating mixtapes without cluttering the list
+
+---
+
+## UX-005 – History list framed as "Sanger"
+Status: Accepted
+
+Decision:
+The right panel header is renamed from "History" (or equivalent) to "Sanger". No other changes to structure, filtering, or behavior.
+
+Rejected alternative:
+"Bibliotek" was considered but implies browsing/search capabilities that do not exist. "Sanger" accurately describes the content without overpromising.
+
+Rationale:
+- "Sanger" frames the list as a collection rather than a log, matching how users already interact with it (liking, curating mixtapes)
+- Neutral label that doesn't imply features beyond what exists
+
+---
+
+## UX-006 – Filter tab "Default" renamed to "Sanger"
+Status: Accepted
+
+Decision:
+The filter bar labels change from "Default / Liked / All" to "Sanger / Likte / Alle". Behavior is unchanged — "Sanger" shows everything except disliked items (same as the old "Default").
+
+Rejected alternative:
+Adding tooltips or subtitles to explain each filter tab. If the labels describe their contents, no meta-explanation is needed.
+
+Rationale:
+- "Default" describes which option is pre-selected, not what the user sees — it's a programmer label
+- "Sanger" describes the subset (your songs minus rejected ones) and is consistent with the panel header (UX-005)
+- All three tabs now describe contents: Sanger (collection), Likte (favorites), Alle (everything)
+
+---
+
+## UX-007 – Mixtape preview: no additional preview needed
+Status: Rejected (no change)
+
+Decision:
+No mixtape preview UI is added. The "Likte" filter tab already shows the exact songs included, and UX-001 provides song count + duration on the button. Adding a preview list, tooltip, or confirmation dialog would duplicate information already accessible in one tap.
+
+---
+
+## UX-008 – Like/collection relationship: no signal needed
+Status: Rejected (no change)
+
+Decision:
+No additional UX element is added to clarify what "liking" means. The three-tier tab structure (Sanger / Likte / Alle) and the mixtape button label ("Lag mixtape av likte sanger") already communicate that liking = favorite = mixtape-eligible. This follows standard app conventions and needs no explanation.
+
+---
+
+## UX-009 – Draft → generated song transition: no signal needed
+Status: Rejected (no change)
+
+Decision:
+No additional transition signal is added after song generation completes. The flow already requires two mandatory fields and an explicit button click with a multi-minute spinner. The spinner stopping and history items appearing are sufficient signals. Adding a toast, editor clear, or auto-selection would either add noise or destroy draft state the user may want to iterate on.
+
+---
+
+## UX-010 – AI-generated lyrics optionality: no signal needed
+Status: Rejected (no change)
+
+Decision:
+No additional signal is added to communicate that AI-generated lyrics are optional. The always-visible lyrics textarea (D-044) already affords direct manual input. The ChatGPT prompt is visually separate and clearly optional. Adding microcopy would restate what the editable field already communicates through standard affordance.
+
+---
+
+## UX-011 – First-time recommended action: no signal needed
+Status: Rejected (no change)
+
+Decision:
+No visual suggestion for a "recommended first action" is added for first-time users. The empty draft state (all fields visible per D-044) already forms a natural top-to-bottom flow that communicates what to do. Adding highlights, tooltips, or guidance would over-explain a layout that is self-evident.
+
+---
+
+## UX-012 – Advanced capability discoverability: no action needed
+Status: Rejected (no change)
+
+Decision:
+No explicit discoverability policy is created for "advanced" features. The app's feature surface is flat — all capabilities are either always visible or appear contextually when relevant (e.g. "Kopier" in read-only view, genre history in dropdown). There is no power-user layer that requires a deliberate hiding or progressive disclosure decision.
+
+---
+
+## UX-013 – Deferred UX improvements: no deferral list needed
+Status: Rejected (no change)
+
+Decision:
+No list of intentionally deferred UX improvements is maintained. The UX review (UX-003 through UX-012) already rejected every proposed onboarding or explanatory addition on its own merits. The restraint principle is demonstrated by the decisions themselves — a meta-policy restating it adds nothing.
+
+---
