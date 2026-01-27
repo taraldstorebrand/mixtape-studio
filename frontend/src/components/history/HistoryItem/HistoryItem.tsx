@@ -1,6 +1,5 @@
 import { useRef, useEffect } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
-import { StatusBadge } from './StatusBadge/StatusBadge';
 
 interface HistoryItemProps {
   item: HistoryItemType;
@@ -59,7 +58,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
         />
         <div className="history-meta">
           <strong className="history-title">{displayTitle}{variationLabel}</strong>
-          <StatusBadge status={item.sunoStatus} />
+          {item.sunoStatus === 'failed' && <span className="status-badge status-failed">Feilet</span>}
           <span className="history-date">
             {new Date(item.createdAt).toLocaleString('no-NO', {
               day: '2-digit',
