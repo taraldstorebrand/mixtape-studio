@@ -86,8 +86,8 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Sangtekst Generator</h1>
-        <p>Generer sangtekster med ChatGPT og lag musikk med Suno</p>
+        <h1>Mixamp Studio</h1>
+        <p>Lag musikk og mixtapes med AI</p>
       </header>
 
       <main className="app-main" ref={containerRef}>

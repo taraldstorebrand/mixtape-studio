@@ -1,6 +1,6 @@
-# 🎵 Sangtekst Generator
+# 🎵 Mixamp Studio
 
-En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
+Lag musikk og mixtapes med AI. En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
 
 ## Krav til abonnementer
 

@@ -1,7 +1,7 @@
 {
-  "name": "sangtekst-backend",
+  "name": "mixamp-studio-backend",
   "version": "1.0.0",
-  "description": "Backend API for sangtekst-generator",
+  "description": "Backend API for Mixamp Studio",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
