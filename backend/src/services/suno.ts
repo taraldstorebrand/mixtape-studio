@@ -143,7 +143,7 @@ function stopPolling(jobId: string) {
 
 // Function to poll Suno status and send WebSocket updates
 async function pollAndUpdate(jobId: string, attempt: number = 0) {
-  const maxAttempts = 60; // 5 minutes with 5 second intervals
+  const maxAttempts = 120; // 10 minutes with 5 second intervals
 
   try {
     const status = await getSongStatus(jobId);

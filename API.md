@@ -361,7 +361,7 @@ Server pushes Suno job status updates to clients.
 
 **Notes**:
 
-- Backend polls Suno every 5 seconds for up to 5 minutes (60 attempts)
+- Backend polls Suno every 5 seconds for up to 10 minutes (120 attempts)
 - Updates are broadcast to all connected clients
 - `image_urls` contains Suno-generated cover art URLs for each track
 

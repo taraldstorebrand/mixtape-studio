@@ -117,7 +117,7 @@ The "Generer Sang med Suno" button shows a spinner and remains disabled from cli
 
 Rationale:
 - Prevents duplicate submissions
-- Provides clear visual feedback during long-running generation (up to 5 minutes)
+- Provides clear visual feedback during long-running generation (up to 10 minutes)
 
 ---
 
@@ -214,12 +214,12 @@ Rationale:
 Status: Accepted
 
 Decision:
-Backend polls Suno API every 5 seconds with a maximum timeout of 5 minutes.
+Backend polls Suno API every 5 seconds with a maximum timeout of 10 minutes.
 These values are implementation constants, not configurable at runtime.
 
 Rationale:
 - 5-second interval balances responsiveness with API rate limits
-- 5-minute timeout covers Suno's typical generation time
+- 10-minute timeout covers Suno's typical generation time with margin for slower generations
 
 ---
 

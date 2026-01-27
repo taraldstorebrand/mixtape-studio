@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { StatusBadge } from './StatusBadge/StatusBadge';
 
@@ -13,6 +14,17 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
   const displayTitle = item.title || item.prompt || 'Uten tittel';
   const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Update audio src without interrupting playback
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el || !audioUrl) return;
+    if (el.paused || !el.currentTime) {
+      el.src = audioUrl;
+      el.load();
+    }
+  }, [audioUrl]);
 
   const handleClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -88,7 +100,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
       {audioUrl && (
         <div className="audio-previews">
           <div className="audio-preview">
-            <audio controls src={audioUrl} />
+            <audio ref={audioRef} controls />
           </div>
         </div>
       )}

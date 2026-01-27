@@ -111,7 +111,7 @@ Environment variables (`.env` in backend/):
 
 ## Notes
 
-1. **Suno integration**: The backend uses polling to check Suno job status (every 5 seconds, up to 5 minutes). Status updates are pushed to clients via Socket.IO `suno-update` events.
+1. **Suno integration**: The backend uses polling to check Suno job status (every 5 seconds, up to 10 minutes). Status updates are pushed to clients via Socket.IO `suno-update` events.
 
 2. **Shared types usage**: Both frontend and backend import types from `shared/types/index.ts`. The `HistoryItem` interface is the primary shared type.
 

@@ -53,14 +53,22 @@ function App() {
       matchingItems.forEach(item => removeHistoryItem(item.id));
       setSongGenerationStatus('failed');
       detailPanelRef.current?.notifySongGenerationComplete();
-    } else if (data.status === 'pending' && data.audio_urls && data.audio_urls.length > 0) {
-      // Update with partial audio URLs as they become available
+    } else if (data.status === 'pending') {
+      // Update with partial data as it becomes available (e.g. FIRST_SUCCESS)
       matchingItems.forEach(item => {
         const index = item.variationIndex ?? 0;
+        const updates: Partial<HistoryItem> = {};
         if (data.audio_urls?.[index]) {
-          updateHistoryItem(item.id, {
-            sunoAudioUrl: data.audio_urls[index],
-          });
+          updates.sunoAudioUrl = data.audio_urls[index];
+        }
+        if (data.image_urls?.[index]) {
+          updates.sunoImageUrl = data.image_urls[index];
+        }
+        if (data.durations?.[index] != null) {
+          updates.duration = data.durations[index];
+        }
+        if (Object.keys(updates).length > 0) {
+          updateHistoryItem(item.id, updates);
         }
       });
     }

@@ -64,6 +64,13 @@ if (!hasSunoImageUrl) {
   db.exec('ALTER TABLE history_items ADD COLUMN suno_image_url TEXT');
 }
 
+// ============== Startup Cleanup ==============
+// Delete jobs that were pending (not yet downloaded) when the app last shut down
+db.exec(`
+  DELETE FROM history_items
+  WHERE suno_status = 'pending' AND suno_local_url IS NULL
+`);
+
 // ============== History Items ==============
 
 const getAllHistoryStmt = db.prepare(`
