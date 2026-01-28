@@ -62,7 +62,7 @@ router.patch('/:id', (req: Request<{ id: string }>, res: Response) => {
   }
 });
 
-// DELETE /api/history/:id - Delete history item and associated MP3 file
+// DELETE /api/history/:id - Delete history item and associated MP3/image files
 router.delete('/:id', (req: Request<{ id: string }>, res: Response) => {
   try {
     const { id } = req.params;
@@ -80,6 +80,18 @@ router.delete('/:id', (req: Request<{ id: string }>, res: Response) => {
           fs.unlinkSync(filePath);
         } catch (err) {
           console.error('Error deleting MP3 file:', err);
+        }
+      }
+    }
+
+    if (existing.sunoImageUrl && !existing.sunoImageUrl.includes('/assets/')) {
+      const imageFilename = existing.sunoImageUrl.replace(/^\/images\//, '');
+      const imagePath = path.join(__dirname, '../../images', imageFilename);
+      if (fs.existsSync(imagePath)) {
+        try {
+          fs.unlinkSync(imagePath);
+        } catch (err) {
+          console.error('Error deleting image file:', err);
         }
       }
     }

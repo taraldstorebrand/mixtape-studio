@@ -139,7 +139,8 @@ test-cursor/
 │   ├── data/               # SQLite database
 │   └── package.json
 ├── shared/
-│   └── types.ts            # Delte TypeScript typer
+│   └── types/
+│       └── index.ts        # Delte TypeScript typer
 └── README.md
 ```
 
@@ -152,7 +153,7 @@ test-cursor/
 - `GET /api/suno/status/:jobId` - Hent status på sang-generering
 - `GET /api/history` - Hent alle historikk-elementer
 - `POST /api/history` - Lagre historikk-element
-- `PUT /api/history/:id` - Oppdater historikk-element
+- `PATCH /api/history/:id` - Oppdater historikk-element
 - `DELETE /api/history/:id` - Slett historikk-element
 - `GET /api/genres` - Hent sjangerhistorikk
 - `POST /api/genres` - Lagre ny sjanger

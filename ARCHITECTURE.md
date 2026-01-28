@@ -62,7 +62,7 @@ test-cursor/
 - **Technology**: React 19, TypeScript, Vite 7
 - **Port**: http://localhost:5173
 - **Persistence**: localStorage for UI preferences (panel width)
-- **State Management**: React useState hooks
+- **State Management**: Jotai atoms for shared state, React useState for local component state
 - **Proxy**: Vite dev server proxies `/api/*`, `/mp3s/*`, and `/socket.io` to backend
 
 ### Backend

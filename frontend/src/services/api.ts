@@ -160,21 +160,6 @@ export async function createHistoryItem(item: HistoryItem): Promise<void> {
   }
 }
 
-export async function createHistoryItemsBulk(items: HistoryItem[]): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/history/bulk`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(items),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke opprette historikk-elementer');
-  }
-}
-
 export async function updateHistoryItem(id: string, updates: Partial<HistoryItem>): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/history/${id}`, {
     method: 'PATCH',

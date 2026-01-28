@@ -67,7 +67,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 - Enter: Select highlighted option
 - Escape: Close dropdown
 
-**Storage**: `sangtekst_genre_history` (array of strings, max 50)
+**Storage**: SQLite `genre_history` table (max 50 genres)
 
 ### 3.5. Set Title (Required for Suno)
 
@@ -199,7 +199,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 - Button is disabled if no liked songs with local MP3 exist
 - Button is disabled while generation is in progress
-- Output format: M4B (AAC audio, 192 kbps)
+- Output format: M4B (AAC audio, 256 kbps)
 - Each song becomes a chapter with the song title as chapter name
 - Chapters are embedded in the file (no external chapter file)
 - Returns 400 if no liked songs are found
@@ -258,6 +258,8 @@ History items and genre history are persisted server-side in a SQLite database.
 | suno_local_url | TEXT | Local audio URL |
 | suno_image_url | TEXT | Suno cover image URL |
 | variation_index | INTEGER | 0 or 1 |
+| is_uploaded | INTEGER | 1 if manually uploaded, 0 otherwise |
+| duration | REAL | Audio duration in seconds |
 
 **genre_history**
 | Column | Type | Description |

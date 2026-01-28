@@ -157,7 +157,7 @@ const result = stmt.get(id);
 - **Suno**: `api.sunoapi.org` for music generation
   - Custom mode aktiveres med genre-parameter
   - Genererer 2 variasjoner per request
-  - Polling hver 5 sek, maks 5 min
+  - Polling hver 5 sek, maks 10 min
 
 ---
 

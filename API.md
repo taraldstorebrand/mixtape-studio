@@ -137,6 +137,7 @@ Delete a history item and its associated MP3 file.
 
 - Deletes the history item from the database
 - If the item has a `sunoLocalUrl`, deletes the corresponding MP3 file from `backend/mp3s/`
+- If the item has a `sunoImageUrl` (not placeholder), deletes the corresponding image file from `backend/images/`
 - File deletion failures are logged but do not cause the request to fail
 
 **Success Response (200)**
@@ -204,6 +205,28 @@ Remove a genre from history.
 ```json
 { "success": true, "genre": "Pop" }
 ```
+
+---
+
+## Config Status Endpoints
+
+### GET /api/config-status
+
+Check if API keys are configured.
+
+**Success Response (200)**
+
+```json
+{
+  "openai": true,
+  "suno": true
+}
+```
+
+**Notes**:
+
+- Returns `true` if the respective API key is set, `false` otherwise
+- Used by frontend to show warnings if APIs are not configured
 
 ---
 
@@ -483,8 +506,8 @@ Upload one or more MP3 files and create history items.
 {
   "success": true,
   "items": [
-    { "id": "string", "localUrl": "string", "duration": 123.45 },
-    { "id": "string", "localUrl": "string", "duration": 234.56 }
+    { "id": "string", "localUrl": "string", "duration": 123.45, "imageUrl": "string" },
+    { "id": "string", "localUrl": "string", "duration": 234.56, "imageUrl": "string" }
   ]
 }
 ```

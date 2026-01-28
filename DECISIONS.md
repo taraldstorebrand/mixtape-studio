@@ -185,14 +185,14 @@ Rationale:
 Status: Accepted
 
 Decision:
-The genre input field is replaced with a searchable, creatable dropdown using react-select.
-Previously used genres are stored in localStorage (`sangtekst_genre_history`, max 50 items).
+The genre input field is replaced with a searchable, creatable dropdown.
+Previously used genres are stored in SQLite (`genre_history` table, max 50 items).
 Users can type new values or select from history. Each option has a remove button.
 
 Rationale:
 - Improves UX by providing quick access to previously used genres
 - Creatable dropdown allows both selection and free-text entry
-- localStorage persistence maintains history across sessions
+- SQLite persistence maintains history across sessions
 - Remove functionality keeps the list manageable
 
 ---
@@ -227,13 +227,14 @@ Rationale:
 Status: Accepted
 
 Decision:
-Frontend does not implement automatic WebSocket reconnection.
-If WebSocket disconnects during Suno polling, user must refresh the page.
+Frontend implements automatic WebSocket reconnection using Socket.IO's built-in reconnection.
+Reconnection attempts continue indefinitely with exponential backoff (1-5 seconds delay).
 No error message is shown to the user on disconnect.
 
 Rationale:
-- Simplifies implementation for MVP
-- Suno status can be recovered by refreshing the page
+- Socket.IO provides robust built-in reconnection handling
+- Automatic reconnection improves UX during temporary network issues
+- Silent reconnection avoids alarming users during brief disconnects
 
 ---
 
