@@ -157,7 +157,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 6. Deselecting resets left panel to "new draft" state with empty editor fields
 
 **States**:
-- **New draft state**: Primary "Generer sang" button at top (sticky), then title/lyrics/genre fields, then AI assistance toggle (collapsed by default). User can write lyrics directly or enable AI toggle to generate via ChatGPT (UX-014, UX-015, UX-016)
+- **New draft state**: Primary "Generer sang" button at top (sticky), then title/lyrics/genre fields, then AI assistance toggle (collapsed by default). User can write lyrics directly or enable AI toggle to generate via ChatGPT (UX-014, UX-015, UX-016). A "Nytt utkast" button appears when any field has content; clicking it clears all fields (title, lyrics, genre, prompt) and any error messages.
 - **Read-only state**: All fields displayed but not editable; shows the selected song's complete state; includes cover image (large, if available) and "Kopier" button
 
 ### 8. Copy Song as New Draft

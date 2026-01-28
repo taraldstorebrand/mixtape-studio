@@ -42,7 +42,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   });
 
   useEffect(() => {
-    checkConfigStatus().then((status) => {
+    checkConfigStatus().then((status: { suno: boolean; openai: boolean }) => {
       setSunoAvailable(status.suno);
       setOpenaiAvailable(status.openai);
     });
@@ -123,6 +123,17 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
     }
   };
 
+  const handleNewDraft = () => {
+    setPrompt('');
+    setTitle('');
+    setCurrentLyrics('');
+    setGenre('');
+    setError(null);
+    onClearSelection();
+  };
+
+  const isBlank = !currentLyrics.trim() && !title.trim() && !genre.trim() && !prompt.trim();
+
   return (
     <>
       {error && (
@@ -178,6 +189,11 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
               <p className="suno-missing-hint">Suno API-nøkkel mangler. Legg til SUNO_API_KEY i backend .env og restart serveren.</p>
             )}
           </div>
+          {!isBlank && (
+            <button className="new-draft-button" onClick={handleNewDraft}>
+              ← Nytt utkast
+            </button>
+          )}
 
           <LyricsTextarea
             lyrics={currentLyrics}
