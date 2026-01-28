@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { connectSocket, disconnectSocket, onSunoUpdate, offSunoUpdate } from '../services/api';
 
 export interface SunoUpdateData {
@@ -12,14 +12,18 @@ export interface SunoUpdateData {
 }
 
 export function useSunoSocket(onUpdate: (data: SunoUpdateData) => void) {
-  useEffect(() => {
-    connectSocket();
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
 
-    onSunoUpdate(onUpdate);
+  useEffect(() => {
+    const handler = (data: SunoUpdateData) => onUpdateRef.current(data);
+
+    connectSocket();
+    onSunoUpdate(handler);
 
     return () => {
-      offSunoUpdate(onUpdate);
+      offSunoUpdate(handler);
       disconnectSocket();
     };
-  }, [onUpdate]);
+  }, []);
 }

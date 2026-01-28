@@ -71,6 +71,33 @@ db.exec(`
   WHERE suno_status = 'pending' AND suno_local_url IS NULL
 `);
 
+// Delete items that reference local files that no longer exist on disk
+const mp3Dir = path.join(__dirname, '../../mp3s');
+const itemsWithLocalFiles = db.prepare(
+  `SELECT id, suno_local_url FROM history_items WHERE suno_local_url IS NOT NULL`
+).all() as { id: string; suno_local_url: string }[];
+
+for (const item of itemsWithLocalFiles) {
+  const filename = item.suno_local_url.replace(/^\/mp3s\//, '');
+  const filePath = path.join(mp3Dir, filename);
+  if (!fs.existsSync(filePath)) {
+    db.prepare('DELETE FROM history_items WHERE id = ?').run(item.id);
+  }
+}
+
+// Delete mp3 files on disk that are not referenced by any database entry
+if (fs.existsSync(mp3Dir)) {
+  const referencedFiles = new Set(
+    itemsWithLocalFiles.map(item => item.suno_local_url.replace(/^\/mp3s\//, ''))
+  );
+  const filesOnDisk = fs.readdirSync(mp3Dir).filter(f => f.endsWith('.mp3'));
+  for (const file of filesOnDisk) {
+    if (!referencedFiles.has(file)) {
+      fs.unlinkSync(path.join(mp3Dir, file));
+    }
+  }
+}
+
 // ============== History Items ==============
 
 const getAllHistoryStmt = db.prepare(`

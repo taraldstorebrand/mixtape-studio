@@ -7,8 +7,16 @@ const API_BASE_URL = '/api';
 let socket: Socket | null = null;
 
 export function connectSocket() {
+  console.log('Connecting to WebSocket...');
   if (!socket) {
-    socket = io('http://localhost:3001');
+    // Bruk samme origin (går via Vite proxy)
+    socket = io({
+      transports: ['websocket', 'polling'], // Websocket først
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: Infinity,
+    });
     
     socket.on('connect', () => {
       console.log('Connected to WebSocket');
@@ -22,6 +30,7 @@ export function connectSocket() {
 }
 
 export function disconnectSocket() {
+  console.log('Disconnecting from WebSocket...');
   if (socket) {
     socket.disconnect();
     socket = null;
