@@ -27,14 +27,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
 
   const likedItems = items.filter(item => item.feedback === 'up' && item.sunoLocalUrl);
 
-  if (items.length === 0) {
-    return (
-      <div className={styles.empty}>
-        <p>Ingen historikk ennå. Generer din første sangtekst!</p>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.historyList}>
       <div className={styles.panelActions}>
@@ -44,39 +36,47 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
           <AdvancedMixtapeButton allSongs={items} />
         </div>
       </div>
-      <div className={styles.headerBar}>
-        <h2>Sanger ({filteredItems.length})</h2>
-        <div className={styles.filterButtons}>
-          <button
-            className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
-            onClick={() => setFilter('default')}
-          >
-            Sanger
-          </button>
-          <button
-            className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
-            onClick={() => setFilter('liked')}
-          >
-            Likte
-          </button>
-          <button
-            className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            Alle
-          </button>
+      {items.length === 0 ? (
+        <div className={styles.empty}>
+          <p>Ingen historikk ennå. Generer din første sangtekst!</p>
         </div>
-      </div>
-      {filteredItems.map((item) => (
-        <HistoryItem
-          key={item.id}
-          item={item}
-          isSelected={item.id === selectedItemId}
-          onFeedback={onFeedback}
-          onSelect={onSelect}
-          onDelete={() => onDeleteItem(item.id)}
-        />
-      ))}
+      ) : (
+        <>
+          <div className={styles.headerBar}>
+            <h2>Sanger ({filteredItems.length})</h2>
+            <div className={styles.filterButtons}>
+              <button
+                className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
+                onClick={() => setFilter('default')}
+              >
+                Sanger
+              </button>
+              <button
+                className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
+                onClick={() => setFilter('liked')}
+              >
+                Likte
+              </button>
+              <button
+                className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+                onClick={() => setFilter('all')}
+              >
+                Alle
+              </button>
+            </div>
+          </div>
+          {filteredItems.map((item) => (
+            <HistoryItem
+              key={item.id}
+              item={item}
+              isSelected={item.id === selectedItemId}
+              onFeedback={onFeedback}
+              onSelect={onSelect}
+              onDelete={() => onDeleteItem(item.id)}
+            />
+          ))}
+        </>
+      )}
     </div>
   );
 }
