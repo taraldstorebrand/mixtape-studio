@@ -1,0 +1,231 @@
+.historyItem {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  transition: border-color var(--transition-base), background-color var(--transition-base);
+  cursor: pointer;
+}
+
+.historyItem:hover {
+  border-color: var(--color-primary);
+}
+
+.selected {
+  border-color: var(--color-primary);
+  background-color: #252530;
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.historyThumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.historyMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.historyTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyDate {
+  font-size: 0.75rem;
+  color: var(--color-text-disabled);
+  white-space: nowrap;
+}
+
+.uploadedLabel {
+  margin-left: var(--spacing-sm);
+  color: var(--color-text-dim);
+  font-style: italic;
+}
+
+.historyActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.reuseButton {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-border);
+  color: white;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color var(--transition-base);
+}
+
+.reuseButton:hover {
+  background-color: var(--color-border-strong);
+}
+
+.feedbackButtons {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.thumbButton {
+  padding: var(--spacing-xs) 0.4rem;
+  background-color: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--color-text-dim);
+  filter: grayscale(100%) opacity(0.5);
+  transition: all var(--transition-base);
+}
+
+.thumbButton:hover {
+  border-color: var(--color-primary);
+  filter: grayscale(50%) opacity(0.7);
+}
+
+.thumbButtonActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-alpha);
+  color: var(--color-text);
+  filter: none;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.15rem var(--spacing-sm);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.statusPending {
+  background-color: var(--color-warning);
+  color: #000;
+}
+
+.statusPartial {
+  background-color: var(--color-warning-alt);
+  color: #000;
+}
+
+.statusCompleted {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.statusFailed {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.audioPreviews {
+  margin-top: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.audioPreview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.audioPreview label {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+.audioPreview audio {
+  flex: 1;
+  height: 28px;
+}
+
+.deleteButton {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+  padding: 0.2rem 0.4rem;
+  transition: all var(--transition-base);
+}
+
+.deleteButton:hover {
+  border-color: var(--color-error-bright);
+  background-color: rgba(255, 68, 68, 0.1);
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1.0; }
+}
+
+.skeletonHistoryItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  cursor: pointer;
+}
+
+.skeleton {
+  background-color: var(--color-bg-skeleton);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonThumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.skeletonContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.skeletonTitle {
+  height: 1rem;
+  width: 60%;
+}
+
+.skeletonBadge {
+  height: 0.75rem;
+  width: 4rem;
+  border-radius: var(--radius-pill);
+}

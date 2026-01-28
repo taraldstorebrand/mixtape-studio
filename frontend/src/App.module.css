@@ -1,0 +1,89 @@
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  border-bottom: 2px solid var(--color-primary);
+  flex-shrink: 0;
+  background-color: var(--color-bg-surface-alt);
+}
+
+.header h1 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 1.8rem;
+}
+
+.header p {
+  margin: 0;
+  color: var(--color-text-dim);
+  font-size: 0.95rem;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.panelLeft {
+  flex: 0 0 auto;
+  width: 50%;
+  min-width: 300px;
+  max-width: 70%;
+  padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.panelRight {
+  flex: 1;
+  min-width: 250px;
+  padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  overflow-y: auto;
+  background-color: var(--color-bg-elevated);
+}
+
+.resizeHandle {
+  width: 6px;
+  background-color: var(--color-border);
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background-color var(--transition-base);
+}
+
+.resizeHandle:hover,
+.resizeHandleDragging {
+  background-color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .main {
+    flex-direction: column;
+  }
+
+  .panelLeft {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+    border-bottom: 2px solid var(--color-primary);
+  }
+
+  .resizeHandle {
+    display: none;
+  }
+
+  .panelRight {
+    flex: 1;
+    min-height: 200px;
+  }
+}

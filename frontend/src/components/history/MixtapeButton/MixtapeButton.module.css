@@ -1,0 +1,51 @@
+.mixtapeButton {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all var(--transition-base);
+}
+
+.mixtapeButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.mixtapeButton:disabled {
+  background-color: var(--color-border);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+@keyframes spinner-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.buttonLoading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-rotate 0.75s linear infinite;
+  margin-right: var(--spacing-sm);
+  vertical-align: middle;
+}
+
+.error {
+  margin-top: var(--spacing-sm);
+  color: var(--color-error-bright);
+  font-size: 0.85rem;
+}

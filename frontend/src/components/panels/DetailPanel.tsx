@@ -5,6 +5,7 @@ import { LyricsTextarea } from '../lyrics/LyricsTextarea';
 import { generateLyrics, generateSong, checkConfigStatus } from '../../services/api';
 import { songGenerationStatusAtom } from '../../store';
 import { HistoryItem } from '../../types';
+import styles from './DetailPanel.module.css';
 
 interface DetailPanelProps {
   selectedItem: HistoryItem | null;
@@ -137,60 +138,60 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   return (
     <>
       {error && (
-        <div className="error-message">
+        <div className={styles.errorMessage}>
           {error}
         </div>
       )}
 
       {selectedItem ? (
-        <div className="readonly-view">
-          <button className="new-draft-button" onClick={onClearSelection}>
+        <div className={styles.readonlyView}>
+          <button className={styles.newDraftButton} onClick={onClearSelection}>
             ← Nytt utkast
           </button>
-          <div className="readonly-header">
+          <div className={styles.readonlyHeader}>
             <h2>Valgt sang</h2>
-            <button className="copy-button" onClick={handleCopy}>
+            <button className={styles.copyButton} onClick={handleCopy}>
               Kopier
             </button>
           </div>
-          <div className="readonly-cover-image">
+          <div className={styles.readonlyCoverImage}>
             <img src={selectedItem.sunoImageUrl || '/assets/placeholder.png'} alt={selectedItem.title} />
           </div>
-          <div className="readonly-field">
+          <div className={styles.readonlyField}>
             <label>ChatGPT-prompt:</label>
             <p>{selectedItem.prompt || '(ingen prompt)'}</p>
           </div>
-          <div className="readonly-field">
+          <div className={styles.readonlyField}>
             <label>Tittel:</label>
             <p>{selectedItem.title}</p>
           </div>
-          <div className="readonly-field">
+          <div className={styles.readonlyField}>
             <label>Sangtekst:</label>
-            <pre className="readonly-lyrics">{selectedItem.lyrics}</pre>
+            <pre className={styles.readonlyLyrics}>{selectedItem.lyrics}</pre>
           </div>
           {selectedItem.genre && (
-            <div className="readonly-field">
+            <div className={styles.readonlyField}>
               <label>Sjanger:</label>
               <p>{selectedItem.genre}</p>
             </div>
           )}
         </div>
       ) : (
-        <div className="generation-section">
-          <div className="primary-action-container">
+        <div className={styles.generationSection}>
+          <div className={styles.primaryActionContainer}>
             <button
               onClick={handleGenerateSong}
               disabled={!sunoAvailable || !currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
-              className="generate-song-button primary"
+              className={styles.generateSongButton}
             >
-              {songGenerationStatus === 'pending' ? <span className="button-loading"><span className="spinner" />Genererer sang... (1-5 min)</span> : 'Generer sang'}
+              {songGenerationStatus === 'pending' ? <span className={styles.buttonLoading}><span className={styles.spinner} />Genererer sang... (1-5 min)</span> : 'Generer sang'}
             </button>
             {!sunoAvailable && (
-              <p className="suno-missing-hint">Suno API-nøkkel mangler. Legg til SUNO_API_KEY i backend .env og restart serveren.</p>
+              <p className={styles.sunoMissingHint}>Suno API-nøkkel mangler. Legg til SUNO_API_KEY i backend .env og restart serveren.</p>
             )}
           </div>
           {!isBlank && (
-            <button className="new-draft-button" onClick={handleNewDraft}>
+            <button className={styles.newDraftButton} onClick={handleNewDraft}>
               ← Nytt utkast
             </button>
           )}
@@ -207,19 +208,19 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
             onRemoveGenre={onRemoveGenre}
           />
 
-          <div className="ai-assist-section">
-            <label className="ai-toggle-label">
+          <div className={styles.aiAssistSection}>
+            <label className={styles.aiToggleLabel}>
               <input
                 type="checkbox"
                 checked={aiAssistEnabled && openaiAvailable}
                 onChange={(e) => handleAiAssistToggle(e.target.checked)}
                 disabled={!openaiAvailable}
-                className="ai-toggle-checkbox"
+                className={styles.aiToggleCheckbox}
               />
               Bruk AI til å generere tekst
             </label>
             {!openaiAvailable && (
-              <p className="suno-missing-hint">OpenAI API-nøkkel mangler. Legg til OPENAI_API_KEY i backend .env og restart serveren.</p>
+              <p className={styles.sunoMissingHint}>OpenAI API-nøkkel mangler. Legg til OPENAI_API_KEY i backend .env og restart serveren.</p>
             )}
 
             {aiAssistEnabled && openaiAvailable && (

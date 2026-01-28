@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import styles from './GenreInput.module.css';
 
 interface GenreInputProps {
   value: string;
@@ -89,8 +90,8 @@ export function GenreInput({
   }
 
   return (
-    <div className="genre-input-wrapper" ref={containerRef}>
-      <div className="genre-input-control">
+    <div className={styles.wrapper} ref={containerRef}>
+      <div className={styles.control}>
         <input
           ref={inputRef}
           type="text"
@@ -98,13 +99,13 @@ export function GenreInput({
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onKeyDown={handleKeyDown}
-          className="genre-input"
+          className={styles.input}
           placeholder="Velg eller skriv sjanger..."
         />
         {value && (
           <button
             type="button"
-            className="genre-clear-button"
+            className={styles.clearButton}
             onClick={handleClear}
             title="Tøm"
           >
@@ -113,18 +114,18 @@ export function GenreInput({
         )}
       </div>
       {isOpen && filteredOptions.length > 0 && (
-        <ul className="genre-dropdown">
+        <ul className={styles.dropdown}>
           {filteredOptions.map((genre, index) => (
             <li
               key={genre}
-              className={`genre-dropdown-option ${index === highlightedIndex ? 'highlighted' : ''}`}
+              className={`${styles.option} ${index === highlightedIndex ? styles.optionHighlighted : ''}`}
               onMouseEnter={() => setHighlightedIndex(index)}
               onClick={() => handleOptionClick(genre)}
             >
               <span>{genre}</span>
               <button
                 type="button"
-                className="genre-remove-button"
+                className={styles.removeButton}
                 onClick={(e) => handleRemoveClick(e, genre)}
                 title="Fjern fra historikk"
               >

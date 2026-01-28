@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
+import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {
   item: HistoryItemType;
@@ -15,7 +16,6 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Update audio src without interrupting playback
   useEffect(() => {
     const el = audioRef.current;
     if (!el || !audioUrl) return;
@@ -35,11 +35,11 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
 
   if (item.sunoStatus === 'pending' && !audioUrl) {
     return (
-      <div className="skeleton-history-item" onClick={handleClick}>
-        <div className="skeleton skeleton-thumbnail" />
-        <div className="skeleton-content">
-          <div className="skeleton skeleton-title" />
-          <div className="skeleton skeleton-badge" />
+      <div className={styles.skeletonHistoryItem} onClick={handleClick}>
+        <div className={`${styles.skeleton} ${styles.skeletonThumbnail}`} />
+        <div className={styles.skeletonContent}>
+          <div className={`${styles.skeleton} ${styles.skeletonTitle}`} />
+          <div className={`${styles.skeleton} ${styles.skeletonBadge}`} />
         </div>
       </div>
     );
@@ -47,19 +47,19 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
 
   return (
     <div
-      className={`history-item ${isSelected ? 'selected' : ''}`}
+      className={`${styles.historyItem} ${isSelected ? styles.selected : ''}`}
       onClick={handleClick}
     >
-      <div className="history-header">
+      <div className={styles.historyHeader}>
         <img
           src={item.sunoImageUrl || '/assets/placeholder.png'}
           alt=""
-          className="history-thumbnail"
+          className={styles.historyThumbnail}
         />
-        <div className="history-meta">
-          <strong className="history-title">{displayTitle}{variationLabel}</strong>
-          {item.sunoStatus === 'failed' && <span className="status-badge status-failed">Feilet</span>}
-          <span className="history-date">
+        <div className={styles.historyMeta}>
+          <strong className={styles.historyTitle}>{displayTitle}{variationLabel}</strong>
+          {item.sunoStatus === 'failed' && <span className={`${styles.statusBadge} ${styles.statusFailed}`}>Feilet</span>}
+          <span className={styles.historyDate}>
             {new Date(item.createdAt).toLocaleString('no-NO', {
               day: '2-digit',
               month: '2-digit',
@@ -67,21 +67,21 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
               hour: '2-digit',
               minute: '2-digit',
             })}
-            {item.isUploaded && <span className="uploaded-label">Lastet opp</span>}
+            {item.isUploaded && <span className={styles.uploadedLabel}>Lastet opp</span>}
           </span>
         </div>
-        <div className="history-actions">
-          <div className="feedback-buttons">
+        <div className={styles.historyActions}>
+          <div className={styles.feedbackButtons}>
             <button
               onClick={() => onFeedback(item.id, item.feedback === 'up' ? null : 'up')}
-              className={`thumb-button ${item.feedback === 'up' ? 'active' : ''}`}
+              className={`${styles.thumbButton} ${item.feedback === 'up' ? styles.thumbButtonActive : ''}`}
               title="Thumbs up"
             >
               👍
             </button>
             <button
               onClick={() => onFeedback(item.id, item.feedback === 'down' ? null : 'down')}
-              className={`thumb-button ${item.feedback === 'down' ? 'active' : ''}`}
+              className={`${styles.thumbButton} ${item.feedback === 'down' ? styles.thumbButtonActive : ''}`}
               title="Thumbs down"
             >
               👎
@@ -89,7 +89,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
           </div>
           <button
             onClick={onDelete}
-            className="delete-button"
+            className={styles.deleteButton}
             title="Slett"
           >
             🗑
@@ -97,8 +97,8 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
         </div>
       </div>
       {audioUrl && (
-        <div className="audio-previews">
-          <div className="audio-preview">
+        <div className={styles.audioPreviews}>
+          <div className={styles.audioPreview}>
             <audio ref={audioRef} controls />
           </div>
         </div>

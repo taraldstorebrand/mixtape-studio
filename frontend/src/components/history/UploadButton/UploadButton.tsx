@@ -3,6 +3,7 @@ import { useSetAtom } from 'jotai';
 import { historyAtom } from '../../../store/atoms';
 import { uploadMp3Files } from '../../../services/api';
 import type { HistoryItem } from '../../../types';
+import styles from './UploadButton.module.css';
 
 interface FileWithTitle {
   file: File;
@@ -91,7 +92,7 @@ export function UploadButton() {
   const showForm = selectedFiles.length > 0;
 
   return (
-    <div className="upload-container">
+    <div className={styles.container}>
       <input
         ref={fileInputRef}
         type="file"
@@ -102,27 +103,27 @@ export function UploadButton() {
       />
       {!showForm ? (
         <button
-          className="upload-button"
+          className={styles.button}
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
         >
           Last opp MP3
         </button>
       ) : (
-        <div className="upload-form">
-          <div className="upload-file-list">
+        <div className={styles.form}>
+          <div className={styles.fileList}>
             {selectedFiles.map((item, index) => (
-              <div key={index} className="upload-file-item">
+              <div key={index} className={styles.fileItem}>
                 <input
                   type="text"
-                  className="upload-title-input"
+                  className={styles.titleInput}
                   placeholder="Tittel"
                   value={item.title}
                   onChange={(e) => handleTitleChange(index, e.target.value)}
                   disabled={isUploading}
                 />
                 <button
-                  className="upload-remove-button"
+                  className={styles.removeButton}
                   onClick={() => handleRemoveFile(index)}
                   disabled={isUploading}
                   title="Fjern"
@@ -132,9 +133,9 @@ export function UploadButton() {
               </div>
             ))}
           </div>
-          <div className="upload-actions">
+          <div className={styles.actions}>
             <button
-              className="upload-confirm-button"
+              className={styles.confirmButton}
               onClick={handleUpload}
               disabled={isUploading || selectedFiles.some((f) => !f.title.trim())}
             >
@@ -143,7 +144,7 @@ export function UploadButton() {
                 : `Last opp ${selectedFiles.length} fil${selectedFiles.length > 1 ? 'er' : ''}`}
             </button>
             <button
-              className="upload-cancel-button"
+              className={styles.cancelButton}
               onClick={handleCancel}
               disabled={isUploading}
             >
@@ -152,7 +153,7 @@ export function UploadButton() {
           </div>
         </div>
       )}
-      {error && <div className="upload-error">{error}</div>}
+      {error && <div className={styles.error}>{error}</div>}
     </div>
   );
 }

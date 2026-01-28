@@ -1,4 +1,5 @@
 import { GenreInput } from '../GenreInput';
+import styles from './LyricsTextarea.module.css';
 
 interface LyricsTextareaProps {
   lyrics: string;
@@ -25,28 +26,28 @@ export function LyricsTextarea({
 }: LyricsTextareaProps) {
   if (isLoading) {
     return (
-      <div className="lyrics-container">
-        <div className="title-input-container">
-          <label className="title-label">Sangtittel (påkrevd):</label>
-          <div className="skeleton" style={{ height: '2.5rem', width: '100%' }} />
+      <div className={styles.container}>
+        <div className={styles.titleInputContainer}>
+          <label className={styles.titleLabel}>Sangtittel (påkrevd):</label>
+          <div className={styles.skeleton} style={{ height: '2.5rem', width: '100%' }} />
         </div>
-        <label className="lyrics-label">Sangtekst:</label>
-        <div className="skeleton-lyrics">
-          <div className="skeleton-line" />
-          <div className="skeleton-line" />
-          <div className="skeleton-line" />
-          <div className="skeleton-line" />
-          <div className="skeleton-line" />
-          <div className="skeleton-line" />
+        <label className={styles.label}>Sangtekst:</label>
+        <div className={styles.skeletonLyrics}>
+          <div className={styles.skeletonLine} />
+          <div className={styles.skeletonLine} />
+          <div className={styles.skeletonLine} />
+          <div className={styles.skeletonLine} />
+          <div className={styles.skeletonLine} />
+          <div className={styles.skeletonLine} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="lyrics-container">
-      <div className="title-input-container">
-        <label htmlFor="title-input" className="title-label">
+    <div className={styles.container}>
+      <div className={styles.titleInputContainer}>
+        <label htmlFor="title-input" className={styles.titleLabel}>
           Sangtittel (påkrevd):
         </label>
         <input
@@ -54,23 +55,23 @@ export function LyricsTextarea({
           type="text"
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          className="title-input"
+          className={styles.titleInput}
           placeholder="Skriv inn sangtittel..."
         />
       </div>
-      <label htmlFor="lyrics-editor" className="lyrics-label">
+      <label htmlFor="lyrics-editor" className={styles.label}>
         Sangtekst:
       </label>
       <textarea
         id="lyrics-editor"
         value={lyrics}
         onChange={(e) => onChange(e.target.value)}
-        className="lyrics-editor"
+        className={styles.editor}
         rows={14}
         placeholder="Skriv sangteksten her..."
       />
-      <div className="genre-input-container">
-        <label className="genre-label">
+      <div className={styles.genreInputContainer}>
+        <label className={styles.genreLabel}>
           Sjanger/stil (valgfritt):
         </label>
         <GenreInput

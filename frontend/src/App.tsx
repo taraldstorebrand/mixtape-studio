@@ -6,7 +6,7 @@ import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAt
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
-import './App.css';
+import styles from './App.module.css';
 
 const PANEL_WIDTH_KEY = 'sangtekst_panel_width';
 
@@ -93,14 +93,14 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <header className="app-header">
+    <div className={styles.app}>
+      <header className={styles.header}>
         <h1>Mixtape Studio</h1>
         <p>Lag musikk med AI og bygg dine egne mixtapes</p>
       </header>
 
-      <main className="app-main" ref={containerRef}>
-        <div className="panel-left" style={{ width: `${panelWidth}%` }}>
+      <main className={styles.main} ref={containerRef}>
+        <div className={styles.panelLeft} style={{ width: `${panelWidth}%` }}>
           <DetailPanel
             ref={detailPanelRef}
             selectedItem={selectedItem ?? null}
@@ -113,11 +113,11 @@ function App() {
         </div>
 
         <div
-          className={`resize-handle ${isDragging ? 'dragging' : ''}`}
+          className={`${styles.resizeHandle} ${isDragging ? styles.resizeHandleDragging : ''}`}
           onMouseDown={handleMouseDown}
         />
 
-        <div className="panel-right">
+        <div className={styles.panelRight}>
           <HistoryPanel
             items={history}
             selectedItemId={selectedItemId}

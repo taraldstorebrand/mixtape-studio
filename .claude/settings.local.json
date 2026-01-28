@@ -12,7 +12,8 @@
       "Bash(npx tsc:*)",
       "Bash(tree:*)",
       "Bash(npx ts-node scripts/backfill-placeholder-images.ts)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(npx vite build)"
     ]
   }
 }

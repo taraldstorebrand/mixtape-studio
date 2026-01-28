@@ -1,0 +1,106 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.label {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.editor {
+  width: 100%;
+  padding: var(--spacing-lg) 1.25rem;
+  font-size: 1rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.6;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-soft);
+  resize: vertical;
+  min-height: 220px;
+  box-shadow: var(--shadow-inset);
+}
+
+.editor:focus {
+  outline: none;
+  box-shadow: var(--shadow-inset), 0 0 0 2px var(--color-primary);
+}
+
+.titleInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.titleLabel {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.titleInput {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+}
+
+.titleInput:focus {
+  outline: none;
+  border-color: var(--color-primary-hover);
+}
+
+.genreInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.genreLabel {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1.0; }
+}
+
+.skeleton {
+  background-color: var(--color-bg-skeleton);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLyrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  min-height: 220px;
+}
+
+.skeletonLine {
+  height: 1rem;
+  background-color: var(--color-bg-skeleton);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLine:nth-child(1) { width: 85%; animation-delay: 0s; }
+.skeletonLine:nth-child(2) { width: 70%; animation-delay: 0.1s; }
+.skeletonLine:nth-child(3) { width: 90%; animation-delay: 0.2s; }
+.skeletonLine:nth-child(4) { width: 60%; animation-delay: 0.3s; }
+.skeletonLine:nth-child(5) { width: 75%; animation-delay: 0.4s; }
+.skeletonLine:nth-child(6) { width: 80%; animation-delay: 0.5s; }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styles from './PromptInput.module.css';
 
 interface PromptInputProps {
   onGenerate: (prompt: string) => void;
@@ -22,22 +23,22 @@ export function PromptInput({ onGenerate, isLoading, initialValue = '' }: Prompt
   };
 
   return (
-    <form onSubmit={handleSubmit} className="prompt-form">
-      <div className="prompt-input-group">
+    <form onSubmit={handleSubmit} className={styles.promptForm}>
+      <div className={styles.promptInputGroup}>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Skriv en prompt for sangteksten (f.eks. 'En sang om sommer')"
           disabled={isLoading}
-          className="prompt-textarea"
+          className={styles.promptTextarea}
           rows={3}
         />
         <button 
           type="submit" 
           disabled={!prompt.trim() || isLoading}
-          className="generate-button"
+          className={styles.generateButton}
         >
-          {isLoading ? <span className="button-loading"><span className="spinner" />Genererer tekst...</span> : 'Generer tekst'}
+          {isLoading ? <span className={styles.buttonLoading}><span className={styles.spinner} />Genererer tekst...</span> : 'Generer tekst'}
         </button>
       </div>
     </form>

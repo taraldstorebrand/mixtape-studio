@@ -3,6 +3,7 @@ import { HistoryItem as HistoryItemType } from '../../types';
 import { HistoryItem } from './HistoryItem/HistoryItem';
 import { MixtapeButton } from './MixtapeButton/MixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
+import styles from './HistoryList.module.css';
 
 type FilterType = 'default' | 'liked' | 'all';
 
@@ -27,37 +28,37 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
 
   if (items.length === 0) {
     return (
-      <div className="history-empty">
+      <div className={styles.empty}>
         <p>Ingen historikk ennå. Generer din første sangtekst!</p>
       </div>
     );
   }
 
   return (
-    <div className="history-list">
-      <div className="history-panel-actions">
-        <div className="history-panel-actions-buttons">
+    <div className={styles.historyList}>
+      <div className={styles.panelActions}>
+        <div className={styles.panelActionsButtons}>
           <UploadButton />
           <MixtapeButton likedItems={likedItems} />
         </div>
       </div>
-      <div className="history-header-bar">
+      <div className={styles.headerBar}>
         <h2>Sanger ({filteredItems.length})</h2>
-        <div className="filter-buttons">
+        <div className={styles.filterButtons}>
           <button
-            className={`filter-button ${filter === 'default' ? 'active' : ''}`}
+            className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
             onClick={() => setFilter('default')}
           >
             Sanger
           </button>
           <button
-            className={`filter-button ${filter === 'liked' ? 'active' : ''}`}
+            className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
             onClick={() => setFilter('liked')}
           >
             Likte
           </button>
           <button
-            className={`filter-button ${filter === 'all' ? 'active' : ''}`}
+            className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
             onClick={() => setFilter('all')}
           >
             Alle

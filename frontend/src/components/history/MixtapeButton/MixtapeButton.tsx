@@ -5,6 +5,7 @@ import {
   onceMixtapeReady,
 } from '../../../services/api';
 import type { HistoryItem } from '../../../types';
+import styles from './MixtapeButton.module.css';
 
 function formatDuration(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
@@ -68,13 +69,13 @@ export function MixtapeButton({ likedItems }: MixtapeButtonProps) {
   return (
     <div>
       <button
-        className="mixtape-button"
+        className={styles.mixtapeButton}
         onClick={handleClick}
         disabled={!hasLikedSongs || isLoading}
       >
-        {isLoading ? <span className="button-loading"><span className="spinner" />{label}</span> : label}
+        {isLoading ? <span className={styles.buttonLoading}><span className={styles.spinner} />{label}</span> : label}
       </button>
-      {error && <div className="mixtape-error">{error}</div>}
+      {error && <div className={styles.error}>{error}</div>}
     </div>
   );
 }
