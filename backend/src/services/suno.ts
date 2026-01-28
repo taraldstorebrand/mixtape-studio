@@ -6,6 +6,7 @@ import { io } from '../server';
 const SUNO_API_BASE_URL = 'https://api.sunoapi.org';
 const MP3_DIR = path.join(__dirname, '../../mp3s');
 const IMAGES_DIR = path.join(__dirname, '../../images');
+const PLACEHOLDER_IMAGE = path.join(__dirname, '../assets/placeholder.png');
 
 // Suno API docs (Quick Start):
 // - POST  /api/v1/generate
@@ -118,12 +119,17 @@ async function downloadMp3(url: string, sanitizedTitle: string, index: number): 
 
 // Download image file and save locally
 async function downloadImage(url: string, sanitizedTitle: string, index: number): Promise<string> {
-  const filename = `${sanitizedTitle}_${index}.jpg`;
+  const filename = `${sanitizedTitle}_${index}.png`;
   const filepath = path.join(IMAGES_DIR, filename);
-  
-  const response = await axios.get(url, { responseType: 'arraybuffer' });
-  fs.writeFileSync(filepath, response.data);
-  
+
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    fs.writeFileSync(filepath, response.data);
+  } catch (err) {
+    console.error('Image download failed, using placeholder:', err);
+    fs.copyFileSync(PLACEHOLDER_IMAGE, filepath);
+  }
+
   return filename;
 }
 
@@ -167,16 +173,11 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
         if (status.image_urls && status.image_urls.length > 0) {
           const localImageUrls = await Promise.all(
             status.image_urls.map(async (url, i) => {
-              try {
-                const filename = await downloadImage(url, sanitizedTitle, startIndex + i);
-                return `/images/${filename}`;
-              } catch (imgErr) {
-                console.error('Error downloading image:', imgErr);
-                return null;
-              }
+              const filename = await downloadImage(url, sanitizedTitle, startIndex + i);
+              return `/images/${filename}`;
             })
           );
-          status.image_urls = localImageUrls.filter((url): url is string => url !== null);
+          status.image_urls = localImageUrls;
           console.log('Downloaded images, local URLs:', status.image_urls);
         }
 
