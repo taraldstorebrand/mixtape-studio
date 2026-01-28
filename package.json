@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "description": "Mixtape Studio - Build your own mixtapes",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
   "scripts": {
-    "dev": "concurrently -n backend,frontend -c blue,green \"npm run dev -C backend\" \"npm run dev -C frontend\"",
-    "build": "npm run build -C backend && npm run build -C frontend",
-    "install:all": "npm install -C backend && npm install -C frontend"
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w backend && npm run build -w frontend"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

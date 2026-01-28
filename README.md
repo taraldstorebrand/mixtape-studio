@@ -113,7 +113,7 @@ Hvis API-nøkler mangler, deaktiveres relevante AI-handlinger automatisk i bruke
 ### Installasjon
 ```bash
 npm install
-npm run install:all
+```
 
 ### Miljøvariabler (valgfritt)
 
@@ -143,12 +143,12 @@ npm run dev
 
 Backend:
 ```bash
-npm run dev -C backend
+npm run dev -w backend
 ```
 
 Frontend (i en ny terminal):
 ```bash
-npm run dev -C frontend
+npm run dev -w frontend
 ```
 
 ## Bruk
@@ -173,7 +173,7 @@ npm run dev -C frontend
 
 ```
 mixtape-studio/
-├── package.json            # Root scripts (dev, build, install:all)
+├── package.json            # Root scripts (dev, build) med npm workspaces
 ├── frontend/
 │   ├── src/
 │   │   ├── components/     # React komponenter

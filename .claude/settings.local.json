@@ -14,7 +14,9 @@
       "Bash(npx ts-node scripts/backfill-placeholder-images.ts)",
       "Bash(git push)",
       "Bash(npx vite build)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run install:all:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }
