@@ -3,6 +3,7 @@ import { generateSong, getSongStatus } from '../services/suno';
 
 const router = Router();
 
+
 router.post('/generate', async (req: Request, res: Response) => {
   try {
     const { lyrics, genre, title } = req.body;

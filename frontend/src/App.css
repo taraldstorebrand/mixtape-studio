@@ -110,6 +110,13 @@
   cursor: not-allowed;
 }
 
+.suno-missing-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.78rem;
+  color: #f59e0b;
+  line-height: 1.3;
+}
+
 .ai-assist-section {
   display: flex;
   flex-direction: column;

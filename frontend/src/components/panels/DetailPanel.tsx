@@ -1,8 +1,8 @@
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useAtom } from 'jotai';
 import { PromptInput } from '../lyrics/PromptInput';
 import { LyricsTextarea } from '../lyrics/LyricsTextarea';
-import { generateLyrics, generateSong } from '../../services/api';
+import { generateLyrics, generateSong, checkConfigStatus } from '../../services/api';
 import { songGenerationStatusAtom } from '../../store';
 import { HistoryItem } from '../../types';
 
@@ -34,10 +34,19 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   const [isLoading, setIsLoading] = useState(false);
   const [songGenerationStatus, setSongGenerationStatus] = useAtom(songGenerationStatusAtom);
   const [error, setError] = useState<string | null>(null);
+  const [sunoAvailable, setSunoAvailable] = useState(true);
+  const [openaiAvailable, setOpenaiAvailable] = useState(true);
   const [aiAssistEnabled, setAiAssistEnabled] = useState(() => {
     const stored = localStorage.getItem('aiAssistEnabled');
     return stored === 'true';
   });
+
+  useEffect(() => {
+    checkConfigStatus().then((status) => {
+      setSunoAvailable(status.suno);
+      setOpenaiAvailable(status.openai);
+    });
+  }, []);
 
   const handleAiAssistToggle = (enabled: boolean) => {
     setAiAssistEnabled(enabled);
@@ -160,11 +169,14 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
           <div className="primary-action-container">
             <button
               onClick={handleGenerateSong}
-              disabled={!currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
+              disabled={!sunoAvailable || !currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
               className="generate-song-button primary"
             >
               {songGenerationStatus === 'pending' ? <span className="button-loading"><span className="spinner" />Genererer sang... (1-5 min)</span> : 'Generer sang'}
             </button>
+            {!sunoAvailable && (
+              <p className="suno-missing-hint">Suno API-nøkkel mangler. Legg til SUNO_API_KEY i backend .env og restart serveren.</p>
+            )}
           </div>
 
           <LyricsTextarea
@@ -183,14 +195,18 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
             <label className="ai-toggle-label">
               <input
                 type="checkbox"
-                checked={aiAssistEnabled}
+                checked={aiAssistEnabled && openaiAvailable}
                 onChange={(e) => handleAiAssistToggle(e.target.checked)}
+                disabled={!openaiAvailable}
                 className="ai-toggle-checkbox"
               />
               Bruk AI til å generere tekst
             </label>
+            {!openaiAvailable && (
+              <p className="suno-missing-hint">OpenAI API-nøkkel mangler. Legg til OPENAI_API_KEY i backend .env og restart serveren.</p>
+            )}
 
-            {aiAssistEnabled && (
+            {aiAssistEnabled && openaiAvailable && (
               <PromptInput
                 onGenerate={handleGenerateLyrics}
                 isLoading={isLoading}

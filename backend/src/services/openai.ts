@@ -1,8 +1,15 @@
 import { OpenAI } from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openai: OpenAI | null = null;
+
+function getClient(): OpenAI {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
 const SYSTEM_PROMPT = `Du er en profesjonell tekstforfatter som skriver sangtekster. 
 Skriv sangtekster som er kreative, engasjerende og følelsesmessige. 
@@ -11,7 +18,7 @@ Svar kun med sangteksten, uten ekstra forklaringer eller kommentarer. Tekstene k
 
 export async function generateLyrics(prompt: string): Promise<string> {
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await getClient().chat.completions.create({
       model: 'gpt-5.2',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },

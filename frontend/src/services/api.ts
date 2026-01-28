@@ -73,6 +73,17 @@ export function onceMixtapeReady(
   s.on('mixtape-ready', handler);
 }
 
+export async function checkConfigStatus(): Promise<{ openai: boolean; suno: boolean }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/config-status`);
+    if (!response.ok) return { openai: false, suno: false };
+    const data = await response.json();
+    return { openai: !!data.openai, suno: !!data.suno };
+  } catch {
+    return { openai: false, suno: false };
+  }
+}
+
 export async function generateLyrics(prompt: string): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/chatgpt/generate-lyrics`, {
     method: 'POST',
