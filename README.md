@@ -1,6 +1,8 @@
 # 🎵 Mixtape Studio
 
-Lag musikk med AI og bygg dine egne mixtapes. En webapplikasjon som bruker ChatGPT til å generere sangtekster basert på brukerprompts, og deretter sender tekstene til Suno API for musikkgenerering.
+Mixtape Studio er en webapplikasjon for å bygge egne mixtapes av musikk – enten du bruker eksisterende lydfiler eller genererer nytt innhold underveis.
+
+Appen er først og fremst laget som et praktisk verktøy for miksing, avspilling og organisering av sanger, med støtte for AI-basert tekst- og musikkgenerering som et valgfritt tillegg.
 
 ![Mixtape Studio Screenshot](docs/hero-screenshot.png)
 
@@ -59,25 +61,18 @@ Denne løsningen krever aktive abonnementer på:
 
 1. Klon eller last ned prosjektet
 
-2. Installer backend-avhengigheter:
+2. Installer alle avhengigheter (fra prosjektroten):
 ```bash
-cd backend
 npm install
+npm run install:all
 ```
 
-3. Installer frontend-avhengigheter:
+3. Opprett `.env` fil i `backend/` mappen:
 ```bash
-cd ../frontend
-npm install
+cp backend/.env-template backend/.env
 ```
 
-4. Opprett `.env` fil i `backend/` mappen:
-```bash
-cd ../backend
-cp .env-template .env
-```
-
-5. Rediger `.env` filen og legg inn dine API-nøkler:
+4. Rediger `backend/.env` filen og legg inn dine API-nøkler:
 ```
 OPENAI_API_KEY=din_openai_nøkkel_her
 SUNO_API_KEY=din_suno_nøkkel_her
@@ -87,19 +82,24 @@ CORS_ORIGIN=http://localhost:5173
 
 ### Kjøring
 
-1. Start backend-serveren:
+Start både backend og frontend samtidig fra prosjektroten:
 ```bash
-cd backend
 npm run dev
 ```
 
-2. I en ny terminal, start frontend:
+Åpne nettleseren og gå til `http://localhost:5173`
+
+#### Alternativt: Kjør separat
+
+Backend:
 ```bash
-cd frontend
-npm run dev
+npm run dev -C backend
 ```
 
-3. Åpne nettleseren og gå til `http://localhost:5173`
+Frontend (i en ny terminal):
+```bash
+npm run dev -C frontend
+```
 
 ## Bruk
 
@@ -122,7 +122,8 @@ npm run dev
 ## Prosjektstruktur
 
 ```
-test-cursor/
+mixtape-studio/
+├── package.json            # Root scripts (dev, build, install:all)
 ├── frontend/
 │   ├── src/
 │   │   ├── components/     # React komponenter

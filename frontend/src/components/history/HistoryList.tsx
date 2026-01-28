@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../types';
 import { HistoryItem } from './HistoryItem/HistoryItem';
 import { MixtapeButton } from './MixtapeButton/MixtapeButton';
+import { AdvancedMixtapeButton } from '../mixtape/AdvancedMixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
 import styles from './HistoryList.module.css';
 
@@ -40,6 +41,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
         <div className={styles.panelActionsButtons}>
           <UploadButton />
           <MixtapeButton likedItems={likedItems} />
+          <AdvancedMixtapeButton allSongs={items} />
         </div>
       </div>
       <div className={styles.headerBar}>

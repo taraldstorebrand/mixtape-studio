@@ -77,21 +77,38 @@ function generateChapterMetadata(
   return lines.join('\n');
 }
 
-async function generateMixtape(taskId: string): Promise<void> {
+interface MixtapeOptions {
+  taskId: string;
+  songIds?: string[];
+  name?: string;
+}
+
+async function generateMixtape(options: MixtapeOptions): Promise<void> {
+  const { taskId, songIds, name } = options;
   const mp3sDir = path.join(__dirname, '../../mp3s');
   ensureTempDir();
 
   try {
-    const items = getAllHistoryItems();
-    const likedItems = items
-      .filter((item) => item.feedback === 'up' && item.sunoLocalUrl)
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
+    const allItems = getAllHistoryItems();
 
-    if (likedItems.length === 0) {
-      io.emit('mixtape-ready', { taskId, error: 'Ingen likte sanger funnet' });
+    let selectedItems;
+    if (songIds && songIds.length > 0) {
+      // Custom mixtape: use provided song IDs in order (can include duplicates)
+      selectedItems = songIds
+        .map((id) => allItems.find((item) => item.id === id))
+        .filter((item) => item && item.sunoLocalUrl);
+    } else {
+      // Legacy: use liked songs sorted by creation date
+      selectedItems = allItems
+        .filter((item) => item.feedback === 'up' && item.sunoLocalUrl)
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+    }
+
+    if (selectedItems.length === 0) {
+      io.emit('mixtape-ready', { taskId, error: 'Ingen sanger funnet' });
       return;
     }
 
@@ -100,10 +117,13 @@ async function generateMixtape(taskId: string): Promise<void> {
     const tempMetadataFile = path.join(TEMP_DIR, `metadata_${downloadId}.txt`);
     const outputFile = path.join(TEMP_DIR, `${downloadId}.m4b`);
 
-    const songData = likedItems.map((item) => {
-      const filename = item.sunoLocalUrl!.replace(/^\/mp3s\//, '');
+    const mixtapeName = name || 'Mixtape';
+    const fileName = `${mixtapeName.replace(/[^a-zA-Z0-9æøåÆØÅ\s-]/g, '_')}.m4b`;
+
+    const songData = selectedItems.map((item) => {
+      const filename = item!.sunoLocalUrl!.replace(/^\/mp3s\//, '');
       const filePath = path.join(mp3sDir, filename);
-      return { title: item.title, filePath };
+      return { title: item!.title, filePath };
     });
 
     const fileListContent = songData
@@ -142,7 +162,7 @@ async function generateMixtape(taskId: string): Promise<void> {
         '-b:a',
         '256k',
         '-metadata',
-        'title=Liked Songs – Mixtape',
+        `title=${mixtapeName}`,
         '-metadata',
         'album=Suno and others Mixtape',
         '-metadata',
@@ -188,14 +208,14 @@ async function generateMixtape(taskId: string): Promise<void> {
       });
     });
 
-    io.emit('mixtape-ready', { taskId, downloadId });
+    io.emit('mixtape-ready', { taskId, downloadId, fileName });
   } catch (error: any) {
     console.error('Error creating mixtape:', error);
     io.emit('mixtape-ready', { taskId, error: 'Kunne ikke lage mixtape' });
   }
 }
 
-// POST /api/mixtape/liked - Start mixtape generation
+// POST /api/mixtape/liked - Start mixtape generation (legacy)
 router.post('/liked', async (req: Request, res: Response) => {
   const items = getAllHistoryItems();
   const likedCount = items.filter(
@@ -208,7 +228,31 @@ router.post('/liked', async (req: Request, res: Response) => {
 
   const taskId = Date.now().toString();
 
-  generateMixtape(taskId);
+  generateMixtape({ taskId });
+
+  res.json({ taskId });
+});
+
+// POST /api/mixtape/custom - Create mixtape from custom song list
+router.post('/custom', async (req: Request, res: Response) => {
+  const { songIds, name } = req.body as { songIds?: string[]; name?: string };
+
+  if (!songIds || !Array.isArray(songIds) || songIds.length === 0) {
+    return res.status(400).json({ error: 'Ingen sanger valgt' });
+  }
+
+  const items = getAllHistoryItems();
+  const validCount = songIds.filter((id) =>
+    items.some((item) => item.id === id && item.sunoLocalUrl)
+  ).length;
+
+  if (validCount === 0) {
+    return res.status(400).json({ error: 'Ingen gyldige sanger funnet' });
+  }
+
+  const taskId = Date.now().toString();
+
+  generateMixtape({ taskId, songIds, name });
 
   res.json({ taskId });
 });
@@ -216,16 +260,19 @@ router.post('/liked', async (req: Request, res: Response) => {
 // GET /api/mixtape/download/:downloadId - Download generated mixtape
 router.get('/download/:downloadId', (req: Request, res: Response) => {
   const { downloadId } = req.params;
+  const { fileName } = req.query as { fileName?: string };
   const filePath = path.join(TEMP_DIR, `${downloadId}.m4b`);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'Fil ikke funnet eller utløpt' });
   }
 
+  const downloadFileName = fileName || 'mixtape_likte_sanger.m4b';
+
   res.setHeader('Content-Type', 'audio/mp4');
   res.setHeader(
     'Content-Disposition',
-    'attachment; filename="mixtape_likte_sanger.m4b"'
+    `attachment; filename="${encodeURIComponent(downloadFileName)}"`
   );
 
   const stream = fs.createReadStream(filePath);

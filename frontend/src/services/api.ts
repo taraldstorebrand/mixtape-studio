@@ -55,13 +55,14 @@ export function offSunoUpdate(callback?: (data: any) => void) {
 
 export function onceMixtapeReady(
   taskId: string,
-  callback: (data: { downloadId?: string; error?: string }) => void
+  callback: (data: { downloadId?: string; fileName?: string; error?: string }) => void
 ) {
   const s = connectSocket();
 
   function handler(data: {
     taskId: string;
     downloadId?: string;
+    fileName?: string;
     error?: string;
   }) {
     if (data.taskId === taskId) {
@@ -241,25 +242,50 @@ export async function startMixtapeGeneration(): Promise<string> {
   return data.taskId;
 }
 
-export async function downloadMixtape(downloadId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/mixtape/download/${downloadId}`);
-  
+export async function startCustomMixtapeGeneration(
+  songIds: string[],
+  name?: string
+): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/mixtape/custom`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ songIds, name }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Kunne ikke starte mixtape-generering');
+  }
+
+  const data = await response.json();
+  return data.taskId;
+}
+
+export async function downloadMixtape(downloadId: string, fileName?: string): Promise<void> {
+  const url = fileName
+    ? `${API_BASE_URL}/mixtape/download/${downloadId}?fileName=${encodeURIComponent(fileName)}`
+    : `${API_BASE_URL}/mixtape/download/${downloadId}`;
+
+  const response = await fetch(url);
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Kunne ikke laste ned mixtape');
   }
-  
+
   const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
+  const blobUrl = URL.createObjectURL(blob);
 
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'mixtape_likte_sanger.m4b';
+  a.href = blobUrl;
+  a.download = fileName || 'mixtape_likte_sanger.m4b';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 
-  URL.revokeObjectURL(url);
+  URL.revokeObjectURL(blobUrl);
 }
 
 // Upload API

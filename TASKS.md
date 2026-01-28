@@ -1,76 +1,92 @@
 # TASKS.md
 
-## CSS Modules Migration
+## Feature: Avansert Mixtape Editor
 
-Migrer fra monolittisk `App.css` (~1000 linjer) til co-located CSS Modules.
+### Oversikt
+En ny knapp i GUI som åpner en modal med to-panel editor for å lage mixtapes med full kontroll over sangvalg og rekkefølge.
 
-### Mål
-- Scoped stiler per komponent (ingen navnekollisjoner)
-- Bedre vedlikeholdbarhet og lesbarhet
-- Tydelig kobling mellom komponent og stil
-
-### Filstruktur etter migrering
+### Foreslått Design
 
 ```
-frontend/src/
-├── index.css                          # Globale resets, CSS-variabler, keyframes
-├── App.module.css                     # App-layout stiler
-├── components/
-│   ├── history/
-│   │   ├── HistoryList.module.css
-│   │   ├── HistoryList.tsx
-│   │   ├── HistoryItem/
-│   │   │   ├── HistoryItem.module.css
-│   │   │   └── HistoryItem.tsx
-│   │   ├── MixtapeButton/
-│   │   │   ├── MixtapeButton.module.css
-│   │   │   └── MixtapeButton.tsx
-│   │   └── UploadButton/
-│   │       ├── UploadButton.module.css
-│   │       └── UploadButton.tsx
-│   ├── lyrics/
-│   │   ├── LyricsTextarea.module.css
-│   │   ├── LyricsTextarea.tsx
-│   │   ├── PromptInput.module.css
-│   │   └── PromptInput.tsx
-│   ├── panels/
-│   │   ├── DetailPanel.module.css
-│   │   ├── DetailPanel.tsx
-│   │   ├── HistoryPanel.module.css
-│   │   └── HistoryPanel.tsx
-│   └── GenreInput.module.css
-│       GenreInput.tsx
+┌─────────────────────────────────────────────────────────────────────┐
+│  Lag Mixtape                                                    [X] │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─ Tilgjengelige sanger ─────────┐  ┌─ Din mixtape ─────────────┐ │
+│  │ [Søk...] [Filter: Alle ▼]      │  │ Mixtape-navn: [________]  │ │
+│  │                                │  │                           │ │
+│  │ ♪ Sang 1            [+]       │  │ 1. ♪ Sang 3    [↑][↓][×] │ │
+│  │ ♪ Sang 2            [+]       │  │ 2. ♪ Sang 1    [↑][↓][×] │ │
+│  │ ♪ Sang 3            [+]       │  │ 3. ♪ Sang 3    [↑][↓][×] │ │
+│  │ ♪ Sang 4            [+]       │  │                           │ │
+│  │ ...                            │  │ ─────────────────────────│ │
+│  │                                │  │ Totalt: 3 sanger (12:34) │ │
+│  └────────────────────────────────┘  └───────────────────────────┘ │
+│                                                                     │
+│                              [Avbryt]  [Lag Mixtape]                │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Oppgaver
+---
 
-#### Fase 1: Forberedelser
-- [ ] **1.1** Opprett `frontend/src/styles/variables.css` med CSS custom properties for farger, spacing, border-radius
-- [ ] **1.2** Flytt globale stiler (resets, keyframes som `skeleton-pulse`, `spinner-rotate`) til `index.css`
+## Beslutninger tatt
 
-#### Fase 2: Komponent-migrering (én om gangen)
-- [ ] **2.1** `App.tsx` → `App.module.css` (`.app`, `.app-header`, `.app-main`, `.panel-left`, `.panel-right`, `.resize-handle`)
-- [ ] **2.2** `GenreInput.tsx` → `GenreInput.module.css` (`.input-group`, `.genre-*` stiler)
-- [ ] **2.3** `LyricsTextarea.tsx` → `LyricsTextarea.module.css` (`.lyrics-container`, `.lyrics-editor`, `.lyrics-label`)
-- [ ] **2.4** `PromptInput.tsx` → `PromptInput.module.css` (`.prompt-*`, `.ai-assist-section`, `.ai-toggle-*`)
-- [ ] **2.5** `HistoryList.tsx` → `HistoryList.module.css` (`.history-list`, `.history-header`, `.history-scroll`)
-- [ ] **2.6** `HistoryItem.tsx` → `HistoryItem.module.css` (`.history-item`, `.status-badge`, `.audio-preview`, `.feedback-buttons`, `.thumb-button`)
-- [ ] **2.7** `MixtapeButton.tsx` → `MixtapeButton.module.css` (`.mixtape-*` stiler)
-- [ ] **2.8** `UploadButton.tsx` → `UploadButton.module.css` (`.upload-*` stiler)
-- [ ] **2.9** `DetailPanel.tsx` → `DetailPanel.module.css` (`.detail-*`, `.song-meta-*` stiler)
-- [ ] **2.10** `HistoryPanel.tsx` → `HistoryPanel.module.css`
+| Spørsmål | Beslutning |
+|----------|------------|
+| 1. Drag-and-drop bibliotek | **@dnd-kit** |
+| 2. Modal | **Egenbygd** |
+| 3. Lagring | **Kun "lag og last ned"** (foreløpig) |
+| 4. Filtre | **Tekstsøk + Likte** |
+| 5. Mixtape-navn | **Valgfritt input**, default: "Mixtape YYYY-MM-DD" |
+| 6. Interaksjon | **Full drag-and-drop + tastaturstøtte** |
 
-#### Fase 3: Delte stiler
-- [ ] **3.1** Opprett `frontend/src/styles/buttons.module.css` for gjenbrukbare knappestiler (`.generate-button`, `.primary`, `.delete-button`)
-- [ ] **3.2** Opprett `frontend/src/styles/skeleton.module.css` for skeleton loader-stiler
+---
 
-#### Fase 4: Opprydding
-- [ ] **4.1** Slett `App.css` når all migrering er verifisert
-- [ ] **4.2** Kjør visuell testing av alle komponenter
-- [ ] **4.3** Oppdater eventuelle tester som refererer til klassenavn
+## Subtasks
 
-### Notater
-- Vite støtter CSS Modules out-of-the-box (`.module.css` suffix)
-- Bruk `styles.className` syntax i TSX
-- Kombiner klasser med template literals: `` className={`${styles.button} ${styles.primary}`} ``
-- Responsive stiler (`@media`) forblir i samme modul-fil
+### Fase 1: Infrastruktur ✅
+- [x] **1.1** Installer valgt bibliotek (@dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities)
+- [x] **1.2** Lag Modal-komponent (basis) → `components/common/Modal/`
+- [x] **1.3** Legg til "Avansert mixtape"-knapp i HistoryPanel → `components/mixtape/AdvancedMixtapeButton/`
+- [x] **1.4** Lag MixtapeEditor placeholder → `components/mixtape/MixtapeEditor/`
+
+### Fase 2: Venstre panel - Sangvelger ✅
+- [x] **2.1** Lag SongPicker-komponent → `components/mixtape/SongPicker/`
+- [x] **2.2** Implementer søk/filter-funksjonalitet (tekstsøk + alle/likte)
+- [x] **2.3** Legg til [+]-knapp for å legge til sang i mixtape
+- [x] **2.4** Oppdater MixtapeEditor med SongPicker og state-håndtering
+
+### Fase 3: Høyre panel - Mixtape-liste ✅
+- [x] **3.1** Lag MixtapeList-komponent (integrert i MixtapeEditor)
+- [x] **3.2** Vis sanger med rekkefølge-nummer
+- [x] **3.3** Implementer sortering (drag-and-drop med @dnd-kit + tastaturstøtte)
+- [x] **3.4** Implementer fjerning av sanger
+- [x] **3.5** Vis total varighet
+
+### Fase 4: Integrasjon ✅
+- [x] **4.1** Ny backend-endpoint `/api/mixtape/custom` med songIds og name
+- [x] **4.2** Ny frontend-funksjon `startCustomMixtapeGeneration()`
+- [x] **4.3** Mixtape-navn input felt med default "Mixtape YYYY-MM-DD"
+- [x] **4.4** Loading-state med spinner under generering
+- [x] **4.5** Feilhåndtering med error-melding
+
+### Fase 5: Polish ✅
+- [x] **5.1** Styling som matcher eksisterende dark theme
+- [x] **5.2** Keyboard-navigasjon (Escape lukker modal, etc.)
+- [x] **5.3** Responsiv design for mindre skjermer
+
+---
+
+## Tekniske notater
+
+**Eksisterende stack:**
+- React + TypeScript
+- Jotai (state management)
+- CSS Modules (styling)
+- Socket.IO (real-time updates)
+- Ingen UI-bibliotek (vanilla CSS med dark theme)
+
+**Eksisterende mixtape-API:**
+- `startMixtapeGeneration()` - må utvides til å ta liste med sang-IDer
+- `mixtape-ready` WebSocket-event
+- `downloadMixtape(downloadId)`
