@@ -10,7 +10,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(npx tsc:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npx ts-node scripts/backfill-placeholder-images.ts)"
     ]
   }
 }
