@@ -210,6 +210,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
               <PromptInput
                 onGenerate={handleGenerateLyrics}
                 isLoading={isLoading}
+                initialValue={prompt}
               />
             )}
           </div>

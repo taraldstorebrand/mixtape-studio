@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface PromptInputProps {
   onGenerate: (prompt: string) => void;
   isLoading: boolean;
+  initialValue?: string;
 }
 
-export function PromptInput({ onGenerate, isLoading }: PromptInputProps) {
-  const [prompt, setPrompt] = useState('');
+export function PromptInput({ onGenerate, isLoading, initialValue = '' }: PromptInputProps) {
+  const [prompt, setPrompt] = useState(initialValue);
+
+  useEffect(() => {
+    setPrompt(initialValue);
+  }, [initialValue]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
