@@ -2,6 +2,7 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useAtom } from 'jotai';
 import { PromptInput } from '../lyrics/PromptInput';
 import { LyricsTextarea } from '../lyrics/LyricsTextarea';
+import { ReadonlyView } from './DetailPanel/ReadonlyView/ReadonlyView';
 import { generateLyrics, generateSong, checkConfigStatus } from '../../services/api';
 import { songGenerationStatusAtom } from '../../store';
 import { HistoryItem } from '../../types';
@@ -145,38 +146,11 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
       )}
 
       {selectedItem ? (
-        <div className={styles.readonlyView}>
-          <button className={styles.newDraftButton} onClick={onClearSelection}>
-            {t.actions.newDraft}
-          </button>
-          <div className={styles.readonlyHeader}>
-            <h2>{t.headings.selectedSong}</h2>
-            <button className={styles.copyButton} onClick={handleCopy}>
-              {t.actions.copy}
-            </button>
-          </div>
-          <div className={styles.readonlyCoverImage}>
-            <img src={selectedItem.sunoImageUrl || '/assets/placeholder.png'} alt={selectedItem.title} />
-          </div>
-          <div className={styles.readonlyField}>
-            <label>{t.labels.chatGptPrompt}</label>
-            <p>{selectedItem.prompt || t.messages.noPrompt}</p>
-          </div>
-          <div className={styles.readonlyField}>
-            <label>{t.labels.title}</label>
-            <p>{selectedItem.title}</p>
-          </div>
-          <div className={styles.readonlyField}>
-            <label>{t.labels.lyrics}</label>
-            <pre className={styles.readonlyLyrics}>{selectedItem.lyrics}</pre>
-          </div>
-          {selectedItem.genre && (
-            <div className={styles.readonlyField}>
-              <label>{t.labels.genre}</label>
-              <p>{selectedItem.genre}</p>
-            </div>
-          )}
-        </div>
+        <ReadonlyView
+          item={selectedItem}
+          onCopy={handleCopy}
+          onClearSelection={onClearSelection}
+        />
       ) : (
         <div className={styles.generationSection}>
           <div className={styles.primaryActionContainer}>
@@ -184,6 +158,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
               onClick={handleGenerateSong}
               disabled={!sunoAvailable || !currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
               className={styles.generateSongButton}
+              aria-label={t.actions.generateSong}
             >
               {songGenerationStatus === 'pending' ? <span className={styles.buttonLoading}><span className={styles.spinner} />{t.actions.generatingSong}</span> : t.actions.generateSong}
             </button>

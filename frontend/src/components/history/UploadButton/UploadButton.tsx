@@ -101,6 +101,7 @@ export function UploadButton() {
         multiple
         onChange={handleFileSelect}
         style={{ display: 'none' }}
+        aria-label={t.actions.uploadMp3}
       />
       {!showForm ? (
         <button

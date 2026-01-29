@@ -1,5 +1,5 @@
 import { t } from '../../i18n';
-import { GenreInput } from '../GenreInput';
+import { GenreInput } from './LyricsTextarea/GenreInput/GenreInput';
 import styles from './LyricsTextarea.module.css';
 
 interface LyricsTextareaProps {

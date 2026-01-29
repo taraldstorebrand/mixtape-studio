@@ -77,6 +77,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
               onClick={() => onFeedback(item.id, item.feedback === 'up' ? null : 'up')}
               className={`${styles.thumbButton} ${item.feedback === 'up' ? styles.thumbButtonActive : ''}`}
               title={t.tooltips.thumbsUp}
+              aria-label={t.tooltips.thumbsUp}
             >
               👍
             </button>
@@ -84,6 +85,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
               onClick={() => onFeedback(item.id, item.feedback === 'down' ? null : 'down')}
               className={`${styles.thumbButton} ${item.feedback === 'down' ? styles.thumbButtonActive : ''}`}
               title={t.tooltips.thumbsDown}
+              aria-label={t.tooltips.thumbsDown}
             >
               👎
             </button>
@@ -92,6 +94,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
             onClick={onDelete}
             className={styles.deleteButton}
             title={t.tooltips.delete}
+            aria-label={t.tooltips.delete}
           >
             🗑
           </button>

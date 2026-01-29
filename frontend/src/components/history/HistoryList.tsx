@@ -4,6 +4,7 @@ import { HistoryItem } from './HistoryItem/HistoryItem';
 import { MixtapeButton } from './MixtapeButton/MixtapeButton';
 import { AdvancedMixtapeButton } from '../mixtape/AdvancedMixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
+import { t } from '../../i18n';
 import styles from './HistoryList.module.css';
 
 type FilterType = 'default' | 'liked' | 'all';
@@ -38,30 +39,30 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
       </div>
       {items.length === 0 ? (
         <div className={styles.empty}>
-          <p>No songs yet. Upload or generate your first song!</p>
+          <p>{t.messages.noSongsAvailable}</p>
         </div>
       ) : (
         <>
           <div className={styles.headerBar}>
-            <h2>Songs ({filteredItems.length})</h2>
+            <h2>{t.filters.songs} ({filteredItems.length})</h2>
             <div className={styles.filterButtons}>
               <button
                 className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
                 onClick={() => setFilter('default')}
               >
-                Songs
+                {t.filters.songs}
               </button>
               <button
                 className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
                 onClick={() => setFilter('liked')}
               >
-                Liked
+                {t.filters.liked}
               </button>
               <button
                 className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
                 onClick={() => setFilter('all')}
               >
-                All
+                {t.filters.all}
               </button>
             </div>
           </div>

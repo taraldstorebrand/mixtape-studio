@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './GenreInput.module.css';
-import { t } from '../i18n';
+import { t } from '../../../../i18n';
 
 interface GenreInputProps {
   value: string;
