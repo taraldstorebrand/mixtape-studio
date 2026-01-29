@@ -28,3 +28,9 @@ export const isPlayingAtom = atom<boolean>(false);
 export const currentTimeAtom = atom<number>(0);
 
 export const durationAtom = atom<number>(0);
+
+// Volume control (0-1 range, initialized via useVolumeAtom hook per D-040)
+export const volumeAtom = atom<number>(1.0);
+
+// Filtered history list (updated by HistoryList component based on active filter)
+export const filteredHistoryAtom = atom<HistoryItem[]>([]);

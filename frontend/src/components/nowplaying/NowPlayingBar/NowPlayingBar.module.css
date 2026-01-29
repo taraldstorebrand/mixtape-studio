@@ -52,6 +52,13 @@
   text-overflow: ellipsis;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
 .playButton {
   background-color: var(--color-primary);
   border: none;
@@ -70,6 +77,29 @@
 
 .playButton:hover {
   background-color: var(--color-primary-hover);
+}
+
+.navButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  transition: color var(--transition-base), opacity var(--transition-base);
+  flex-shrink: 0;
+}
+
+.navButton:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+.navButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .progressContainer {
@@ -132,6 +162,74 @@
   transition: opacity var(--transition-base);
 }
 
+.volumeContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 0 0 140px;
+  min-width: 0;
+}
+
+.muteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--transition-base);
+  flex-shrink: 0;
+}
+
+.muteButton:hover {
+  opacity: 0.7;
+}
+
+.volumeBar {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  background-color: var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: height var(--transition-base);
+}
+
+.volumeBar:hover {
+  height: 8px;
+}
+
+.volumeBar:hover .volumeHandle {
+  opacity: 1;
+}
+
+.volumeFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  transition: width 0.1s linear;
+}
+
+.volumeHandle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background-color: white;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
 @media (max-width: 900px) {
   .content {
     padding: var(--spacing-sm) var(--spacing-md);
@@ -146,10 +244,18 @@
     font-size: 0.85rem;
   }
 
+  .controls {
+    gap: 4px;
+  }
+
   .playButton {
     width: 36px;
     height: 36px;
     font-size: 1rem;
+  }
+
+  .navButton {
+    font-size: 1.1rem;
   }
 
   .time {
@@ -158,6 +264,19 @@
   }
 
   .progressHandle {
+    width: 12px;
+    height: 12px;
+  }
+
+  .volumeContainer {
+    flex: 0 0 100px;
+  }
+
+  .muteButton {
+    font-size: 1rem;
+  }
+
+  .volumeHandle {
     width: 12px;
     height: 12px;
   }

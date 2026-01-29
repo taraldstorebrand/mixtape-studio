@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSetAtom } from 'jotai';
 import { HistoryItem as HistoryItemType } from '../../types';
 import { HistoryItem } from './HistoryItem/HistoryItem';
 import { MixtapeButton } from './MixtapeButton/MixtapeButton';
 import { AdvancedMixtapeButton } from '../mixtape/AdvancedMixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
+import { filteredHistoryAtom } from '../../store';
 import { t } from '../../i18n';
 import styles from './HistoryList.module.css';
 
@@ -19,6 +21,7 @@ interface HistoryListProps {
 
 export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDeleteItem }: HistoryListProps) {
   const [filter, setFilter] = useState<FilterType>('default');
+  const setFilteredHistory = useSetAtom(filteredHistoryAtom);
 
   const filteredItems = items.filter(item => {
     if (filter === 'all') return true;
@@ -27,6 +30,11 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
   });
 
   const likedItems = items.filter(item => item.feedback === 'up' && item.sunoLocalUrl);
+
+  // Update global filtered history atom whenever filteredItems changes
+  useEffect(() => {
+    setFilteredHistory(filteredItems);
+  }, [filteredItems, setFilteredHistory]);
 
   return (
     <div className={styles.historyList}>

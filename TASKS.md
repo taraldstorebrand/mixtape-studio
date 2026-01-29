@@ -4,118 +4,140 @@
 
 _No active task_
 
-### ✅ Code Review Fixes
-**Files:**
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
-- `frontend/src/components/history/HistoryItem/HistoryItem.tsx`
+## Pending Tasks
 
-**Fixed issues:**
-- Reset time/duration atoms on song change (prevents stale progress display)
-- Handle `nowPlaying === null` properly (pause + cleanup audio)
-- Add audio `error` event listener (resets state on broken URLs)
-- Add `.catch()` to `audioRef.play()` in HistoryItem
-- Replace `document.querySelector` with `useRef` for progress bar
-- Remove unused imports (`useAtomValue`, `useSetAtom`)
-- Use refs for drag state to reduce listener churn
-- Fix import consistency (use `../../../store` barrel)
-- Add `aria-pressed` to play buttons
-- Add keyboard navigation for progress bar (ArrowLeft/Right, Home/End)
-- Add ARIA slider attributes to progress bar (`role`, `aria-valuemin/max/now`)
-
-**Status:** ✅ Completed
+_No pending tasks_
 
 ---
 
 ## Completed
 
-### ✅ Task 1: Create global audio state atoms
+### ✅ Task 1: Add volume and filtered history atoms to store
 **Files:**
-- `frontend/src/store/atoms.ts` - Add new atoms for now playing state
+- `frontend/src/store/atoms.ts`
+- `frontend/src/store/index.ts`
 
 **Details:**
-Create jotai atoms to manage global audio playback state:
-- `nowPlayingAtom` - stores current playing song (HistoryItem | null)
-- `audioRefAtom` - stores reference to the global audio element
-- `isPlayingAtom` - boolean for play/pause state
-- `currentTimeAtom` - current playback position in seconds
-- `durationAtom` - total song duration in seconds
+Added two new atoms:
+- `volumeAtom` - number (0-1) for audio volume, initialized from localStorage if available, default 1.0
+- `filteredHistoryAtom` - array of HistoryItem, stores the currently filtered/visible history list
 
-**Status:** ✅ Completed. All atoms created in store/atoms.ts.
+**Implementation:**
+- Created `getInitialVolume()` helper function to load volume from localStorage
+- Added `volumeAtom` with localStorage initialization and validation
+- Added `filteredHistoryAtom` as empty array by default
+- Exported both atoms from `store/index.ts`
 
-### ✅ Task 2: Create NowPlayingBar component
-**Files:**
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx` ✅
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css` ✅
-- `frontend/src/components/nowplaying/NowPlayingBar/index.ts` ✅
-
-**Details:**
-Create a sticky bottom bar that:
-- Only visible when a song is playing (slides up/down animation)
-- Shows currently playing song title and thumbnail
-- Has play/pause button
-- Shows seekable progress bar (click/drag to seek)
-- Updates progress bar in real-time during playback
-- Uses global audio element from audioRefAtom
-- Styled consistently with existing app design
-
-**Status:** ✅ Completed. Component created with all features including seekable progress, slide-up animation, and play/pause controls.
-
-### ✅ Task 5: Export new atoms from store
-**Files:**
-- `frontend/src/store/index.ts` - Export new atoms
-
-**Details:**
-Export the new atoms (nowPlayingAtom, isPlayingAtom, etc.) so components can import them.
-
-**Status:** ✅ Completed. All new atoms exported from store/index.ts.
-
-### ✅ Task 3: Update HistoryItem component
-**Files:**
-- `frontend/src/components/history/HistoryItem/HistoryItem.tsx` ✅
-- `frontend/src/components/history/HistoryItem/HistoryItem.module.css` ✅
-
-**Details:**
-Modify HistoryItem to:
-- Remove the existing `<audio>` element and controls (lines 103-109)
-- Add a simple play/pause button icon
-- Button should use nowPlayingAtom to start/stop playback
-- Show visual indicator when this item is currently playing
-- Auto-switch: clicking play on different song stops current and plays new one
-
-**Status:** ✅ Completed. HistoryItem now uses global audio state with play/pause button. Removed local audio element. Added visual indicator for currently playing item (green border). Auto-switching between songs works correctly.
-
-### ✅ Task 4: Integrate NowPlayingBar into App
-**Files:**
-- `frontend/src/App.tsx` ✅
-- `frontend/src/App.module.css` ✅
-
-**Details:**
-- Import and render NowPlayingBar at the bottom of the app
-- Ensure it appears above all other content (z-index)
-- Add bottom padding/margin to main content so it doesn't overlap
-- The bar should be fixed at bottom of viewport
-
-**Status:** ✅ Completed. NowPlayingBar integrated at bottom of App. Added 100px bottom padding to both panels to prevent content overlap.
-
-## Backlog
-
-_No remaining tasks_
+**Status:** ✅ Completed
 
 ---
 
-## Notes
+### ✅ Task 2: Add volume control to NowPlayingBar
+**Files:**
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
 
-**User Requirements:**
-- Only one song can play at a time
-- Now Playing bar only visible when playing
-- Auto-switch behavior when clicking play on different song
-- Progress bar should be seekable (drag/click to seek)
-- Remove all individual audio controls from history items
+**Details:**
+Added complete volume control functionality:
+- Volume slider with drag and click support
+- Mute/unmute button with dynamic icons (🔇/🔉/🔊)
+- Audio element volume synced with volumeAtom
+- Volume persisted to localStorage on change
+- Responsive design for mobile
 
-**Architecture Guidelines:**
-- Use jotai for global state
-- Functional React components only
-- No useCallback/useMemo unless strictly required
-- Helper components in subfolders matching parent name
-- File names must match component names
-- TypeScript strict mode
+**Implementation:**
+- Added `volumeBarRef`, `isVolumeDragging`, `isMuted`, `previousVolumeRef` state
+- Created `handleVolumeClick`, `handleVolumeMouseDown`, `handleMuteToggle` handlers
+- Added useEffect for drag handling and localStorage persistence
+- Styled with `.volumeContainer`, `.muteButton`, `.volumeBar`, `.volumeFill`, `.volumeHandle`
+
+**Status:** ✅ Completed
+
+---
+
+### ✅ Task 3: Update HistoryList to populate filteredHistoryAtom
+**Files:**
+- `frontend/src/components/history/HistoryList.tsx`
+
+**Details:**
+HistoryList now updates global filtered history state:
+- Imported `useEffect`, `useSetAtom`, and `filteredHistoryAtom`
+- Added useEffect that syncs `filteredItems` to `filteredHistoryAtom`
+- Automatically updates when filter changes or items change
+
+**Implementation:**
+- Used `useSetAtom(filteredHistoryAtom)` to get setter
+- Added useEffect with dependency on `[filteredItems, setFilteredHistory]`
+- Ensures NowPlayingBar always has access to current filtered list
+
+**Status:** ✅ Completed
+
+---
+
+### ✅ Task 4: Add next/previous buttons to NowPlayingBar
+**Files:**
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
+
+**Details:**
+Added navigation controls with full loop functionality:
+- Previous (⏮) and Next (⏭) buttons
+- Loop behavior: at end goes to start, at start goes to end
+- Buttons disabled when filteredHistory is empty
+- Respects current filter ('default', 'liked', 'all')
+
+**Implementation:**
+- Imported `useAtomValue` and `filteredHistoryAtom`
+- Created `handlePrevious()` and `handleNext()` with loop logic
+- Added `.controls` container with Previous, Play/Pause, Next buttons
+- Styled with `.navButton` class (hover effects, disabled state)
+- Responsive design for mobile
+
+**Edge cases handled:**
+- Empty list (buttons disabled)
+- Single item (loops to itself)
+- Current item not in filtered list (starts from end/start)
+
+**Status:** ✅ Completed
+
+---
+
+### ✅ Task 5: Export new atoms from store
+**Files:**
+- `frontend/src/store/index.ts`
+
+**Details:**
+Exported `volumeAtom` and `filteredHistoryAtom` from store barrel export.
+
+**Status:** ✅ Completed (done as part of Task 1)
+
+---
+
+## Backlog
+
+_No backlog items_
+
+---
+
+## Summary
+
+All tasks completed successfully! The NowPlayingBar now includes:
+
+**Volume Control:**
+- 🔊 Slider with drag/click support
+- 🔇 Mute/unmute button with dynamic icons
+- 💾 Persisted in localStorage
+
+**Navigation:**
+- ⏮ Previous button
+- ⏯ Play/Pause button
+- ⏭ Next button
+- 🔄 Loop behavior at list boundaries
+- 🎯 Respects active filter ('default', 'liked', 'all')
+
+**Files Modified:**
+- `frontend/src/store/atoms.ts` - Added volumeAtom and filteredHistoryAtom
+- `frontend/src/store/index.ts` - Exported new atoms
+- `frontend/src/components/history/HistoryList.tsx` - Syncs filtered list to global state
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx` - Added volume and navigation controls
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css` - Styled new controls

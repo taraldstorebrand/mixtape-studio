@@ -16,7 +16,8 @@
       "Bash(npx vite build)",
       "Bash(npm install:*)",
       "Bash(npm run install:all:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(dir:*)"
     ]
   }
 }
