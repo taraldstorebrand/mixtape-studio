@@ -26,7 +26,8 @@ export function AdvancedMixtapeButton({ allSongs }: AdvancedMixtapeButtonProps) 
         disabled={!hasCompletedSongs}
         title={hasCompletedSongs ? t.tooltips.createAdvancedMixtape : t.tooltips.noSongsAvailable}
       >
-        {t.actions.advanced}
+        <span className={styles.icon}>⚙</span>
+        <span className={styles.text}>{t.actions.advanced}</span>
       </button>
       <Modal
         isOpen={isOpen}

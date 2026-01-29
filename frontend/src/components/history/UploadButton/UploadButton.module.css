@@ -126,3 +126,11 @@
   color: var(--color-error-soft);
   font-size: 0.85rem;
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.85rem;
+  }
+}

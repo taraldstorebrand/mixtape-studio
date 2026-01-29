@@ -69,3 +69,23 @@
   flex-wrap: wrap;
   gap: var(--spacing-sm);
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .panelActions {
+    padding: var(--spacing-xs) 0;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .panelActionsButtons {
+    gap: var(--spacing-xs);
+  }
+
+  .headerBar {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .historyList h2 {
+    font-size: 1rem;
+  }
+}

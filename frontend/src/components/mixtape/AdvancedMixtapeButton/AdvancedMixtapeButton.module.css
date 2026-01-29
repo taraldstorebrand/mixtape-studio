@@ -19,3 +19,28 @@
   cursor: not-allowed;
   text-decoration: none;
 }
+
+.icon {
+  display: none;
+}
+
+.text {
+  display: inline;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .link {
+    font-size: 1.2rem;
+    text-decoration: none;
+    padding: var(--spacing-xs);
+  }
+
+  .icon {
+    display: inline;
+  }
+
+  .text {
+    display: none;
+  }
+}
