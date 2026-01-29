@@ -65,17 +65,26 @@
   background-color: var(--color-primary);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .app {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
   .main {
-    flex-direction: column;
+    flex-direction: column-reverse;
+    overflow: visible;
   }
 
   .panelLeft {
-    width: 100%;
+    width: 100% !important;
     max-width: 100%;
     min-width: 0;
     flex: 0 0 auto;
-    border-bottom: 2px solid var(--color-primary);
+    overflow: visible;
+    border-top: 2px solid var(--color-primary);
+    border-bottom: none;
   }
 
   .resizeHandle {
@@ -83,7 +92,20 @@
   }
 
   .panelRight {
-    flex: 1;
-    min-height: 200px;
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .header {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .header h1 {
+    font-size: 1.4rem;
+  }
+
+  .header p {
+    font-size: 0.85rem;
   }
 }

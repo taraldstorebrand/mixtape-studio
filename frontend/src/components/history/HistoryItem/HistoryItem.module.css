@@ -229,3 +229,9 @@
   width: 4rem;
   border-radius: var(--radius-pill);
 }
+
+@media (max-width: 900px) {
+  .historyDate {
+    display: none;
+  }
+}
