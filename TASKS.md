@@ -242,36 +242,36 @@ For each file, evaluate:
 
 ### Gjennomgående funn
 
-| Problem | Forekomst | Prioritet |
-|---------|-----------|-----------|
-| Norske feilmeldinger | 19 stk på tvers av alle filer | 🔴 Høy |
-| Blokkerende sync-operasjoner | `spawnSync`/`execSync` i 3 filer | 🟡 Medium |
-| Duplisert kode | Duration-parsing, download-funksjoner, enforce*Limit | 🟡 Medium |
-| Manglende input-validering | downloadId, id-parametere | 🟡 Medium |
-| Manglende security middleware | helmet, rate limiting | 🟢 Lav |
+| Problem | Forekomst | Prioritet | Status |
+|---------|-----------|-----------|--------|
+| Norske feilmeldinger | 19 stk på tvers av alle filer | 🔴 Høy | ✅ 13/19 fikset (upload.ts, history.ts) |
+| Blokkerende sync-operasjoner | `spawnSync`/`execSync` i 3 filer | 🟡 Medium | ⏳ Pågår |
+| Duplisert kode | Duration-parsing, download-funksjoner, enforce*Limit | 🟡 Medium | ✅ enforce*Limit fikset |
+| Manglende input-validering | downloadId, id-parametere | 🟡 Medium | ✅ history.ts fikset |
+| Manglende security middleware | helmet, rate limiting | 🟢 Lav | ⏳ Ikke startet |
 
 ### Prioriterte action items
 
 #### 🔴 Høy prioritet
 1. **Oversett alle norske feilmeldinger til engelsk** (19 stk)
-   - suno.ts: 3 stk
-   - mixtape.ts: 3 stk
-   - upload.ts: 7 stk
-   - history.ts: 6 stk
+   - suno.ts: 3 stk ⏳
+   - mixtape.ts: 3 stk ⏳
+   - ~~upload.ts: 7 stk~~ ✅
+   - ~~history.ts: 6 stk~~ ✅
 
 2. **Valider input-parametere** for path traversal-sikkerhet
-   - mixtape.ts: `downloadId`
-   - history.ts: `id` og filnavn
+   - mixtape.ts: `downloadId` ⏳
+   - ~~history.ts: `id` og filnavn~~ ✅
 
 #### 🟡 Medium prioritet
 3. **Ekstraher delt utility-kode**
    - Duration-parsing → `utils/ffmpeg.ts`
    - Download-funksjoner (suno.ts) → generisk `downloadFile()`
-   - File deletion (history.ts) → `deleteAssociatedFiles()`
+   - ~~File deletion (history.ts) → `deleteAssociatedFiles()`~~ (validering lagt til)
 
 4. **Vurder async alternativer** til `spawnSync`/`execSync`
    - mixtape.ts: `getAudioDurationMs()`
-   - upload.ts: `getMp3Duration()`
+   - upload.ts: `getMp3Duration()` (byttet til spawnSync med array-args for sikkerhet)
 
 #### 🟢 Lav prioritet
 5. **Legg til security middleware** i server.ts
@@ -280,5 +280,22 @@ For each file, evaluate:
    - compression
 
 6. **Forbedre TypeScript-typing**
-   - db/index.ts: Proper row types
+   - ~~db/index.ts: Proper row types~~ ✅ (HistoryItemRow interface)
    - Ekstraher interfaces til egne filer
+
+---
+
+## Implementerte endringer
+
+### db/index.ts
+- ✅ Lagt til `HistoryItemRow` interface for proper typing
+- ✅ Refaktorert `enforceHistoryLimit` og `enforceGenreLimit` til generisk `enforceLimit()`
+
+### upload.ts
+- ✅ Oversatt 7 norske feilmeldinger til engelsk
+- ✅ Byttet `execSync` til `spawnSync` med array-baserte argumenter (security)
+
+### history.ts
+- ✅ Oversatt 6 norske feilmeldinger til engelsk
+- ✅ Lagt til `isValidId()` validering i PATCH og DELETE routes
+- ✅ Lagt til `isValidFilename()` validering før fil-sletting
