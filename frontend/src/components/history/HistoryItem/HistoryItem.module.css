@@ -13,14 +13,12 @@
 }
 
 .selected {
-  border-color: var(--color-primary);
-  background-color: #252530;
-  box-shadow: 0 0 0 1px var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .nowPlaying {
-  border-color: var(--color-success);
-  box-shadow: 0 0 0 1px var(--color-success);
+  border-left: 3px solid var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .historyHeader {
@@ -104,15 +102,15 @@
 }
 
 .playButton:hover {
-  border-color: var(--color-success);
-  background-color: rgba(76, 175, 80, 0.1);
-  color: var(--color-success);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-alpha);
+  color: var(--color-text);
 }
 
 .playButtonActive {
-  border-color: var(--color-success);
-  background-color: rgba(76, 175, 80, 0.15);
-  color: var(--color-success);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-alpha);
+  color: var(--color-text);
 }
 
 .feedbackButtons {
