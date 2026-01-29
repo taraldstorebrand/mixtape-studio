@@ -2,6 +2,15 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { io } from '../server';
+import {
+  SunoGenerateRequest,
+  SunoApiEnvelope,
+  SunoGenerateData,
+  SunoRecordInfoData,
+  SunoStatusResponse,
+} from './suno.types';
+
+export { SunoStatusResponse } from './suno.types';
 
 const SUNO_API_BASE_URL = 'https://api.sunoapi.org';
 const MP3_DIR = path.join(__dirname, '../../mp3s');
@@ -12,64 +21,6 @@ const PLACEHOLDER_IMAGE = path.join(__dirname, '../assets/placeholder.png');
 // - POST  /api/v1/generate
 // - GET   /api/v1/generate/record-info?taskId=...
 // Ref: https://docs.sunoapi.org/suno-api/quickstart
-
-type SunoModel = 'V4' | 'V4_5' | 'V4_5PLUS' | 'V4_5ALL' | 'V5';
-
-interface SunoGenerateRequest {
-  prompt: string;
-  customMode: boolean;
-  instrumental: boolean;
-  model: SunoModel;
-  callBackUrl: string;
-  // Required when customMode=true:
-  style?: string;
-  title?: string;
-}
-
-interface SunoApiEnvelope<T> {
-  code: number;
-  msg: string;
-  data: T;
-}
-
-interface SunoGenerateData {
-  taskId: string;
-}
-
-type SunoTaskStatus = 'PENDING' | 'GENERATING' | 'TEXT_SUCCESS' | 'FIRST_SUCCESS' | 'SUCCESS' | 'FAILED' | 'CREATE_TASK_FAILED' | 'GENERATE_AUDIO_FAILED' | 'CALLBACK_EXCEPTION' | 'SENSITIVE_WORD_ERROR';
-
-interface SunoRecordInfoTrack {
-  id: string;
-  audioUrl?: string;
-  sourceAudioUrl?: string;
-  streamAudioUrl?: string;
-  imageUrl?: string;
-  prompt?: string;
-  modelName?: string;
-  title?: string;
-  tags?: string;
-  createTime?: string;
-  duration?: number;
-}
-
-interface SunoRecordInfoData {
-  taskId: string;
-  status: SunoTaskStatus;
-  response?: {
-    sunoData?: SunoRecordInfoTrack[];
-  };
-  errorCode?: string | null;
-  errorMessage?: string | null;
-}
-
-export interface SunoStatusResponse {
-  status: string;
-  audio_urls?: string[];
-  local_urls?: string[];
-  image_urls?: string[];
-  durations?: number[];
-  error?: string;
-}
 
 // Store active polling jobs
 const activeJobs = new Map<string, NodeJS.Timeout>();
@@ -106,28 +57,37 @@ if (!fs.existsSync(IMAGES_DIR)) {
   fs.mkdirSync(IMAGES_DIR, { recursive: true });
 }
 
-// Download audio file and save locally
-async function downloadMp3(url: string, sanitizedTitle: string, index: number): Promise<string> {
-  const filename = `${sanitizedTitle}_${index}.mp3`;
-  const filepath = path.join(MP3_DIR, filename);
-  
-  const response = await axios.get(url, { responseType: 'arraybuffer' });
-  fs.writeFileSync(filepath, response.data);
-  
-  return filename;
-}
-
-// Download image file and save locally
-async function downloadImage(url: string, sanitizedTitle: string, index: number): Promise<string> {
-  const filename = `${sanitizedTitle}_${index}.png`;
-  const filepath = path.join(IMAGES_DIR, filename);
+/**
+ * Downloads a file from a URL and saves it locally.
+ * @param url - The URL to download from
+ * @param dir - The directory to save the file in
+ * @param sanitizedTitle - The sanitized title for the filename
+ * @param index - The index for the filename
+ * @param extension - The file extension (e.g., 'mp3', 'png')
+ * @param fallbackPath - Optional fallback file to copy if download fails
+ * @returns The filename of the saved file
+ */
+async function downloadFile(
+  url: string,
+  dir: string,
+  sanitizedTitle: string,
+  index: number,
+  extension: string,
+  fallbackPath?: string
+): Promise<string> {
+  const filename = `${sanitizedTitle}_${index}.${extension}`;
+  const filepath = path.join(dir, filename);
 
   try {
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     fs.writeFileSync(filepath, response.data);
   } catch (err) {
-    console.error('Image download failed, using placeholder:', err);
-    fs.copyFileSync(PLACEHOLDER_IMAGE, filepath);
+    if (fallbackPath) {
+      console.error(`Download failed, using fallback:`, err);
+      fs.copyFileSync(fallbackPath, filepath);
+    } else {
+      throw err;
+    }
   }
 
   return filename;
@@ -147,7 +107,13 @@ function stopPolling(jobId: string) {
   }
 }
 
-// Function to poll Suno status and send WebSocket updates
+/**
+ * Polls Suno API for job status and sends updates via WebSocket.
+ * Downloads MP3s and images when the job completes successfully.
+ * Automatically retries up to 120 times (10 minutes) with 5-second intervals.
+ * @param jobId - The Suno task ID to poll
+ * @param attempt - Current attempt number (used for retry limiting)
+ */
 async function pollAndUpdate(jobId: string, attempt: number = 0) {
   const maxAttempts = 120; // 10 minutes with 5 second intervals
 
@@ -162,7 +128,7 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
       try {
         const localUrls = await Promise.all(
           status.audio_urls.map(async (url, i) => {
-            const filename = await downloadMp3(url, sanitizedTitle, startIndex + i);
+            const filename = await downloadFile(url, MP3_DIR, sanitizedTitle, startIndex + i, 'mp3');
             return `/mp3s/${filename}`;
           })
         );
@@ -173,7 +139,7 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
         if (status.image_urls && status.image_urls.length > 0) {
           const localImageUrls = await Promise.all(
             status.image_urls.map(async (url, i) => {
-              const filename = await downloadImage(url, sanitizedTitle, startIndex + i);
+              const filename = await downloadFile(url, IMAGES_DIR, sanitizedTitle, startIndex + i, 'png', PLACEHOLDER_IMAGE);
               return `/images/${filename}`;
             })
           );
@@ -205,11 +171,21 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
       activeJobs.set(jobId, timeout);
     } else {
       stopPolling(jobId);
-      sendSunoUpdate(jobId, { status: 'failed', error: 'Kunne ikke hente status' });
+      sendSunoUpdate(jobId, { status: 'failed', error: 'Failed to fetch status' });
     }
   }
 }
 
+/**
+ * Initiates song generation via Suno API.
+ * Uses custom mode when genre is provided, otherwise uses standard mode.
+ * Starts background polling for status updates after initiating the request.
+ * @param lyrics - The lyrics/prompt for the song (max 500 chars in non-custom mode)
+ * @param genre - Optional genre/style for custom mode
+ * @param title - Optional title for the song (defaults to 'Untitled')
+ * @returns Object containing jobId and initial status
+ * @throws Error if API key is missing or API request fails
+ */
 export async function generateSong(
   lyrics: string,
   genre?: string,
@@ -278,11 +254,18 @@ export async function generateSong(
     throw new Error(
       error.response?.data?.message ||
       error.response?.data?.msg ||
-      'Kunne ikke generere sang. Sjekk API-nøkkel og Suno API status.'
+      'Failed to generate song. Check API key and Suno API status.'
     );
   }
 }
 
+/**
+ * Retrieves the current status of a song generation job from Suno API.
+ * Maps Suno's internal status codes to frontend-friendly status strings.
+ * @param jobId - The Suno task ID to check
+ * @returns Status response with audio URLs, image URLs, and durations when available
+ * @throws Error if API key is missing or API request fails
+ */
 export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> {
   try {
     const apiKey = process.env.SUNO_API_KEY;
@@ -363,7 +346,7 @@ export async function getSongStatus(jobId: string): Promise<SunoStatusResponse> 
     throw new Error(
       error.response?.data?.message ||
       error.response?.data?.msg ||
-      'Kunne ikke hente status for sang-generering.'
+      'Failed to fetch song generation status.'
     );
   }
 }
