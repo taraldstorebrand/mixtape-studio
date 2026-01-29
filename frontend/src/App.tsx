@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
+import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
 import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
@@ -127,6 +128,8 @@ function App() {
           />
         </div>
       </main>
+
+      <NowPlayingBar />
     </div>
   );
 }

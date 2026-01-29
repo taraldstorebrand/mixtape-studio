@@ -1,6 +1,7 @@
-import { useRef, useEffect } from 'react';
+import { useAtom } from 'jotai';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
+import { nowPlayingAtom, audioRefAtom, isPlayingAtom } from '../../../store';
 import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {
@@ -15,20 +16,34 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
   const displayTitle = item.title || item.prompt || t.messages.untitled;
   const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
-  const audioRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    const el = audioRef.current;
-    if (!el || !audioUrl) return;
-    if (el.paused || !el.currentTime) {
-      el.src = audioUrl;
-      el.load();
+  const [nowPlaying, setNowPlaying] = useAtom(nowPlayingAtom);
+  const [audioRef] = useAtom(audioRefAtom);
+  const [isPlaying] = useAtom(isPlayingAtom);
+
+  const isCurrentlyPlaying = nowPlaying?.id === item.id && isPlaying;
+
+  const handlePlayPause = () => {
+    if (!audioUrl) return;
+
+    if (nowPlaying?.id === item.id) {
+      // Same song - toggle play/pause
+      if (isPlaying && audioRef) {
+        audioRef.pause();
+      } else if (audioRef) {
+        audioRef.play().catch((error) => {
+          console.error('Failed to play audio:', error);
+        });
+      }
+    } else {
+      // Different song - switch to this one
+      setNowPlaying(item);
     }
-  }, [audioUrl]);
+  };
 
   const handleClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('audio')) {
+    if (target.closest('button')) {
       return;
     }
     onSelect(item);
@@ -48,7 +63,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
 
   return (
     <div
-      className={`${styles.historyItem} ${isSelected ? styles.selected : ''}`}
+      className={`${styles.historyItem} ${isSelected ? styles.selected : ''} ${isCurrentlyPlaying ? styles.nowPlaying : ''}`}
       onClick={handleClick}
     >
       <div className={styles.historyHeader}>
@@ -72,6 +87,17 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
           </span>
         </div>
         <div className={styles.historyActions}>
+          {audioUrl && (
+            <button
+              onClick={handlePlayPause}
+              className={`${styles.playButton} ${isCurrentlyPlaying ? styles.playButtonActive : ''}`}
+              title={isCurrentlyPlaying ? 'Pause' : 'Play'}
+              aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
+              aria-pressed={isCurrentlyPlaying}
+            >
+              {isCurrentlyPlaying ? '⏸' : '▶'}
+            </button>
+          )}
           <div className={styles.feedbackButtons}>
             <button
               onClick={() => onFeedback(item.id, item.feedback === 'up' ? null : 'up')}
@@ -100,13 +126,6 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
           </button>
         </div>
       </div>
-      {audioUrl && (
-        <div className={styles.audioPreviews}>
-          <div className={styles.audioPreview}>
-            <audio ref={audioRef} controls />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

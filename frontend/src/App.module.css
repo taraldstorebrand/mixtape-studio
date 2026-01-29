@@ -38,6 +38,7 @@
   min-width: 300px;
   max-width: 70%;
   padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  padding-bottom: 100px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -48,6 +49,7 @@
   flex: 1;
   min-width: 250px;
   padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  padding-bottom: 100px;
   overflow-y: auto;
   background-color: var(--color-bg-elevated);
 }

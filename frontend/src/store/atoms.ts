@@ -17,3 +17,14 @@ export const selectedItemAtom = atom((get) => {
 export const songGenerationStatusAtom = atom<SongGenerationStatus>('idle');
 
 export const genreHistoryAtom = atom<string[]>([]);
+
+// Global audio playback state
+export const nowPlayingAtom = atom<HistoryItem | null>(null);
+
+export const audioRefAtom = atom<HTMLAudioElement | null>(null);
+
+export const isPlayingAtom = atom<boolean>(false);
+
+export const currentTimeAtom = atom<number>(0);
+
+export const durationAtom = atom<number>(0);

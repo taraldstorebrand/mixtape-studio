@@ -1,0 +1,164 @@
+.nowPlayingBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-bg-surface-alt);
+  border-top: 2px solid var(--color-primary);
+  z-index: 1000;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-md) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  flex: 0 0 200px;
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playButton {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: white;
+  transition: background-color var(--transition-base);
+  flex-shrink: 0;
+}
+
+.playButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.progressContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.time {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: center;
+}
+
+.progressBar {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  background-color: var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: height var(--transition-base);
+}
+
+.progressBar:hover {
+  height: 8px;
+}
+
+.progressBar:hover .progressHandle {
+  opacity: 1;
+}
+
+.progressFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  transition: width 0.1s linear;
+}
+
+.progressHandle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background-color: white;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+@media (max-width: 900px) {
+  .content {
+    padding: var(--spacing-sm) var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .info {
+    flex: 0 0 120px;
+  }
+
+  .title {
+    font-size: 0.85rem;
+  }
+
+  .playButton {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .time {
+    font-size: 0.7rem;
+    min-width: 35px;
+  }
+
+  .progressHandle {
+    width: 12px;
+    height: 12px;
+  }
+}
