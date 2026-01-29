@@ -113,8 +113,8 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
           <SongPicker songs={allSongs} onAddSong={handleAddSong} />
         </div>
         <div className={styles.column}>
-          <h3 className={styles.columnTitle}>{t.headings.yourMixtape}</h3>
-          <div className={styles.nameInputWrapper}>
+          <div className={styles.mixtapeHeader}>
+            <h3 className={styles.columnTitle}>{t.headings.yourMixtape}</h3>
             <input
               type="text"
               className={styles.nameInput}

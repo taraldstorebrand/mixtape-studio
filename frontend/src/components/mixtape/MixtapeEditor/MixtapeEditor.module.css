@@ -193,7 +193,10 @@
   text-align: center;
 }
 
-.nameInputWrapper {
+.mixtapeHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
 }
 
@@ -267,38 +270,91 @@
 /* Responsive - mobilvisning */
 @media (max-width: 768px) {
   .editor {
-    min-height: auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
   }
 
   .columns {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .column {
-    min-height: 200px;
-    padding: var(--spacing-md);
+    flex: 1 1 0;
+    min-height: 0;
+    padding: var(--spacing-sm);
+    overflow: hidden;
   }
 
-  .column:first-child {
-    max-height: 40vh;
+  .mixtapeHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .mixtapeHeader .columnTitle {
+    margin: 0;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .mixtapeHeader .nameInput {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px; /* Prevents iOS zoom on focus */
   }
 
   .columnTitle {
-    font-size: 0.9rem;
-    margin-bottom: var(--spacing-sm);
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-xs);
   }
 
   .footer {
-    flex-direction: column-reverse;
+    flex-direction: row;
     gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
-    padding-top: var(--spacing-md);
+    margin-top: var(--spacing-xs);
+    padding-top: var(--spacing-xs);
   }
 
   .cancelButton,
   .createButton {
-    width: 100%;
-    padding: var(--spacing-md);
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .mixtapeItem {
+    padding: var(--spacing-xs);
+    gap: var(--spacing-xs);
+  }
+
+  .itemThumbnail {
+    width: 28px;
+    height: 28px;
+  }
+
+  .itemNumber {
+    width: 20px;
+    font-size: 0.8rem;
+  }
+
+  .itemTitle {
+    font-size: 0.8rem;
+  }
+
+  .mixtapeSummary {
+    margin-top: var(--spacing-xs);
+    padding-top: var(--spacing-xs);
+    font-size: 0.8rem;
+  }
+
+  .placeholder {
+    font-size: 0.8rem;
   }
 }

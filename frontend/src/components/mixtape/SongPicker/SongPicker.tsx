@@ -39,13 +39,27 @@ export function SongPicker({ songs, onAddSong }: SongPickerProps) {
   return (
     <div className={styles.songPicker}>
       <div className={styles.controls}>
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder={t.placeholders.searchForSongs}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        <div className={styles.searchWrapper}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder={t.placeholders.searchForSongs}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className={styles.clearButton}
+              onClick={() => setSearchQuery('')}
+              aria-label={t.tooltips.clear}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M11 3L3 11M3 3L11 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
+        </div>
         <div className={styles.filterButtons}>
           <button
             type="button"
