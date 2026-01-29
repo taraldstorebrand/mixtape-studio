@@ -30,7 +30,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
   if (items.length === 0) {
     return (
       <div className={styles.empty}>
-        <p>Ingen historikk ennå. Generer din første sangtekst!</p>
+        <p>No songs yet. Upload or generate your first song!</p>
       </div>
     );
   }
@@ -45,25 +45,25 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
         </div>
       </div>
       <div className={styles.headerBar}>
-        <h2>Sanger ({filteredItems.length})</h2>
+        <h2>Songs ({filteredItems.length})</h2>
         <div className={styles.filterButtons}>
           <button
             className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
             onClick={() => setFilter('default')}
           >
-            Sanger
+            Songs
           </button>
           <button
             className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
             onClick={() => setFilter('liked')}
           >
-            Likte
+            Liked
           </button>
           <button
             className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
             onClick={() => setFilter('all')}
           >
-            Alle
+            All
           </button>
         </div>
       </div>

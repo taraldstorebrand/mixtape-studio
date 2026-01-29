@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './GenreInput.module.css';
+import { t } from '../i18n';
 
 interface GenreInputProps {
   value: string;
@@ -100,14 +101,14 @@ export function GenreInput({
           onFocus={handleInputFocus}
           onKeyDown={handleKeyDown}
           className={styles.input}
-          placeholder="Velg eller skriv sjanger..."
+          placeholder={t.placeholders.selectOrWriteGenre}
         />
         {value && (
           <button
             type="button"
             className={styles.clearButton}
             onClick={handleClear}
-            title="Tøm"
+            title={t.tooltips.clear}
           >
             ×
           </button>
@@ -127,7 +128,7 @@ export function GenreInput({
                 type="button"
                 className={styles.removeButton}
                 onClick={(e) => handleRemoveClick(e, genre)}
-                title="Fjern fra historikk"
+                title={t.tooltips.removeFromHistory}
               >
                 ×
               </button>

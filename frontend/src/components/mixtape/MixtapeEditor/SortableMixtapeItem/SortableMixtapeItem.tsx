@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { t } from '../../../../i18n';
 import type { HistoryItem } from '../../../../types';
 import styles from '../MixtapeEditor.module.css';
 
@@ -17,7 +18,7 @@ interface SortableMixtapeItemProps {
 
 export function SortableMixtapeItem({ item, index, onRemove, disabled }: SortableMixtapeItemProps) {
   const { song } = item;
-  const displayTitle = song.title || song.prompt || 'Uten tittel';
+  const displayTitle = song.title || song.prompt || t.messages.untitled;
   const variationLabel = song.variationIndex !== undefined ? ` #${song.variationIndex + 1}` : '';
 
   const {
@@ -45,7 +46,7 @@ export function SortableMixtapeItem({ item, index, onRemove, disabled }: Sortabl
         className={styles.dragHandle}
         {...attributes}
         {...listeners}
-        title="Dra for å endre rekkefølge"
+        title={t.tooltips.dragToReorder}
       >
         ⋮⋮
       </span>
@@ -63,8 +64,8 @@ export function SortableMixtapeItem({ item, index, onRemove, disabled }: Sortabl
         className={styles.removeButton}
         onClick={onRemove}
         disabled={disabled}
-        title="Fjern fra mixtape"
-        aria-label={`Fjern ${displayTitle} fra mixtape`}
+        title={t.tooltips.removeFromMixtape}
+        aria-label={`Remove ${displayTitle} from mixtape`}
       >
         ×
       </button>

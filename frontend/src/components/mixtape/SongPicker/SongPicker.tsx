@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { HistoryItem } from '../../../types';
 import { SongPickerItem } from './SongPickerItem';
 import styles from './SongPicker.module.css';
+import { t } from '../../../i18n';
 
 interface SongPickerProps {
   songs: HistoryItem[];
@@ -41,7 +42,7 @@ export function SongPicker({ songs, onAddSong }: SongPickerProps) {
         <input
           type="text"
           className={styles.searchInput}
-          placeholder="Søk etter sanger..."
+          placeholder={t.placeholders.searchForSongs}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -51,28 +52,28 @@ export function SongPicker({ songs, onAddSong }: SongPickerProps) {
             className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
             onClick={() => setFilter('default')}
           >
-            Sanger
+            {t.filters.songs}
           </button>
           <button
             type="button"
             className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
             onClick={() => setFilter('liked')}
           >
-            Likte
+            {t.filters.liked}
           </button>
           <button
             type="button"
             className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
             onClick={() => setFilter('all')}
           >
-            Alle
+            {t.filters.all}
           </button>
         </div>
       </div>
       <div className={styles.songList}>
         {filteredSongs.length === 0 ? (
           <p className={styles.emptyMessage}>
-            {searchQuery ? 'Ingen sanger funnet' : 'Ingen sanger tilgjengelig'}
+            {searchQuery ? t.messages.noSongsFound : t.messages.noSongsAvailable}
           </p>
         ) : (
           filteredSongs.map((song) => (

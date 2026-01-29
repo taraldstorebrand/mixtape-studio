@@ -4,6 +4,7 @@ import {
   downloadMixtape,
   onceMixtapeReady,
 } from '../../../services/api';
+import { t } from '../../../i18n';
 import type { HistoryItem } from '../../../types';
 import styles from './MixtapeButton.module.css';
 
@@ -46,25 +47,25 @@ export function MixtapeButton({ likedItems }: MixtapeButtonProps) {
           try {
             await downloadMixtape(data.downloadId);
           } catch (downloadErr: any) {
-            setError(downloadErr.message || 'Kunne ikke laste ned mixtape');
+            setError(downloadErr.message || t.errors.couldNotDownloadMixtape);
           }
         }
         setIsLoading(false);
       });
     } catch (err: any) {
       setIsLoading(false);
-      setError(err.message || 'Kunne ikke starte mixtape-generering');
+      setError(err.message || t.errors.couldNotStartMixtapeGeneration);
     }
   }
 
   const songCount = likedItems.length;
   const label = isLoading
-    ? 'Lager mixtape...'
+    ? t.actions.creatingMixtape
     : songCount > 0 && totalDuration > 0
-      ? `Lag mixtape (${songCount} sanger · ${formatDuration(totalDuration)})`
+      ? t.actions.makeMixtape(songCount, formatDuration(totalDuration))
       : songCount > 0
-        ? `Lag mixtape (${songCount} sanger)`
-        : 'Lag mixtape av likte sanger';
+        ? t.actions.makeMixtape(songCount)
+        : t.actions.makeMixtapeFromLiked;
 
   return (
     <div>

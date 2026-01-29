@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { t } from '../../../i18n';
 import styles from './Modal.module.css';
 
 interface ModalProps {
@@ -34,7 +35,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2 className={styles.title}>{title}</h2>
-          <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Lukk">
+          <button type="button" className={styles.closeButton} onClick={onClose} aria-label={t.actions.close}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>

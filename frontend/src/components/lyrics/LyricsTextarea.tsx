@@ -1,3 +1,4 @@
+import { t } from '../../i18n';
 import { GenreInput } from '../GenreInput';
 import styles from './LyricsTextarea.module.css';
 
@@ -28,10 +29,10 @@ export function LyricsTextarea({
     return (
       <div className={styles.container}>
         <div className={styles.titleInputContainer}>
-          <label className={styles.titleLabel}>Sangtittel (påkrevd):</label>
+          <label className={styles.titleLabel}>{t.labels.songTitle}</label>
           <div className={styles.skeleton} style={{ height: '2.5rem', width: '100%' }} />
         </div>
-        <label className={styles.label}>Sangtekst:</label>
+        <label className={styles.label}>{t.labels.lyrics}</label>
         <div className={styles.skeletonLyrics}>
           <div className={styles.skeletonLine} />
           <div className={styles.skeletonLine} />
@@ -48,7 +49,7 @@ export function LyricsTextarea({
     <div className={styles.container}>
       <div className={styles.titleInputContainer}>
         <label htmlFor="title-input" className={styles.titleLabel}>
-          Sangtittel (påkrevd):
+          {t.labels.songTitle}
         </label>
         <input
           id="title-input"
@@ -56,11 +57,11 @@ export function LyricsTextarea({
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
           className={styles.titleInput}
-          placeholder="Skriv inn sangtittel..."
+          placeholder={t.placeholders.enterSongTitle}
         />
       </div>
       <label htmlFor="lyrics-editor" className={styles.label}>
-        Sangtekst:
+        {t.labels.lyrics}
       </label>
       <textarea
         id="lyrics-editor"
@@ -68,11 +69,11 @@ export function LyricsTextarea({
         onChange={(e) => onChange(e.target.value)}
         className={styles.editor}
         rows={14}
-        placeholder="Skriv sangteksten her..."
+        placeholder={t.placeholders.writeLyricsHere}
       />
       <div className={styles.genreInputContainer}>
         <label className={styles.genreLabel}>
-          Sjanger/stil (valgfritt):
+          {t.labels.genreStyle}
         </label>
         <GenreInput
           value={genre}

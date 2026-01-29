@@ -108,7 +108,7 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
     }
 
     if (selectedItems.length === 0) {
-      io.emit('mixtape-ready', { taskId, error: 'Ingen sanger funnet' });
+      io.emit('mixtape-ready', { taskId, error: 'No songs found' });
       return;
     }
 
@@ -223,7 +223,7 @@ router.post('/liked', async (req: Request, res: Response) => {
   ).length;
 
   if (likedCount === 0) {
-    return res.status(400).json({ error: 'Ingen likte sanger funnet' });
+    return res.status(400).json({ error: 'No liked songs found' });
   }
 
   const taskId = Date.now().toString();
@@ -238,7 +238,7 @@ router.post('/custom', async (req: Request, res: Response) => {
   const { songIds, name } = req.body as { songIds?: string[]; name?: string };
 
   if (!songIds || !Array.isArray(songIds) || songIds.length === 0) {
-    return res.status(400).json({ error: 'Ingen sanger valgt' });
+    return res.status(400).json({ error: 'No songs selected' });
   }
 
   const items = getAllHistoryItems();
@@ -247,7 +247,7 @@ router.post('/custom', async (req: Request, res: Response) => {
   ).length;
 
   if (validCount === 0) {
-    return res.status(400).json({ error: 'Ingen gyldige sanger funnet' });
+    return res.status(400).json({ error: 'No valid songs found' });
   }
 
   const taskId = Date.now().toString();
@@ -267,7 +267,7 @@ router.get('/download/:downloadId', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Fil ikke funnet eller utløpt' });
   }
 
-  const downloadFileName = fileName || 'mixtape_likte_sanger.m4b';
+  const downloadFileName = fileName || 'mixtape_liked_songs.m4b';
 
   res.setHeader('Content-Type', 'audio/mp4');
   res.setHeader(

@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import type { HistoryItem } from '../../../shared/types';
+import { t } from '../i18n';
 
 const API_BASE_URL = '/api';
 
@@ -96,7 +97,7 @@ export async function generateLyrics(prompt: string): Promise<string> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke generere sangtekst');
+    throw new Error(error.error || t.errors.couldNotGenerateLyrics);
   }
 
   const data = await response.json();
@@ -114,7 +115,7 @@ export async function generateSong(lyrics: string, genre?: string, title?: strin
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke generere sang');
+    throw new Error(error.error || t.errors.couldNotGenerateSong);
   }
 
   const data = await response.json();
@@ -126,7 +127,7 @@ export async function getSongStatus(jobId: string): Promise<{ status: string; au
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke hente status');
+    throw new Error(error.error || t.errors.couldNotFetchStatus);
   }
 
   const data = await response.json();
@@ -140,7 +141,7 @@ export async function fetchHistory(): Promise<HistoryItem[]> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke hente historikk');
+    throw new Error(error.error || t.errors.couldNotFetchHistory);
   }
 
   return response.json();
@@ -157,7 +158,7 @@ export async function createHistoryItem(item: HistoryItem): Promise<void> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke opprette historikk-element');
+    throw new Error(error.error || t.errors.couldNotCreateHistoryItem);
   }
 }
 
@@ -172,7 +173,7 @@ export async function updateHistoryItem(id: string, updates: Partial<HistoryItem
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke oppdatere historikk-element');
+    throw new Error(error.error || t.errors.couldNotUpdateHistoryItem);
   }
 }
 
@@ -183,7 +184,7 @@ export async function deleteHistoryItem(id: string): Promise<void> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke slette historikk-element');
+    throw new Error(error.error || t.errors.couldNotDeleteHistoryItem);
   }
 }
 
@@ -194,7 +195,7 @@ export async function fetchGenres(): Promise<string[]> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke hente sjangre');
+    throw new Error(error.error || t.errors.couldNotFetchGenres);
   }
 
   return response.json();
@@ -211,7 +212,7 @@ export async function addGenre(genre: string): Promise<void> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke legge til sjanger');
+    throw new Error(error.error || t.errors.couldNotAddGenre);
   }
 }
 
@@ -222,7 +223,7 @@ export async function removeGenre(genre: string): Promise<void> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke fjerne sjanger');
+    throw new Error(error.error || t.errors.couldNotRemoveGenre);
   }
 }
 
@@ -235,7 +236,7 @@ export async function startMixtapeGeneration(): Promise<string> {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke starte mixtape-generering');
+    throw new Error(error.error || t.errors.couldNotStartMixtapeGeneration);
   }
 
   const data = await response.json();
@@ -256,7 +257,7 @@ export async function startCustomMixtapeGeneration(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke starte mixtape-generering');
+    throw new Error(error.error || t.errors.couldNotStartMixtapeGeneration);
   }
 
   const data = await response.json();
@@ -272,7 +273,7 @@ export async function downloadMixtape(downloadId: string, fileName?: string): Pr
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke laste ned mixtape');
+    throw new Error(error.error || t.errors.couldNotDownloadMixtape);
   }
 
   const blob = await response.blob();
@@ -305,7 +306,7 @@ export async function uploadMp3Files(
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Kunne ikke laste opp filer');
+    throw new Error(error.error || t.errors.couldNotUploadFiles);
   }
 
   const data = await response.json();

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal } from '../../common/Modal';
 import { MixtapeEditor } from '../MixtapeEditor';
 import type { HistoryItem } from '../../../types';
+import { t } from '../../../i18n';
 import styles from './AdvancedMixtapeButton.module.css';
 
 interface AdvancedMixtapeButtonProps {
@@ -23,14 +24,14 @@ export function AdvancedMixtapeButton({ allSongs }: AdvancedMixtapeButtonProps) 
         className={styles.link}
         onClick={() => setIsOpen(true)}
         disabled={!hasCompletedSongs}
-        title={hasCompletedSongs ? 'Lag avansert mixtape' : 'Ingen sanger tilgjengelig'}
+        title={hasCompletedSongs ? t.tooltips.createAdvancedMixtape : t.tooltips.noSongsAvailable}
       >
-        Avansert
+        {t.actions.advanced}
       </button>
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Lag Mixtape"
+        title={t.actions.createMixtape}
       >
         <MixtapeEditor allSongs={allSongs} onClose={() => setIsOpen(false)} />
       </Modal>

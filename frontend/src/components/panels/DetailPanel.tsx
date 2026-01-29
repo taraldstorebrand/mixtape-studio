@@ -5,6 +5,7 @@ import { LyricsTextarea } from '../lyrics/LyricsTextarea';
 import { generateLyrics, generateSong, checkConfigStatus } from '../../services/api';
 import { songGenerationStatusAtom } from '../../store';
 import { HistoryItem } from '../../types';
+import { t } from '../../i18n';
 import styles from './DetailPanel.module.css';
 
 interface DetailPanelProps {
@@ -69,7 +70,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
       const lyrics = await generateLyrics(inputPrompt);
       setCurrentLyrics(lyrics);
     } catch (err: any) {
-      setError(err.message || 'Kunne ikke generere sangtekst');
+      setError(err.message || t.errors.couldNotGenerateLyrics);
       console.error('Error generating lyrics:', err);
     } finally {
       setIsLoading(false);
@@ -108,7 +109,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
         onAddHistoryItem(newItem);
       }
     } catch (err: any) {
-      setError(err.message || 'Kunne ikke generere sang');
+      setError(err.message || t.errors.couldNotGenerateSong);
       console.error('Error generating song:', err);
       setSongGenerationStatus('failed');
     }
@@ -146,32 +147,32 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
       {selectedItem ? (
         <div className={styles.readonlyView}>
           <button className={styles.newDraftButton} onClick={onClearSelection}>
-            ← Nytt utkast
+            {t.actions.newDraft}
           </button>
           <div className={styles.readonlyHeader}>
-            <h2>Valgt sang</h2>
+            <h2>{t.headings.selectedSong}</h2>
             <button className={styles.copyButton} onClick={handleCopy}>
-              Kopier
+              {t.actions.copy}
             </button>
           </div>
           <div className={styles.readonlyCoverImage}>
             <img src={selectedItem.sunoImageUrl || '/assets/placeholder.png'} alt={selectedItem.title} />
           </div>
           <div className={styles.readonlyField}>
-            <label>ChatGPT-prompt:</label>
-            <p>{selectedItem.prompt || '(ingen prompt)'}</p>
+            <label>{t.labels.chatGptPrompt}</label>
+            <p>{selectedItem.prompt || t.messages.noPrompt}</p>
           </div>
           <div className={styles.readonlyField}>
-            <label>Tittel:</label>
+            <label>{t.labels.title}</label>
             <p>{selectedItem.title}</p>
           </div>
           <div className={styles.readonlyField}>
-            <label>Sangtekst:</label>
+            <label>{t.labels.lyrics}</label>
             <pre className={styles.readonlyLyrics}>{selectedItem.lyrics}</pre>
           </div>
           {selectedItem.genre && (
             <div className={styles.readonlyField}>
-              <label>Sjanger:</label>
+              <label>{t.labels.genre}</label>
               <p>{selectedItem.genre}</p>
             </div>
           )}
@@ -184,15 +185,15 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
               disabled={!sunoAvailable || !currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
               className={styles.generateSongButton}
             >
-              {songGenerationStatus === 'pending' ? <span className={styles.buttonLoading}><span className={styles.spinner} />Genererer sang... (1-5 min)</span> : 'Generer sang'}
+              {songGenerationStatus === 'pending' ? <span className={styles.buttonLoading}><span className={styles.spinner} />{t.actions.generatingSong}</span> : t.actions.generateSong}
             </button>
             {!sunoAvailable && (
-              <p className={styles.sunoMissingHint}>Suno API-nøkkel mangler. Legg til SUNO_API_KEY i backend .env og restart serveren.</p>
+              <p className={styles.sunoMissingHint}>{t.errors.sunoApiKeyMissing}</p>
             )}
           </div>
           {!isBlank && (
             <button className={styles.newDraftButton} onClick={handleNewDraft}>
-              ← Nytt utkast
+              {t.actions.newDraft}
             </button>
           )}
 
@@ -217,10 +218,10 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
                 disabled={!openaiAvailable}
                 className={styles.aiToggleCheckbox}
               />
-              Bruk AI til å generere tekst
+              {t.labels.useAiToGenerateLyrics}
             </label>
             {!openaiAvailable && (
-              <p className={styles.sunoMissingHint}>OpenAI API-nøkkel mangler. Legg til OPENAI_API_KEY i backend .env og restart serveren.</p>
+              <p className={styles.sunoMissingHint}>{t.errors.openaiApiKeyMissing}</p>
             )}
 
             {aiAssistEnabled && openaiAvailable && (

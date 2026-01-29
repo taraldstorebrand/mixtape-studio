@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
+import { t } from '../../../i18n';
 import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {
@@ -11,7 +12,7 @@ interface HistoryItemProps {
 }
 
 export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }: HistoryItemProps) {
-  const displayTitle = item.title || item.prompt || 'Uten tittel';
+  const displayTitle = item.title || item.prompt || t.messages.untitled;
   const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -58,7 +59,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
         />
         <div className={styles.historyMeta}>
           <strong className={styles.historyTitle}>{displayTitle}{variationLabel}</strong>
-          {item.sunoStatus === 'failed' && <span className={`${styles.statusBadge} ${styles.statusFailed}`}>Feilet</span>}
+          {item.sunoStatus === 'failed' && <span className={`${styles.statusBadge} ${styles.statusFailed}`}>{t.messages.failed}</span>}
           <span className={styles.historyDate}>
             {new Date(item.createdAt).toLocaleString('no-NO', {
               day: '2-digit',
@@ -67,7 +68,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
               hour: '2-digit',
               minute: '2-digit',
             })}
-            {item.isUploaded && <span className={styles.uploadedLabel}>Lastet opp</span>}
+            {item.isUploaded && <span className={styles.uploadedLabel}>{t.messages.uploaded}</span>}
           </span>
         </div>
         <div className={styles.historyActions}>
@@ -75,14 +76,14 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
             <button
               onClick={() => onFeedback(item.id, item.feedback === 'up' ? null : 'up')}
               className={`${styles.thumbButton} ${item.feedback === 'up' ? styles.thumbButtonActive : ''}`}
-              title="Thumbs up"
+              title={t.tooltips.thumbsUp}
             >
               👍
             </button>
             <button
               onClick={() => onFeedback(item.id, item.feedback === 'down' ? null : 'down')}
               className={`${styles.thumbButton} ${item.feedback === 'down' ? styles.thumbButtonActive : ''}`}
-              title="Thumbs down"
+              title={t.tooltips.thumbsDown}
             >
               👎
             </button>
@@ -90,7 +91,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
           <button
             onClick={onDelete}
             className={styles.deleteButton}
-            title="Slett"
+            title={t.tooltips.delete}
           >
             🗑
           </button>

@@ -2,127 +2,129 @@
 
 ## TL;DR
 
-- Last opp eller generer musikk
-- Organiser favoritter
-- Slå dem sammen til én offline-vennlig mixtape med kapitler
-- AI-funksjoner er helt valgfrie
+- Create offline-friendly mixtapes (one file with chapters)
+- Select, order and curate your favorite tracks
+- Export a single file built for long listening sessions
+- Upload or generate music (optional)
+- AI features are completely optional
 
 
-**Mixtape Studio** er en webapplikasjon for å **samle, organisere og spille av musikk som ferdige mixtapes**.
+**Mixtape Studio** is a web application for **collecting, organizing, and exporting music as finished mixtapes**.
 
-Appen er laget for praktisk bruk:
-- lange lyttesesjoner
-- offline-avspilling (fly, bil, trening)
-- enkel kuratering av favorittsanger
+The app is built for practical use:
+- long listening sessions
+- offline playback (flights, car, workouts)
+- simple curation of favorite tracks
 
-Støtte for AI-basert tekst- og musikkgenerering finnes som et **valgfritt tillegg**, men er ikke nødvendig for å bruke appen.
+Support for AI-based text and music generation is available as an **optional add-on**, but is not required to use the app.
 
 ![Mixtape Studio Screenshot](docs/hero-screenshot.png)
 
 ---
 
-## Hva er en mixtape?
+## What is a mixtape?
 
-I Mixtape Studio er en mixtape:
-- én sammenhengende lydfil
-- med tydelige kapitler per sang
-- i et format som fungerer godt offline (M4B)
+In Mixtape Studio, a mixtape is:
+- one continuous audio file
+- with clear chapter markers per track
+- in a format that works well offline (M4B)
 
-Dette gjør den ideell til:
-- reiser uten nett
-- lange treningsøkter
-- bilkjøring
-- fokusarbeid
+This makes it ideal for:
+- travel without internet access
+- long workout sessions
+- driving
+- focused work
 
-I stedet for mange enkeltfiler får du **én fil med struktur**.
+Instead of many individual files, you get **one structured file** — made to simply press play and let it run.
 
 ---
 
-## Funksjoner
+## Features
 
-### 🎶 Mixtapes (kjernefunksjonalitet)
+### 🎶 Mixtapes (core functionality)
 
-- 📤 Last opp egne MP3-filer
-- 🎧 Spill av sanger direkte i appen
-- 👍 Marker favoritter
-- 🔍 Filtrer sanger (Alle / Likte / Standard)
-- 🎼 Lag ferdige mixtapes (M4B) med kapitler
-- ⚙️ Avansert mixtape-modus:
-  - velg rekkefølge
-  - inkluder / ekskluder sanger
-  - navngi mixtapen før generering
+- 🎼 Create finished mixtapes (M4B) with chapters
+- 📤 Upload your own MP3 files
+- 🎧 Play tracks directly in the app
+- 👍 Mark favorites
+- 🔍 Filter tracks (All / Liked / Standard)
+- ⚙️ Advanced mixtape mode:
+  - choose track order
+  - include / exclude tracks
+  - name the mixtape before generation
 
-Mixtapes kan genereres med ett klikk, eller tilpasses i detalj i avansert modus.
+Mixtapes can be generated with a single click, or fine-tuned in detail using advanced mode.
+
 ![Advanced Mixtape Screenshot](docs/advanced-mixtape.png)
 
 ---
 
-### ✍️ Tekst og musikk (valgfritt)
+### ✍️ Text and music (optional)
 
-Mixtape Studio kan også brukes til å **lage nytt innhold**, men dette er helt frivillig.
+Mixtape Studio can also be used to **create new content**, but this is entirely optional and not required for the core functionality.
 
-- Skriv sangtekster manuelt
-- Bruk AI til å generere tekst (valgfritt)
-- Generer musikk basert på tekst (valgfritt)
-- Rediger tekst før musikkgenerering
+- Write song lyrics manually
+- Use AI to generate lyrics (optional)
+- Generate music from text (optional)
+- Edit lyrics before music generation
 
-> ℹ️ Disse funksjonene krever eksterne API-nøkler og kan medføre kostnader.
+> ℹ️ These features require external API keys and may incur costs.
 
 ---
 
-## Abonnementer (kun ved bruk av AI)
+## Subscriptions (AI features only)
 
-Appen fungerer fullt ut **uten abonnementer**.
+The app works fully **without any subscriptions**.
 
-Følgende tjenester er kun nødvendige hvis du vil bruke AI-funksjoner:
+The following services are only required if you want to use AI features:
 
-- **OpenAI API** – tekstgenerering  
+- **OpenAI API** – text generation  
   https://platform.openai.com
 
-- **Suno API** – musikkgenerering  
+- **Suno API** – music generation  
   https://sunoapi.org
 
-Hvis API-nøkler mangler, deaktiveres relevante AI-handlinger automatisk i brukergrensesnittet.
+If API keys are missing, relevant AI actions are automatically disabled in the UI without error messages.
 
 ---
 
-## Teknisk oversikt
+## Architecture
 
 ### Frontend
 - React 19
 - TypeScript
 - Vite
-- Resizable to-panel layout
-- WebSocket for sanntidsoppdateringer
+- Resizable two-panel layout
+- WebSocket for real-time updates
 
 ### Backend
 - Node.js
 - Express
-- SQLite (lokal lagring)
+- SQLite (local storage)
 - WebSocket
-- Valgfri integrasjon mot OpenAI og Suno
+- Optional integration with OpenAI and Suno
 
 ---
 
-## Kom i gang
+## Quick start
 
-### Forutsetninger
-- Node.js v18 eller nyere
+### Requirements
+- Node.js v18 or newer
 - npm
 
-### Installasjon
+### Installation
 ```bash
 npm install
-```
 
-### Miljøvariabler (valgfritt)
 
-- Opprett `.env` fil i `backend/` mappen:
+### Environment variables (optional)
+
+- Create a `.env` fil i `backend/` mappen:
 ```bash
 cp backend/.env-template backend/.env
 ```
 
-- Legg kun inn API-nøkler hvis du vil bruke AI-funksjoner:
+- Only add API keys if you want to use AI features:
 ```
 OPENAI_API_KEY=din_openai_nøkkel_her
 SUNO_API_KEY=din_suno_nøkkel_her
@@ -130,102 +132,97 @@ PORT=3001
 CORS_ORIGIN=http://localhost:5173
 ```
 
-### Kjøring
+### Running the app
 
-Start både backend og frontend samtidig fra prosjektroten:
+Start both backend and frontend from the project root:
 ```bash
 npm run dev
 ```
 
-Åpne nettleseren og gå til `http://localhost:5173`
+Open your browser at http://localhost:5173
 
-#### Alternativt: Kjør separat
+#### Alternatively: run separately
 
 Backend:
 ```bash
 npm run dev -w backend
 ```
 
-Frontend (i en ny terminal):
+Frontend (in a new terminal):
 ```bash
 npm run dev -w frontend
 ```
 
-## Bruk
+## Usage
 
-### Lag en sang
+### Create a song
+- **Write lyrics:** Enter lyrics directly, or enable **Use AI to generate lyrics**
+- **Edit lyrics:** Adjust the text as needed
+- **Set title:** Enter a title (required) and optional genre
+- **Generate song:** Click **Generate song** to create music from the text
+- **View status:** Suno generation status is shown with a spinner and updated in real time via WebSocket
 
-1. **Skriv sangtekst**: Skriv teksten direkte i tekstfeltet, eller aktiver "Bruk AI til å generere tekst" for ChatGPT-assistanse
-2. **Rediger tekst**: Juster teksten etter behov
-3. **Angi tittel**: Fyll inn tittel (påkrevd) og eventuelt sjanger
-4. **Generer sang**: Klikk "Generer sang" for å lage musikk fra teksten
-5. **Se status**: Suno-generering vises med spinner og oppdateres i sanntid via WebSocket
+### Manage tracks
+- **Play:** Finished tracks can be played directly from the history list
+- **Feedback:** Use thumbs up/down on history items
+- **Filter:** Filter tracks by Standard, Liked, or All
+- **Upload MP3:** Upload your own songs (max 10 files, 10 MB per file)
+- **Create mixtape:** Download all selected tracks as a single M4B file with chapters
 
-### Administrer sanger
-
-6. **Spill av**: Ferdige sanger kan spilles direkte i historikklisten
-7. **Gi feedback**: Bruk thumbs up/down på historikk-elementer
-8. **Filtrer**: Bruk filterknappene for å vise Standard, Likte, eller Alle sanger
-9. **Last opp MP3**: Klikk "Last opp MP3" for å legge til egne sanger (maks 10 filer à 10 MB)
-10. **Lag mixtape**: Klikk "Lag mixtape" for å laste ned alle likte sanger som én M4B-fil med kapitler
-
-## Prosjektstruktur
+## Project structure
 
 ```
 mixtape-studio/
 ├── package.json            # Root scripts (dev, build) med npm workspaces
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # React komponenter
+│   │   ├── components/     # React components
 │   │   ├── services/       # API og storage services
 │   │   ├── hooks/          # Custom React hooks
-│   │   ├── types/          # TypeScript typer
-│   │   └── App.tsx         # Hovedkomponent
+│   │   ├── types/          # TypeScript types
+│   │   └── App.tsx         # Main component
 │   └── package.json
 ├── backend/
 │   ├── src/
 │   │   ├── routes/         # API routes
-│   │   ├── services/       # OpenAI, Suno og DB services
+│   │   ├── services/       # OpenAI, Suno and DB services
 │   │   └── server.ts       # Express server
 │   ├── data/               # SQLite database
 │   └── package.json
 ├── shared/
 │   └── types/
-│       └── index.ts        # Delte TypeScript typer
+│       └── index.ts        # Shared TypeScript typer
 └── README.md
 ```
 
-## API Endpoints
+## API endpoints
 
 ### Backend
-
-- `POST /api/chatgpt/generate-lyrics` - Generer sangtekst fra prompt
-- `POST /api/suno/generate` - Generer sang fra tekst
-- `GET /api/suno/status/:jobId` - Hent status på sang-generering
-- `GET /api/history` - Hent alle historikk-elementer
-- `POST /api/history` - Lagre historikk-element
-- `PATCH /api/history/:id` - Oppdater historikk-element
-- `DELETE /api/history/:id` - Slett historikk-element
-- `GET /api/genres` - Hent sjangerhistorikk
-- `POST /api/genres` - Lagre ny sjanger
-- `DELETE /api/genres/:genre` - Slett sjanger
-- `GET /health` - Health check
+- `POST /api/chatgpt/generate-lyrics` – Generate lyrics from a prompt
+- `POST /api/suno/generate` – Generate music from lyrics
+- `GET /api/suno/status/:jobId` – Get music generation status
+- `GET /api/history` – Fetch all history items
+- `POST /api/history` – Create history item
+- `PATCH /api/history/:id` – Update history item
+- `DELETE /api/history/:id` – Delete history item
+- `GET /api/genres` – Fetch genre history
+- `POST /api/genres` – Save a new genre
+- `DELETE /api/genres/:genre` – Delete a genre
+- `GET /health` – Health check
 
 ### WebSocket
+- Real-time updates for Suno job status
 
-- Sanntidsoppdateringer for Suno-jobstatus
+## Notes
+- History is stored in a local SQLite database
+- Maximum of 10,000 history items
+- Maximum of 50 genres in genre history
+- Suno generates two song variations per request
+- Failed generations are automatically removed from history
+- API keys must be configured in the backend `.env` file
+- Resizable two-panel layout (30–70% width, persisted between sessions)
+- Mixtapes are exported as M4B (AAC, 192 kbps) with embedded chapters
 
-## Notater
-
-- Historikk lagres i SQLite database på backend
-- Maksimalt 10 000 historikk-elementer lagres
-- Maksimalt 50 sjangre i sjangerhistorikk
-- Suno genererer 2 sangvariasjoner per request
-- Mislykkede genereringer fjernes automatisk fra historikk
-- API-nøkler må konfigureres i `.env` filen i backend-mappen
-- Resizable to-panel layout (30-70% bredde, huskes mellom økter)
-- Mixtape-filer er M4B (AAC, 192 kbps) med innebygde kapitler
-
-## Lisens
+## License
 
 ISC

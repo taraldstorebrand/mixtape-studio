@@ -1,4 +1,5 @@
 import type { HistoryItem } from '../../../../types';
+import { t } from '../../../../i18n';
 import styles from '../SongPicker.module.css';
 
 interface SongPickerItemProps {
@@ -14,7 +15,7 @@ function formatDuration(seconds?: number): string {
 }
 
 export function SongPickerItem({ song, onAdd }: SongPickerItemProps) {
-  const displayTitle = song.title || song.prompt || 'Uten tittel';
+  const displayTitle = song.title || song.prompt || t.messages.untitled;
   const variationLabel = song.variationIndex !== undefined ? ` #${song.variationIndex + 1}` : '';
   const isLiked = song.feedback === 'up';
 
@@ -38,8 +39,8 @@ export function SongPickerItem({ song, onAdd }: SongPickerItemProps) {
         type="button"
         className={styles.addButton}
         onClick={onAdd}
-        title="Legg til i mixtape"
-        aria-label={`Legg til ${displayTitle} i mixtape`}
+        title={t.tooltips.addToMixtape}
+        aria-label={`Add ${displayTitle} to mixtape`}
       >
         +
       </button>

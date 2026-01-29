@@ -141,6 +141,7 @@
   font-weight: bold;
   line-height: 1;
   flex-shrink: 0;
+  margin-right: 1rem;
   transition: background-color var(--transition-base);
 }
 

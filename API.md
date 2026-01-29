@@ -456,7 +456,7 @@ Start async mixtape generation from all liked songs (feedback = 'up').
 **Error Response (400)**
 
 ```json
-{ "error": "Ingen likte sanger funnet" }
+{ "error": "No liked songs found" }
 ```
 
 ---

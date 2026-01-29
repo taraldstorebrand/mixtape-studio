@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { t } from '../../../i18n';
 import {
   DndContext,
   closestCenter,
@@ -97,11 +98,11 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
     <div className={styles.editor}>
       <div className={styles.columns}>
         <div className={styles.column}>
-          <h3 className={styles.columnTitle}>Tilgjengelige sanger</h3>
+          <h3 className={styles.columnTitle}>{t.headings.availableSongs}</h3>
           <SongPicker songs={allSongs} onAddSong={handleAddSong} />
         </div>
         <div className={styles.column}>
-          <h3 className={styles.columnTitle}>Din mixtape</h3>
+          <h3 className={styles.columnTitle}>{t.headings.yourMixtape}</h3>
           <div className={styles.nameInputWrapper}>
             <input
               type="text"
@@ -114,7 +115,7 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
           </div>
           {mixtapeSongs.length === 0 ? (
             <p className={styles.placeholder}>
-              Klikk + for å legge til sanger
+              {t.messages.clickToAddSongs}
             </p>
           ) : (
             <DndContext
@@ -142,7 +143,7 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
           )}
           {mixtapeSongs.length > 0 && (
             <div className={styles.mixtapeSummary}>
-              {mixtapeSongs.length} {mixtapeSongs.length === 1 ? 'sang' : 'sanger'} &middot; {formatTotalDuration(totalDuration)}
+              {t.messages.songCount(mixtapeSongs.length)} &middot; {formatTotalDuration(totalDuration)}
             </div>
           )}
         </div>
@@ -155,7 +156,7 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
           onClick={onClose}
           disabled={isLoading}
         >
-          Avbryt
+          {t.actions.cancel}
         </button>
         <button
           type="button"
@@ -166,10 +167,10 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
           {isLoading ? (
             <span className={styles.buttonLoading}>
               <span className={styles.spinner} />
-              Lager mixtape...
+              {t.actions.creatingMixtape}
             </span>
           ) : (
-            'Lag Mixtape'
+            t.actions.createMixtape
           )}
         </button>
       </div>

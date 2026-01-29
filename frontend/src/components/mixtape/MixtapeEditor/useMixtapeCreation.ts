@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { t } from '../../../i18n';
 import {
   startCustomMixtapeGeneration,
   onceMixtapeReady,
@@ -45,7 +46,7 @@ export function useMixtapeCreation({ onSuccess }: UseMixtapeCreationOptions) {
             onSuccess();
           } catch (downloadErr: unknown) {
             if (!mountedRef.current) return;
-            const message = downloadErr instanceof Error ? downloadErr.message : 'Kunne ikke laste ned mixtape';
+            const message = downloadErr instanceof Error ? downloadErr.message : t.errors.couldNotDownloadMixtape;
             setError(message);
             setIsLoading(false);
           }

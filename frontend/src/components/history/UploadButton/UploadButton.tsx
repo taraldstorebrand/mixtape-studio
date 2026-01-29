@@ -3,6 +3,7 @@ import { useSetAtom } from 'jotai';
 import { historyAtom } from '../../../store/atoms';
 import { uploadMp3Files } from '../../../services/api';
 import type { HistoryItem } from '../../../types';
+import { t } from '../../../i18n';
 import styles from './UploadButton.module.css';
 
 interface FileWithTitle {
@@ -22,7 +23,7 @@ export function UploadButton() {
     if (files.length === 0) return;
 
     if (files.length > 10) {
-      setError('Maksimalt 10 filer per opplasting');
+      setError(t.errors.maxFilesPerUpload);
       return;
     }
 
@@ -56,7 +57,7 @@ export function UploadButton() {
   async function handleUpload() {
     if (selectedFiles.length === 0) return;
     if (selectedFiles.some((f) => !f.title.trim())) {
-      setError('Alle filer må ha en tittel');
+      setError(t.errors.allFilesMustHaveTitle);
       return;
     }
 
@@ -83,7 +84,7 @@ export function UploadButton() {
       setHistory((prev) => [...newItems.reverse(), ...prev]);
       handleCancel();
     } catch (err: any) {
-      setError(err.message || 'Kunne ikke laste opp filer');
+      setError(err.message || t.errors.couldNotUploadFiles);
     } finally {
       setIsUploading(false);
     }
@@ -107,7 +108,7 @@ export function UploadButton() {
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
         >
-          Last opp MP3
+          {t.actions.uploadMp3}
         </button>
       ) : (
         <div className={styles.form}>
@@ -126,7 +127,7 @@ export function UploadButton() {
                   className={styles.removeButton}
                   onClick={() => handleRemoveFile(index)}
                   disabled={isUploading}
-                  title="Fjern"
+                  title={t.tooltips.remove}
                 >
                   ×
                 </button>
@@ -140,15 +141,15 @@ export function UploadButton() {
               disabled={isUploading || selectedFiles.some((f) => !f.title.trim())}
             >
               {isUploading
-                ? 'Laster opp...'
-                : `Last opp ${selectedFiles.length} fil${selectedFiles.length > 1 ? 'er' : ''}`}
+                ? t.actions.uploading
+                : t.actions.uploadFiles(selectedFiles.length)}
             </button>
             <button
               className={styles.cancelButton}
               onClick={handleCancel}
               disabled={isUploading}
             >
-              Avbryt
+              {t.actions.cancel}
             </button>
           </div>
         </div>
