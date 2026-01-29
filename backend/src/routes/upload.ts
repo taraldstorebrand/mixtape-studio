@@ -2,12 +2,10 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { spawnSync } from 'child_process';
 import { createHistoryItem } from '../db';
 import type { HistoryItem } from '../../../shared/types';
 import * as musicMetadata from 'music-metadata';
-
-const ffmpegPath = require('ffmpeg-static') as string;
+import { getMp3DurationSync } from '../utils/ffmpeg';
 
 const imagesDir = path.join(__dirname, '../../images');
 if (!fs.existsSync(imagesDir)) {
@@ -34,28 +32,7 @@ async function extractCoverArt(filePath: string, baseFilename: string): Promise<
   return PLACEHOLDER_IMAGE_URL;
 }
 
-function getMp3Duration(filePath: string): number | undefined {
-  const result = spawnSync(ffmpegPath, ['-i', filePath, '-f', 'null', '-'], {
-    encoding: 'utf-8',
-    timeout: 10000,
-  });
 
-  // ffmpeg writes duration info to stderr
-  const output = result.stderr || result.stdout || '';
-  const match = output.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
-  if (match) {
-    const hours = parseInt(match[1], 10);
-    const minutes = parseInt(match[2], 10);
-    const seconds = parseInt(match[3], 10);
-    const centiseconds = parseInt(match[4], 10);
-    return hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
-  }
-
-  if (result.error) {
-    console.error('Could not determine MP3 duration:', result.error.message);
-  }
-  return undefined;
-}
 
 const router = Router();
 
@@ -139,7 +116,7 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
 
       fs.writeFileSync(filePath, file.buffer);
 
-      const duration = getMp3Duration(filePath);
+      const duration = getMp3DurationSync(filePath);
       const imageUrl = await extractCoverArt(filePath, sanitized);
       const id = `upload-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const localUrl = `/mp3s/${filename}`;

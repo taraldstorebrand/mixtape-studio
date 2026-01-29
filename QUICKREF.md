@@ -6,7 +6,6 @@
 
 ## Gjeldende Status
 
-- **Iterasjon**: 026 (Manual MP3 upload for mixtapes)
 - **Stack**: React 19, TypeScript, Express 5, Node.js, SQLite, Socket.IO
 - **Ports**: Frontend (5173), Backend (3001)
 
@@ -99,29 +98,6 @@ Frontend (React SPA)          Backend (Express + Socket.IO)
 
 ---
 
-## Nåværende Iterasjon (026)
-
-**Mål**: La brukere laste opp eksisterende MP3-filer til mixtapes
-
-**Endrede filer**:
-- `shared/types/index.ts` - Legg til isUploaded felt
-- `backend/src/routes/upload.ts` (ny) - Upload endpoint med multer
-- `backend/src/server.ts` - Mount upload routes
-- `backend/src/db/index.ts` - Håndter isUploaded i CRUD
-- `frontend/src/components/history/UploadButton/UploadButton.tsx` (ny) - Upload-knapp
-- `frontend/src/components/history/HistoryList.tsx` - Inkluder upload-knapp
-- `frontend/src/services/api.ts` - Upload API-funksjon
-- Spec-filer (SPEC.md, API.md, ARCHITECTURE.md, DECISIONS.md)
-
-**Oppførsel**:
-- Bruker velger MP3-fil og angir tittel
-- Backend lagrer fil i `backend/mp3s/`
-- Backend oppretter history item med `isUploaded: true`
-- Opplastede sanger vises i historikk og kan likes/dislikes
-- Maks filstørrelse: 10 MB
-
----
-
 ## Vanlige Mønstre
 
 **Jotai state (frontend)**
@@ -182,9 +158,4 @@ const result = stmt.get(id);
 - `DECISIONS.md` - Arkitektur-beslutninger og begrunnelser
 - `AGENTS.md` - Kodestil og regler
 
----
 
-## Siste Oppdatering
-
-**Dato**: Iterasjon 026
-**Av**: Oppdater denne når nye iterasjoner fullføres

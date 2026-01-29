@@ -85,7 +85,7 @@ Create a new history item.
 **Error Response (400)**
 
 ```json
-{ "error": "Mangler påkrevde felt: id, prompt, title, lyrics, createdAt" }
+{ "error": "Missing required fields: id, prompt, title, lyrics, createdAt" }
 ```
 
 ---
@@ -120,7 +120,7 @@ Any subset of HistoryItem fields can be provided.
 **Error Response (404)**
 
 ```json
-{ "error": "Historikk-element ikke funnet" }
+{ "error": "History item not found" }
 ```
 
 ---
@@ -149,7 +149,7 @@ Delete a history item and its associated MP3 file.
 **Error Response (404)**
 
 ```json
-{ "error": "Historikk-element ikke funnet" }
+{ "error": "History item not found" }
 ```
 
 ---
@@ -187,7 +187,7 @@ Add or update a genre (updates last_used_at if exists).
 **Error Response (400)**
 
 ```json
-{ "error": "Genre er påkrevd og må være en ikke-tom streng" }
+{ "error": "Genre is required and must be a non-empty string" }
 ```
 
 ---
@@ -515,15 +515,15 @@ Upload one or more MP3 files and create history items.
 **Error Response (400)**
 
 ```json
-{ "error": "Ingen filer lastet opp" }
+{ "error": "No files uploaded" }
 ```
 
 ```json
-{ "error": "Antall titler må matche antall filer" }
+{ "error": "Title count must match file count" }
 ```
 
 ```json
-{ "error": "Maksimalt 10 filer per opplasting" }
+{ "error": "Maximum 10 files per upload" }
 ```
 
 **Filename behavior**:

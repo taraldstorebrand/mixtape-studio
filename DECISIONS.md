@@ -45,11 +45,6 @@ Rationale:
 
 ---
 
-## D-004 – Song title behavior
-Status: Superseded by D-010
-
----
-
 ## D-005 – Identifier generation
 Status: Accepted
 
@@ -71,14 +66,6 @@ Rationale:
 - `audioUrl` points to `musicfile.api.box`, a third-party proxy with reliability issues
 - `sourceAudioUrl` points to `cdn1.suno.ai`, Suno's own CDN, which is stable
 - URLs expire after 15 days per Suno documentation; local storage may be considered later
-
-## D-007 – Lyrics truncation scope
-Status: Superseded by D-013
-
----
-
-## D-008 – Local MP3 storage
-Status: Superseded by D-014
 
 ---
 
