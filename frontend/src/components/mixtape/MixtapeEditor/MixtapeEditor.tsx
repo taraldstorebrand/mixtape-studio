@@ -5,6 +5,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -50,7 +51,17 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
   const { isLoading, error, createMixtape } = useMixtapeCreation({ onSuccess: onClose });
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -58,7 +69,7 @@ export function MixtapeEditor({ allSongs, onClose }: MixtapeEditorProps) {
 
   const handleAddSong = (song: HistoryItem) => {
     const newItem: MixtapeSong = {
-      id: crypto.randomUUID(),
+      id: `mixtape-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       song,
     };
     setMixtapeSongs((prev) => [...prev, newItem]);

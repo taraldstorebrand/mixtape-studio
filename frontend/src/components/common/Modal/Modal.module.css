@@ -49,9 +49,11 @@
   color: var(--color-text-dim);
   cursor: pointer;
   transition: all var(--transition-base);
+  touch-action: manipulation;
 }
 
-.closeButton:hover {
+.closeButton:hover,
+.closeButton:active {
   background-color: var(--color-border);
   color: var(--color-text);
 }

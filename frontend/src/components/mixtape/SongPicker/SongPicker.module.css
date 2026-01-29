@@ -46,9 +46,11 @@
   cursor: pointer;
   font-size: 0.75rem;
   transition: all var(--transition-base);
+  touch-action: manipulation;
 }
 
-.filterButton:hover {
+.filterButton:hover,
+.filterButton:active {
   border-color: var(--color-primary);
   color: var(--color-text);
 }
@@ -143,10 +145,19 @@
   flex-shrink: 0;
   margin-right: 1rem;
   transition: background-color var(--transition-base);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 10;
 }
 
 .addButton:hover {
   background-color: var(--color-primary-hover);
+}
+
+.addButton:active {
+  background-color: var(--color-primary-hover);
+  transform: scale(0.95);
 }
 
 /* Responsive - mobilvisning */
@@ -166,7 +177,7 @@
   }
 
   .songItem {
-    padding: var(--spacing-xs);
+    padding: var(--spacing-sm);
   }
 
   .thumbnail {
@@ -183,8 +194,8 @@
   }
 
   .addButton {
-    width: 24px;
-    height: 24px;
-    font-size: 1rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
   }
 }
