@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { createHistoryItem } from '../db';
 import type { HistoryItem } from '../../../shared/types';
 import * as musicMetadata from 'music-metadata';
@@ -35,31 +35,24 @@ async function extractCoverArt(filePath: string, baseFilename: string): Promise<
 }
 
 function getMp3Duration(filePath: string): number | undefined {
-  try {
-    const output = execSync(
-      `"${ffmpegPath}" -i "${filePath}" -f null - 2>&1`,
-      { encoding: 'utf-8', timeout: 10000 }
-    );
-    const match = output.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
-    if (match) {
-      const hours = parseInt(match[1], 10);
-      const minutes = parseInt(match[2], 10);
-      const seconds = parseInt(match[3], 10);
-      const centiseconds = parseInt(match[4], 10);
-      return hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
-    }
-  } catch (err: any) {
-    // ffmpeg writes to stderr, parse it from the error output
-    const stderr = err.stderr?.toString() || err.stdout?.toString() || '';
-    const match = stderr.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
-    if (match) {
-      const hours = parseInt(match[1], 10);
-      const minutes = parseInt(match[2], 10);
-      const seconds = parseInt(match[3], 10);
-      const centiseconds = parseInt(match[4], 10);
-      return hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
-    }
-    console.error('Could not determine MP3 duration:', err.message);
+  const result = spawnSync(ffmpegPath, ['-i', filePath, '-f', 'null', '-'], {
+    encoding: 'utf-8',
+    timeout: 10000,
+  });
+
+  // ffmpeg writes duration info to stderr
+  const output = result.stderr || result.stdout || '';
+  const match = output.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
+  if (match) {
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const seconds = parseInt(match[3], 10);
+    const centiseconds = parseInt(match[4], 10);
+    return hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
+  }
+
+  if (result.error) {
+    console.error('Could not determine MP3 duration:', result.error.message);
   }
   return undefined;
 }
@@ -102,7 +95,7 @@ const upload = multer({
     if (file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/mp3') {
       cb(null, true);
     } else {
-      cb(new Error('Kun MP3-filer er tillatt'));
+      cb(new Error('Only MP3 files allowed'));
     }
   },
 });
@@ -112,22 +105,22 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
     const files = req.files as Express.Multer.File[];
     
     if (!files || files.length === 0) {
-      return res.status(400).json({ error: 'Ingen filer lastet opp' });
+      return res.status(400).json({ error: 'No files uploaded' });
     }
 
     if (files.length > 10) {
-      return res.status(400).json({ error: 'Maksimalt 10 filer per opplasting' });
+      return res.status(400).json({ error: 'Maximum 10 files per upload' });
     }
 
     let titles: string[];
     try {
       titles = JSON.parse(req.body.titles || '[]');
     } catch {
-      return res.status(400).json({ error: 'Ugyldig tittel-format' });
+      return res.status(400).json({ error: 'Invalid title format' });
     }
 
     if (titles.length !== files.length) {
-      return res.status(400).json({ error: 'Antall titler må matche antall filer' });
+      return res.status(400).json({ error: 'Title count must match file count' });
     }
 
     const items: { id: string; localUrl: string; duration?: number; imageUrl: string }[] = [];
@@ -137,7 +130,7 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
       const title = titles[i]?.trim();
 
       if (!title) {
-        return res.status(400).json({ error: `Tittel mangler for fil ${i + 1}` });
+        return res.status(400).json({ error: `Title missing for file ${i + 1}` });
       }
 
       const sanitized = sanitizeFilename(title);
@@ -170,7 +163,7 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
     res.status(201).json({ success: true, items });
   } catch (error: any) {
     console.error('Error uploading files:', error);
-    res.status(500).json({ error: 'Kunne ikke laste opp filer' });
+    res.status(500).json({ error: 'Failed to upload files' });
   }
 });
 

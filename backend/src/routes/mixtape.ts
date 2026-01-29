@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
-import { spawn, spawnSync } from 'child_process';
+import { spawn } from 'child_process';
 import ffmpegPath from 'ffmpeg-static';
 import { getAllHistoryItems } from '../db';
 import { io } from '../server';
@@ -36,31 +36,42 @@ export function cleanupOldTempFiles(): void {
   }
 }
 
-function getAudioDurationMs(filePath: string): number {
-  const result = spawnSync(ffmpegPath!, ['-i', filePath, '-hide_banner'], {
-    encoding: 'utf-8',
-  });
+async function getAudioDurationMs(filePath: string): Promise<number> {
+  return new Promise((resolve) => {
+    const ffmpeg = spawn(ffmpegPath!, ['-i', filePath, '-hide_banner']);
+    let output = '';
 
-  const output = result.stderr || result.stdout || '';
-  const match = output.match(/Duration: (\d+):(\d+):(\d+)\.(\d+)/);
-  if (match) {
-    const hours = parseInt(match[1], 10);
-    const minutes = parseInt(match[2], 10);
-    const seconds = parseInt(match[3], 10);
-    const centiseconds = parseInt(match[4], 10);
-    return (hours * 3600 + minutes * 60 + seconds) * 1000 + centiseconds * 10;
-  }
-  return 0;
+    ffmpeg.stderr?.on('data', (data: Buffer) => {
+      output += data.toString();
+    });
+
+    ffmpeg.on('close', () => {
+      const match = output.match(/Duration: (\d+):(\d+):(\d+)\.(\d+)/);
+      if (match) {
+        const hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        const seconds = parseInt(match[3], 10);
+        const centiseconds = parseInt(match[4], 10);
+        resolve((hours * 3600 + minutes * 60 + seconds) * 1000 + centiseconds * 10);
+      } else {
+        resolve(0);
+      }
+    });
+
+    ffmpeg.on('error', () => {
+      resolve(0);
+    });
+  });
 }
 
-function generateChapterMetadata(
+async function generateChapterMetadata(
   items: { title: string; filePath: string }[]
-): string {
-  let lines = [';FFMETADATA1'];
+): Promise<string> {
+  const lines = [';FFMETADATA1'];
   let currentTimeMs = 0;
 
   for (const item of items) {
-    const durationMs = getAudioDurationMs(item.filePath);
+    const durationMs = await getAudioDurationMs(item.filePath);
     const startMs = currentTimeMs;
     const endMs = currentTimeMs + durationMs;
 
@@ -75,6 +86,83 @@ function generateChapterMetadata(
   }
 
   return lines.join('\n');
+}
+
+function cleanupTempFiles(...filePaths: string[]): void {
+  for (const filePath of filePaths) {
+    try {
+      fs.unlinkSync(filePath);
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
+}
+
+interface FfmpegConcatOptions {
+  tempListFile: string;
+  tempMetadataFile: string;
+  outputFile: string;
+  mixtapeName: string;
+  hasImage: boolean;
+  imagePath?: string;
+}
+
+function runFfmpegConcat(options: FfmpegConcatOptions): Promise<void> {
+  const { tempListFile, tempMetadataFile, outputFile, mixtapeName, hasImage, imagePath } = options;
+
+  return new Promise((resolve, reject) => {
+    const ffmpegArgs = [
+      '-f', 'concat',
+      '-safe', '0',
+      '-i', tempListFile,
+      '-i', tempMetadataFile,
+    ];
+
+    if (hasImage && imagePath) {
+      ffmpegArgs.push('-i', imagePath);
+    }
+
+    ffmpegArgs.push(
+      '-map_metadata', '1',
+      '-c:a', 'aac',
+      '-b:a', '256k',
+      '-metadata', `title=${mixtapeName}`,
+      '-metadata', 'album=Suno and others Mixtape',
+      '-metadata', 'artist=Tarald',
+    );
+
+    if (hasImage) {
+      ffmpegArgs.push('-map', '0:a', '-map', '2:v');
+      ffmpegArgs.push('-c:v', 'mjpeg', '-q:v', '2');
+      ffmpegArgs.push('-disposition:v:0', 'attached_pic');
+    }
+
+    ffmpegArgs.push(outputFile);
+
+    const ffmpeg = spawn(ffmpegPath!, ffmpegArgs);
+
+    let stderrOutput = '';
+    ffmpeg.stderr?.on('data', (data: Buffer) => {
+      stderrOutput += data.toString();
+    });
+
+    ffmpeg.on('close', (code) => {
+      if (code !== 0) {
+        console.error('ffmpeg stderr:', stderrOutput);
+      }
+      cleanupTempFiles(tempListFile, tempMetadataFile);
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`ffmpeg exited with code ${code}`));
+      }
+    });
+
+    ffmpeg.on('error', (err) => {
+      cleanupTempFiles(tempListFile, tempMetadataFile);
+      reject(err);
+    });
+  });
 }
 
 interface MixtapeOptions {
@@ -132,86 +220,23 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
 
     fs.writeFileSync(tempListFile, fileListContent);
 
-    const metadataContent = generateChapterMetadata(songData);
+    const metadataContent = await generateChapterMetadata(songData);
     fs.writeFileSync(tempMetadataFile, metadataContent);
 
-    await new Promise<void>((resolve, reject) => {
-      // All inputs first
-      const ffmpegArgs = [
-        '-f',
-        'concat',
-        '-safe',
-        '0',
-        '-i',
-        tempListFile,
-        '-i',
-        tempMetadataFile,
-      ];
-
-      const hasImage = fs.existsSync(PLACEHOLDER_IMAGE);
-      if (hasImage) {
-        ffmpegArgs.push('-i', PLACEHOLDER_IMAGE);
-      }
-
-      // Output options after all inputs
-      ffmpegArgs.push(
-        '-map_metadata',
-        '1',
-        '-c:a',
-        'aac',
-        '-b:a',
-        '256k',
-        '-metadata',
-        `title=${mixtapeName}`,
-        '-metadata',
-        'album=Suno and others Mixtape',
-        '-metadata',
-        'artist=Tarald',
-      );
-
-      if (hasImage) {
-        ffmpegArgs.push('-map', '0:a', '-map', '2:v');
-        ffmpegArgs.push('-c:v', 'mjpeg', '-q:v', '2');
-        ffmpegArgs.push('-disposition:v:0', 'attached_pic');
-      }
-
-      ffmpegArgs.push(outputFile);
-
-      const ffmpeg = spawn(ffmpegPath!, ffmpegArgs);
-
-      let stderrOutput = '';
-      ffmpeg.stderr?.on('data', (data: Buffer) => {
-        stderrOutput += data.toString();
-      });
-
-      ffmpeg.on('close', (code) => {
-        if (code !== 0) {
-          console.error('ffmpeg stderr:', stderrOutput);
-        }
-        try {
-          fs.unlinkSync(tempListFile);
-          fs.unlinkSync(tempMetadataFile);
-        } catch {}
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`ffmpeg exited with code ${code}`));
-        }
-      });
-
-      ffmpeg.on('error', (err) => {
-        try {
-          fs.unlinkSync(tempListFile);
-          fs.unlinkSync(tempMetadataFile);
-        } catch {}
-        reject(err);
-      });
+    const hasImage = fs.existsSync(PLACEHOLDER_IMAGE);
+    await runFfmpegConcat({
+      tempListFile,
+      tempMetadataFile,
+      outputFile,
+      mixtapeName,
+      hasImage,
+      imagePath: hasImage ? PLACEHOLDER_IMAGE : undefined,
     });
 
     io.emit('mixtape-ready', { taskId, downloadId, fileName });
   } catch (error: any) {
     console.error('Error creating mixtape:', error);
-    io.emit('mixtape-ready', { taskId, error: 'Kunne ikke lage mixtape' });
+    io.emit('mixtape-ready', { taskId, error: 'Failed to create mixtape' });
   }
 }
 
@@ -259,12 +284,18 @@ router.post('/custom', async (req: Request, res: Response) => {
 
 // GET /api/mixtape/download/:downloadId - Download generated mixtape
 router.get('/download/:downloadId', (req: Request, res: Response) => {
-  const { downloadId } = req.params;
-  const { fileName } = req.query as { fileName?: string };
+  const downloadId = req.params.downloadId as string;
+  const fileName = req.query.fileName as string | undefined;
+
+  // Validate downloadId to prevent path traversal
+  if (!/^[\w-]+$/.test(downloadId)) {
+    return res.status(400).json({ error: 'Invalid download ID' });
+  }
+
   const filePath = path.join(TEMP_DIR, `${downloadId}.m4b`);
 
   if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'Fil ikke funnet eller utløpt' });
+    return res.status(404).json({ error: 'File not found or expired' });
   }
 
   const downloadFileName = fileName || 'mixtape_liked_songs.m4b';
@@ -290,7 +321,7 @@ router.get('/download/:downloadId', (req: Request, res: Response) => {
   stream.on('error', (err) => {
     console.error('Error streaming mixtape file:', err);
     if (!res.headersSent) {
-      res.status(500).json({ error: 'Kunne ikke laste ned fil' });
+      res.status(500).json({ error: 'Failed to download file' });
     }
   });
 

@@ -3,6 +3,25 @@ import path from 'path';
 import fs from 'fs';
 import type { HistoryItem } from '../../../shared/types';
 
+interface HistoryItemRow {
+  id: string;
+  prompt: string;
+  title: string;
+  lyrics: string;
+  genre: string | null;
+  created_at: string;
+  feedback: string | null;
+  suno_job_id: string | null;
+  suno_clip_id: string | null;
+  suno_status: string | null;
+  suno_audio_url: string | null;
+  suno_local_url: string | null;
+  suno_image_url: string | null;
+  variation_index: number | null;
+  is_uploaded: number | null;
+  duration: number | null;
+}
+
 const HISTORY_LIMIT = 10000;
 const GENRE_LIMIT = 50;
 
@@ -151,34 +170,34 @@ const deleteOldestHistoryStmt = db.prepare(`
   )
 `);
 
-function rowToHistoryItem(row: Record<string, unknown>): HistoryItem {
+function rowToHistoryItem(row: HistoryItemRow): HistoryItem {
   return {
-    id: row.id as string,
-    prompt: row.prompt as string,
-    title: row.title as string,
-    lyrics: row.lyrics as string,
-    genre: row.genre as string | undefined,
-    createdAt: row.created_at as string,
+    id: row.id,
+    prompt: row.prompt,
+    title: row.title,
+    lyrics: row.lyrics,
+    genre: row.genre ?? undefined,
+    createdAt: row.created_at,
     feedback: row.feedback as 'up' | 'down' | undefined,
-    sunoJobId: row.suno_job_id as string | undefined,
-    sunoClipId: row.suno_clip_id as string | undefined,
+    sunoJobId: row.suno_job_id ?? undefined,
+    sunoClipId: row.suno_clip_id ?? undefined,
     sunoStatus: row.suno_status as 'pending' | 'completed' | 'failed' | undefined,
-    sunoAudioUrl: row.suno_audio_url as string | undefined,
-    sunoLocalUrl: row.suno_local_url as string | undefined,
-    sunoImageUrl: row.suno_image_url as string | undefined,
-    variationIndex: row.variation_index as number | undefined,
+    sunoAudioUrl: row.suno_audio_url ?? undefined,
+    sunoLocalUrl: row.suno_local_url ?? undefined,
+    sunoImageUrl: row.suno_image_url ?? undefined,
+    variationIndex: row.variation_index ?? undefined,
     isUploaded: row.is_uploaded === 1 ? true : undefined,
-    duration: row.duration as number | undefined,
+    duration: row.duration ?? undefined,
   };
 }
 
 export function getAllHistoryItems(): HistoryItem[] {
-  const rows = getAllHistoryStmt.all() as Record<string, unknown>[];
+  const rows = getAllHistoryStmt.all() as HistoryItemRow[];
   return rows.map(rowToHistoryItem);
 }
 
 export function getHistoryItemById(id: string): HistoryItem | null {
-  const row = getHistoryByIdStmt.get(id) as Record<string, unknown> | undefined;
+  const row = getHistoryByIdStmt.get(id) as HistoryItemRow | undefined;
   return row ? rowToHistoryItem(row) : null;
 }
 
@@ -228,12 +247,20 @@ export function deleteHistoryItem(id: string): void {
   deleteHistoryStmt.run(id);
 }
 
-function enforceHistoryLimit(): void {
-  const { count } = countHistoryStmt.get() as { count: number };
-  if (count > HISTORY_LIMIT) {
-    const excess = count - HISTORY_LIMIT;
-    deleteOldestHistoryStmt.run(excess);
+function enforceLimit(
+  countStmt: Database.Statement,
+  deleteStmt: Database.Statement,
+  limit: number
+): void {
+  const { count } = countStmt.get() as { count: number };
+  if (count > limit) {
+    const excess = count - limit;
+    deleteStmt.run(excess);
   }
+}
+
+function enforceHistoryLimit(): void {
+  enforceLimit(countHistoryStmt, deleteOldestHistoryStmt, HISTORY_LIMIT);
 }
 
 // ============== Genre History ==============
@@ -278,11 +305,7 @@ export function removeGenre(genre: string): void {
 }
 
 function enforceGenreLimit(): void {
-  const { count } = countGenresStmt.get() as { count: number };
-  if (count > GENRE_LIMIT) {
-    const excess = count - GENRE_LIMIT;
-    deleteOldestGenresStmt.run(excess);
-  }
+  enforceLimit(countGenresStmt, deleteOldestGenresStmt, GENRE_LIMIT);
 }
 
 // ============== Database Management ==============
