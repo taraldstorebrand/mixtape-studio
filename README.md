@@ -126,8 +126,8 @@ cp backend/.env-template backend/.env
 
 - Only add API keys if you want to use AI features:
 ```
-OPENAI_API_KEY=din_openai_nøkkel_her
-SUNO_API_KEY=din_suno_nøkkel_her
+OPENAI_API_KEY=your_api_key_here
+SUNO_API_KEY=your_suno_api_key_here
 PORT=3001
 CORS_ORIGIN=http://localhost:5173
 ```
