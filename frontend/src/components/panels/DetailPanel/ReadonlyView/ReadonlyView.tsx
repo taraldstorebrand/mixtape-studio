@@ -43,9 +43,14 @@ export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, o
             </button>
           )}
         </div>
-        {(item.artist || item.genre) && (
+        {item.artist && (
+          <span className={styles.readonlyArtist}>
+            {item.artist}
+          </span>
+        )}
+        {item.genre && (
           <span className={styles.readonlyGenre}>
-            {item.artist && item.genre ? `${item.artist} - ${item.genre}` : item.artist || item.genre}
+            {item.genre}
           </span>
         )}
         {showNowPlayingIndicator && nowPlayingItem && (

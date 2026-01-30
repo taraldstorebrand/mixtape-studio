@@ -29,7 +29,7 @@
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: 0.9rem;
   font-weight: 500;
-  background: linear-gradient(180deg, var(--color-border-strong) 0%, color-mix(in srgb, var(--color-border-strong) 92%, black) 100%);
+  background: linear-gradient(180deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 92%, black) 100%);
   color: var(--color-text);
   border: none;
   border-radius: var(--radius-md);
@@ -40,9 +40,9 @@
 }
 
 .generateSongButton:hover:not(:disabled) {
-  background: linear-gradient(180deg, var(--color-border-hover) 0%, color-mix(in srgb, var(--color-border-hover) 92%, black) 100%);
+  background: linear-gradient(180deg, var(--color-primary-hover) 0%, color-mix(in srgb, var(--color-primary-hover) 92%, black) 100%);
   transform: translateY(-1px);
-  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.3), var(--shadow-inset-light);
+  box-shadow: var(--shadow-button-hover), var(--shadow-inset-light);
   filter: brightness(1.05);
 }
 
@@ -51,7 +51,7 @@
   color: var(--color-text-muted);
   cursor: not-allowed;
   opacity: 0.85;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-button-disabled);
 }
 
 .generateSongButton:disabled:hover {
@@ -116,9 +116,19 @@
   white-space: nowrap;
 }
 
-.readonlyGenre {
+.readonlyArtist {
   font-size: 0.85rem;
   color: var(--color-text-dim);
+  line-height: 1.2;
+  margin-top: var(--spacing-xs);
+}
+
+.readonlyGenre {
+  font-size: 0.75rem;
+  color: var(--color-text-disabled);
+  line-height: 1.2;
+  margin-top: var(--spacing-xs);
+  opacity: 0.85;
 }
 
 .nowPlayingIndicator {
@@ -152,7 +162,7 @@
   width: 100%;
   max-width: 300px;
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-card);
 }
 
 .readonlyField {

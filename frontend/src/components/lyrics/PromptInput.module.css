@@ -33,25 +33,36 @@
 }
 
 .generateButton {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  font-size: 0.85rem;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 0.9rem;
   font-weight: 500;
-  background-color: var(--color-border-strong);
+  background: linear-gradient(180deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 92%, black) 100%);
   color: var(--color-text);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color var(--transition-base);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-button), var(--shadow-inset-light);
+  position: relative;
 }
 
 .generateButton:hover:not(:disabled) {
-  background-color: var(--color-border-hover);
+  background: linear-gradient(180deg, var(--color-primary-hover) 0%, color-mix(in srgb, var(--color-primary-hover) 92%, black) 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover), var(--shadow-inset-light);
+  filter: brightness(1.05);
 }
 
 .generateButton:disabled {
-  background-color: var(--color-border);
-  color: var(--color-text-disabled);
+  background: linear-gradient(180deg, var(--color-border-strong) 0%, color-mix(in srgb, var(--color-border-strong) 92%, black) 100%);
+  color: var(--color-text-muted);
   cursor: not-allowed;
+  opacity: 0.85;
+  box-shadow: var(--shadow-button-disabled);
+}
+
+.generateButton:disabled:hover {
+  filter: brightness(1.05);
 }
 
 @keyframes spinner-rotate {
