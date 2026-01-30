@@ -9,6 +9,8 @@ interface HistoryItemRow {
   title: string;
   lyrics: string;
   genre: string | null;
+  artist: string | null;
+  album: string | null;
   created_at: string;
   feedback: string | null;
   suno_job_id: string | null;
@@ -45,6 +47,8 @@ db.exec(`
     title TEXT NOT NULL,
     lyrics TEXT NOT NULL,
     genre TEXT,
+    artist TEXT,
+    album TEXT,
     created_at TEXT NOT NULL,
     feedback TEXT,
     suno_job_id TEXT,
@@ -81,6 +85,14 @@ if (!hasDuration) {
 const hasSunoImageUrl = columns.some(col => col.name === 'suno_image_url');
 if (!hasSunoImageUrl) {
   db.exec('ALTER TABLE history_items ADD COLUMN suno_image_url TEXT');
+}
+const hasArtist = columns.some(col => col.name === 'artist');
+if (!hasArtist) {
+  db.exec('ALTER TABLE history_items ADD COLUMN artist TEXT');
+}
+const hasAlbum = columns.some(col => col.name === 'album');
+if (!hasAlbum) {
+  db.exec('ALTER TABLE history_items ADD COLUMN album TEXT');
 }
 
 // ============== Startup Cleanup ==============
@@ -129,10 +141,10 @@ const getHistoryByIdStmt = db.prepare(`
 
 const insertHistoryStmt = db.prepare(`
   INSERT INTO history_items (
-    id, prompt, title, lyrics, genre, created_at, feedback,
+    id, prompt, title, lyrics, genre, artist, album, created_at, feedback,
     suno_job_id, suno_clip_id, suno_status, suno_audio_url, suno_local_url, suno_image_url, variation_index, is_uploaded, duration
   ) VALUES (
-    @id, @prompt, @title, @lyrics, @genre, @createdAt, @feedback,
+    @id, @prompt, @title, @lyrics, @genre, @artist, @album, @createdAt, @feedback,
     @sunoJobId, @sunoClipId, @sunoStatus, @sunoAudioUrl, @sunoLocalUrl, @sunoImageUrl, @variationIndex, @isUploaded, @duration
   )
 `);
@@ -143,6 +155,8 @@ const updateHistoryStmt = db.prepare(`
     title = COALESCE(@title, title),
     lyrics = COALESCE(@lyrics, lyrics),
     genre = COALESCE(@genre, genre),
+    artist = COALESCE(@artist, artist),
+    album = COALESCE(@album, album),
     feedback = @feedback,
     suno_job_id = COALESCE(@sunoJobId, suno_job_id),
     suno_clip_id = COALESCE(@sunoClipId, suno_clip_id),
@@ -177,6 +191,8 @@ function rowToHistoryItem(row: HistoryItemRow): HistoryItem {
     title: row.title,
     lyrics: row.lyrics,
     genre: row.genre ?? undefined,
+    artist: row.artist ?? undefined,
+    album: row.album ?? undefined,
     createdAt: row.created_at,
     feedback: row.feedback as 'up' | 'down' | undefined,
     sunoJobId: row.suno_job_id ?? undefined,
@@ -208,6 +224,8 @@ export function createHistoryItem(item: HistoryItem): void {
     title: item.title,
     lyrics: item.lyrics,
     genre: item.genre ?? null,
+    artist: item.artist ?? null,
+    album: item.album ?? null,
     createdAt: item.createdAt,
     feedback: item.feedback ?? null,
     sunoJobId: item.sunoJobId ?? null,
@@ -230,6 +248,8 @@ export function updateHistoryItem(id: string, updates: Partial<HistoryItem>): vo
     title: updates.title ?? null,
     lyrics: updates.lyrics ?? null,
     genre: updates.genre ?? null,
+    artist: updates.artist ?? null,
+    album: updates.album ?? null,
     feedback: updates.feedback ?? null,
     sunoJobId: updates.sunoJobId ?? null,
     sunoClipId: updates.sunoClipId ?? null,

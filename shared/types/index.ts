@@ -12,6 +12,8 @@ export interface HistoryItem {
   sunoLocalUrl?: string;
   sunoImageUrl?: string;
   genre?: string;
+  artist?: string;
+  album?: string;
   variationIndex?: number;
   isUploaded?: boolean;
   duration?: number;

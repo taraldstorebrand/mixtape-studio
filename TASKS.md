@@ -6,32 +6,86 @@ No active task
 
 ## Pending Tasks
 
-### Task 1: Skjul copy-ikon for uploadede sanger
+### Task 1: Utvid database med artist og album-felter
 
-**Goal:** Ikke vis copy-ikonet i ReadonlyView dersom den valgte sangen er uploaded (item.isUploaded === true), da vi mangler data som kan kopieres (lyrics, prompt, etc.).
+**Goal:** Legg til `artist` og `album` som nye kolonner i `history_items`-tabellen. Oppdater TypeScript-typer og database-funksjonalitet for å håndtere disse feltene. Når vi genererer sanger selv, skal artist settes til "Mixtapte Studio AI" og album skal være blankt.
+
+**Files:**
+
+- `shared/types/index.ts` - Legg til artist og album i HistoryItem-interfacet
+- `backend/src/db/index.ts` - Legg til kolonner i database schema og migrering
+- `backend/src/db/index.ts` - Oppdater rowToHistoryItem, createHistoryItem, og updateHistoryItem funksjoner
+
+**Details:**
+
+- Legg til `artist TEXT` og `album TEXT` kolonner i history_items-tabellen
+- Kjør migrering for eksisterende databaser (sjekk om kolonnene eksisterer)
+- Oppdater HistoryItemRow interface med de nye feltene
+- Håndter mapping mellom database og TypeScript typer
+
+---
+
+### Task 2: Ekstraher metadata fra uploaded MP3-filer
+
+**Goal:** Når brukere laster opp MP3-filer, ekstraher artist, album og genre fra filens metadata (ID3 tags). Bruk disse verdiene når de er tilgjengelige.
+
+**Files:**
+
+- `backend/src/routes/upload.ts` (eller relevant upload-handler fil)
+- `package.json` - Legg til metadata-bibliotek hvis nødvendig (f.eks. music-metadata)
+
+**Details:**
+
+- Les ID3 tags fra uploaded MP3-filer
+- Ekstraher artist, album og genre fra metadata
+- Bruk disse verdiene når du oppretter history item for uploaded fil
+- Hvis metadata mangler: la feltene være undefined/null
+
+---
+
+### Task 3: Vis artist og genre i DetailPanel ReadonlyView
+
+**Goal:** Vis "artist - genre" under tittelen i ReadonlyView-komponenten i DetailPanel. Dette gir brukeren mer informasjon om sangen.
 
 **Files:**
 
 - `frontend/src/components/panels/DetailPanel/ReadonlyView/ReadonlyView.tsx`
+- `frontend/src/components/panels/DetailPanel.module.css` (styling hvis nødvendig)
+
+**Details:**
+
+- Legg til visning av artist under tittel i ReadonlyView
+- Format: "[artist] - [genre]" (kun vis hvis verdier finnes)
+- Hvis bare artist finnes: vis bare artist
+- Hvis bare genre finnes: vis bare genre
+- Bruk eksisterende styles eller legg til nye om nødvendig
 
 ---
 
-### Task 2: Aligner timestamp og "Uploaded"-label til høyre
+### Task 4: Lag engangs-migreringsscript
 
-**Goal:** Sørg for at timestamp og eventuelt "Uploaded"-label er alignet over hverandre, trolig orientert i forhold til høyresiden ettersom lengden på sangtitler kan variere.
+**Goal:** Lag et engangs-migreringsscript som setter artist="Mixtapte Studio AI" for alle eksisterende genererte sanger (der isUploaded !== true). Scriptet skal slettes etter kjøring.
 
 **Files:**
 
-- `frontend/src/components/history/HistoryItem/HistoryItem.module.css`
-- Eventuelt `frontend/src/components/history/HistoryItem/HistoryItem.tsx` hvis strukturelle endringer er nødvendig
+- `backend/src/scripts/migrate-existing-songs.ts` - Nytt migreringsscript
+
+**Details:**
+
+- Hent alle history items der isUploaded !== true
+- Sett artist="Mixtapte Studio AI" for disse
+- Logg antall oppdaterte sanger
+- Dette scriptet skal bare kjøres én gang etter brukerens godkjenning
+- Scriptet skal slettes etter vellykket kjøring
 
 ---
 
 ## Constraints
 
 - Follow AGENTS.md style rules
-- No new dependencies
+- No new dependencies (unntatt metadata-bibliotek for Task 2 hvis nødvendig)
 - Minimal changes to existing architecture
+- Bakoverkompatibilitet: eksisterende sanger uten artist/album skal fortsatt fungere
 
 ---
 

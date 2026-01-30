@@ -128,6 +128,7 @@
 }
 
 .readonlyCoverImage {
+  text-align: center;
   margin-top: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
 }
