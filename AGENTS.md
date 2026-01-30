@@ -28,10 +28,13 @@ If there is a conflict, STOP and ask for clarification.
 - All interactive elements MUST have `type="button"` unless they are submit buttons
 - Toggle buttons MUST have `aria-pressed` to expose state to screen readers
 - All buttons MUST have `aria-label` or visible text content
+- SVG icons inside buttons MUST have `aria-hidden="true"` and `focusable="false"`
+- Truncated text (`text-overflow: ellipsis`) MUST have a `title` attribute for tooltip
 - Use i18n for all user-facing strings, including tooltips
 - Interactive elements MUST have visible `:focus-visible` styling (outline)
 - Avoid `filter` effects that reduce contrast below 4.5:1 ratio
 - Guard against NaN/undefined in time-based calculations
+- Never use hardcoded color values (e.g., `#bbb`), always use CSS variables/design tokens
 
 ## Output
 - Prefer minimal diffs
