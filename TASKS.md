@@ -2,11 +2,11 @@
 
 ## Current Task
 
-_No active task_
+No active task
 
 ## Pending Tasks
 
-_No pending tasks_
+Ingen ventende oppgaver
 
 ---
 
@@ -20,40 +20,20 @@ _No pending tasks_
 
 ## Completed
 
-### Task 2: Refine ReadonlyView layout
+### Task 3: Tone ned visuell dominans for progressbar og volumebar
 
 **Status:** Completed
 
-**Goal:** Improve spacing and discretion of copy button
+**Goal:** Gjøre progressbar og volumebar mindre visuelt dominerende
 
 **Changes:**
 
-- Moved copy button inline with title (closer to the text)
-- Made copy button smaller (14px icon) and more discreet (lower opacity, subtle hover)
-- Added more spacing between title/genre and cover image
-- ChatGPT prompt field now hidden when no prompt exists
+- Redusert standard høyde fra 4px til 3px
+- Redusert hover-høyde fra 6px til 5px (mer diskré)
+- Lagt til `opacity: 0.7` på progressFill og volumeFill for mer subtil effekt
+- Lagt til hover-effekt som øker opacity til 1 ved interaksjon
+- Progress er fortsatt tydelig synlig på mørk bakgrunn
 
 **Files:**
 
-- `frontend/src/components/panels/DetailPanel/ReadonlyView/ReadonlyView.tsx`
-- `frontend/src/components/panels/DetailPanel.module.css`
-
----
-
-### Task 1: Improve ReadonlyView header in DetailPanel
-
-**Status:** Completed
-
-**Goal:** Make the readonly view header more informative and visually refined
-
-**Changes:**
-
-- Replaced "Copy" button text with a discreet copy icon (SVG)
-- Replaced "Selected song" heading with the actual song title
-- Added genre display on the line below the title (when present)
-- Removed separate title and genre fields from below (now in header)
-
-**Files:**
-
-- `frontend/src/components/panels/DetailPanel/ReadonlyView/ReadonlyView.tsx`
-- `frontend/src/components/panels/DetailPanel.module.css`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`

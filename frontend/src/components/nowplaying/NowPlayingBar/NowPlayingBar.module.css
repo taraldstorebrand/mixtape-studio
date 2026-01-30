@@ -172,7 +172,7 @@
 .progressBar {
   position: relative;
   flex: 1;
-  height: 4px;
+  height: 3px;
   background-color: var(--color-border);
   border-radius: var(--radius-pill);
   cursor: pointer;
@@ -180,10 +180,14 @@
 }
 
 .progressBar:hover {
-  height: 6px;
+  height: 5px;
 }
 
 .progressBar:hover .progressHandle {
+  opacity: 1;
+}
+
+.progressBar:hover .progressFill {
   opacity: 1;
 }
 
@@ -195,7 +199,8 @@
   background-color: var(--color-primary);
   border-radius: var(--radius-pill);
   pointer-events: none;
-  transition: width 0.1s linear;
+  opacity: 0.7;
+  transition: width 0.1s linear, opacity var(--transition-base);
 }
 
 .progressHandle {
@@ -240,7 +245,7 @@
 .volumeBar {
   position: relative;
   flex: 1;
-  height: 4px;
+  height: 3px;
   background-color: var(--color-border);
   border-radius: var(--radius-pill);
   cursor: pointer;
@@ -248,10 +253,14 @@
 }
 
 .volumeBar:hover {
-  height: 6px;
+  height: 5px;
 }
 
 .volumeBar:hover .volumeHandle {
+  opacity: 1;
+}
+
+.volumeBar:hover .volumeFill {
   opacity: 1;
 }
 
@@ -263,7 +272,8 @@
   background-color: var(--color-primary);
   border-radius: var(--radius-pill);
   pointer-events: none;
-  transition: width 0.1s linear;
+  opacity: 0.7;
+  transition: width 0.1s linear, opacity var(--transition-base);
 }
 
 .volumeHandle {
