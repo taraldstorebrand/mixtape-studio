@@ -108,7 +108,7 @@ function App() {
     <div className={styles.app}>
       <header className={styles.header}>
         <h1>Mixtape Studio</h1>
-        <p>Lag musikk med AI og bygg dine egne mixtapes</p>
+        <p>Upload your music and make mixtapes</p>
       </header>
 
       <main className={styles.main} ref={containerRef}>
