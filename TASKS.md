@@ -15,27 +15,43 @@ _No pending tasks_
 - Follow AGENTS.md style rules
 - No new dependencies
 - Minimal changes to existing architecture
-- Reuse existing patterns from HistoryItem where possible
+- Keep existing functionality (play/pause, prev/next, feedback, volume)
 
 ---
 
 ## Completed
 
-### Task 1: Standard previous button behavior
+### Task 1: Restructure NowPlayingBar layout
 **Status:** Completed
 
+**Goal:** Center playback controls above the progress bar, similar to YouTube Music
+
 **Changes:**
-- Modified `handlePrevious` in NowPlayingBar.tsx
-- If `currentTime > 3`: seeks to 0 (restarts song)
-- If `currentTime ≤ 3`: goes to previous track
+- Restructured `.content` layout with three sections (left, center, right)
+- Left section: thumbnail + title (flex: 1)
+- Center section: controls above progress bar (flex: 0 0 auto, min-width: 400px)
+- Right section: feedback buttons + volume (flex: 1, justify-content: flex-end)
+- Added extra padding-right to content
+- Mobile: volume control hidden, compact layout
+
+**Files:**
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
 
 ---
 
-### Task 2: Add like/dislike buttons to NowPlayingBar
+### Task 2: Add scrolling/marquee effect for long titles
 **Status:** Completed
 
+**Goal:** When the song title is too long to fit, animate it with a horizontal scroll
+
 **Changes:**
-- Added `useHistoryAtom` import for `handleFeedback`
-- Added thumbs up/down buttons after VolumeControl
-- Added `.feedbackButtons`, `.thumbButton`, `.thumbButtonActive` styles
-- Hidden on mobile (≤900px) to save space
+- Added useEffect to detect title overflow using ref and scrollWidth/clientWidth comparison
+- Applied `.titleMarquee` class conditionally when title overflows
+- Added CSS `@keyframes marquee` animation (10s linear infinite)
+- Animation pauses on hover for readability
+- Includes pause at start/end (0-10% and 90-100% keyframes)
+
+**Files:**
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`

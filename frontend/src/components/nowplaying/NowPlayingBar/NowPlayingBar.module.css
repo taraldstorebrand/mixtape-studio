@@ -22,9 +22,34 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--spacing-sm) var(--spacing-lg);
+  padding-right: calc(var(--spacing-lg) + var(--spacing-md));
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.leftSection {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.centerSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 0 0 auto;
+  min-width: 400px;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  flex: 1;
 }
 
 .thumbnail {
@@ -33,6 +58,7 @@
   border-radius: var(--radius-sm);
   object-fit: cover;
   flex-shrink: 0;
+  margin-right: var(--spacing-xs);
 }
 
 .info {
@@ -40,7 +66,7 @@
   flex-direction: column;
   gap: var(--spacing-xs);
   min-width: 0;
-  flex: 0 0 200px;
+  overflow: hidden;
 }
 
 .title {
@@ -52,11 +78,29 @@
   text-overflow: ellipsis;
 }
 
+.titleMarquee {
+  display: inline-block;
+  animation: marquee 8s ease-in-out infinite;
+}
+
+.titleMarquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0%, 20% {
+    transform: translateX(0);
+  }
+  80%, 100% {
+    transform: translateX(var(--marquee-distance, -50%));
+  }
+}
+
 .controls {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
-  flex-shrink: 0;
 }
 
 .playButton {
@@ -274,39 +318,57 @@
 @media (max-width: 900px) {
   .content {
     padding: var(--spacing-xs) var(--spacing-sm);
+    padding-right: var(--spacing-sm);
     gap: var(--spacing-xs);
   }
 
+  .leftSection {
+    gap: var(--spacing-xs);
+    flex: 0 0 auto;
+  }
+
+  .centerSection {
+    gap: 2px;
+    flex: 1;
+  }
+
+  .rightSection {
+    gap: var(--spacing-xs);
+    flex: 0 0 auto;
+    justify-content: flex-start;
+  }
+
   .thumbnail {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
 
   .info {
-    flex: 0 0 100px;
+    max-width: 80px;
   }
 
   .title {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .controls {
-    gap: 2px;
+    gap: var(--spacing-xs);
   }
 
   .playButton {
-    width: 32px;
-    height: 32px;
-    font-size: 0.95rem;
-  }
-
-  .navButton {
+    width: 36px;
+    height: 36px;
     font-size: 1rem;
   }
 
+  .navButton {
+    font-size: 1.1rem;
+    padding: 4px;
+  }
+
   .time {
-    font-size: 0.65rem;
-    min-width: 32px;
+    font-size: 0.7rem;
+    min-width: 35px;
   }
 
   .progressHandle {
@@ -315,16 +377,15 @@
   }
 
   .volumeContainer {
-    flex: 0 0 80px;
+    display: none;
   }
 
   .muteButton {
-    font-size: 0.9rem;
+    display: none;
   }
 
   .volumeHandle {
-    width: 10px;
-    height: 10px;
+    display: none;
   }
 
   .feedbackButtons {
