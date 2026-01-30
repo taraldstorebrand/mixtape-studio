@@ -1,14 +1,31 @@
+import { useAtomValue } from 'jotai';
 import type { HistoryItem } from '../../../../types';
 import { t } from '../../../../i18n';
+import { isPlayingAtom } from '../../../../store';
 import styles from '../../DetailPanel.module.css';
 
 interface ReadonlyViewProps {
   item: HistoryItem;
   onCopy: () => void;
   onClearSelection: () => void;
+  nowPlayingItem?: HistoryItem | null;
+  onSelectItem?: (itemId: string) => void;
 }
 
-export function ReadonlyView({ item, onCopy, onClearSelection }: ReadonlyViewProps) {
+export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, onSelectItem }: ReadonlyViewProps) {
+  const isPlaying = useAtomValue(isPlayingAtom);
+
+  // Show indicator if a different song is playing
+  const showNowPlayingIndicator =
+    isPlaying &&
+    nowPlayingItem &&
+    nowPlayingItem.id !== item.id;
+
+  const handleNowPlayingClick = () => {
+    if (nowPlayingItem && onSelectItem) {
+      onSelectItem(nowPlayingItem.id);
+    }
+  };
   return (
     <div className={styles.readonlyView}>
       <button type="button" className={styles.newDraftButton} onClick={onClearSelection}>
@@ -25,6 +42,16 @@ export function ReadonlyView({ item, onCopy, onClearSelection }: ReadonlyViewPro
           </button>
         </div>
         {item.genre && <span className={styles.readonlyGenre}>{item.genre}</span>}
+        {showNowPlayingIndicator && nowPlayingItem && (
+          <button
+            type="button"
+            className={styles.nowPlayingIndicator}
+            onClick={handleNowPlayingClick}
+            aria-label={t.messages.nowPlaying(nowPlayingItem.title || t.messages.untitled)}
+          >
+            {t.messages.nowPlaying(nowPlayingItem.title || t.messages.untitled)}
+          </button>
+        )}
       </div>
       <div className={styles.readonlyCoverImage}>
         <img src={item.sunoImageUrl || '/assets/placeholder.png'} alt={item.title} />
@@ -35,10 +62,12 @@ export function ReadonlyView({ item, onCopy, onClearSelection }: ReadonlyViewPro
           <p>{item.prompt}</p>
         </div>
       )}
-      <div className={styles.readonlyField}>
-        <label>{t.labels.lyrics}</label>
-        <pre className={styles.readonlyLyrics}>{item.lyrics}</pre>
-      </div>
+      {item.lyrics && (
+        <div className={styles.readonlyField}>
+          <label>{t.labels.lyrics}</label>
+          <pre className={styles.readonlyLyrics}>{item.lyrics}</pre>
+        </div>
+      )}
     </div>
   );
 }

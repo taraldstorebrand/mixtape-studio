@@ -73,6 +73,7 @@ export const en = {
     uploaded: 'Uploaded',
     failed: 'Failed',
     songCount: (count: number) => (count === 1 ? 'song' : 'songs'),
+    nowPlaying: (title: string) => `▶ Now playing: ${title}`,
   },
 
   errors: {

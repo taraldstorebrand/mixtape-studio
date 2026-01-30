@@ -54,6 +54,11 @@
   --transition-fast: 0.1s;
   --transition-base: 0.2s;
 
+  /* Overlays */
+  --color-overlay-bg: rgba(0, 0, 0, 0.6);
+  --color-overlay-bg-hover: rgba(0, 0, 0, 0.8);
+  --color-overlay-border: rgba(255, 255, 255, 0.3);
+
   /* Shadows */
   --shadow-inset: inset 0 2px 8px rgba(0, 0, 0, 0.4);
 }

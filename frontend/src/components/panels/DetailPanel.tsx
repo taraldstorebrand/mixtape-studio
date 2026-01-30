@@ -16,6 +16,8 @@ interface DetailPanelProps {
   onAddGenre: (genre: string) => void;
   onRemoveGenre: (genre: string) => void;
   onClearSelection: () => void;
+  nowPlayingItem?: HistoryItem | null;
+  onSelectItem?: (itemId: string) => void;
 }
 
 export interface DetailPanelHandle {
@@ -29,6 +31,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   onAddGenre,
   onRemoveGenre,
   onClearSelection,
+  nowPlayingItem,
+  onSelectItem,
 }, ref) {
   const [currentLyrics, setCurrentLyrics] = useState('');
   const [title, setTitle] = useState('');
@@ -150,6 +154,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
           item={selectedItem}
           onCopy={handleCopy}
           onClearSelection={onClearSelection}
+          nowPlayingItem={nowPlayingItem}
+          onSelectItem={onSelectItem}
         />
       ) : (
         <div className={styles.generationSection}>

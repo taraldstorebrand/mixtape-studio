@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
 import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom } from '../../../store';
@@ -10,6 +10,15 @@ interface HistoryItemProps {
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onSelect: (item: HistoryItemType) => void;
   onDelete: () => void;
+}
+
+function formatDuration(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return '0:00';
+  }
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }: HistoryItemProps) {
@@ -42,17 +51,34 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
     }
   };
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('button')) {
+      return;
+    }
+    if (isSelected) {
       return;
     }
     onSelect(item);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick(e);
+    }
+  };
+
   if (item.sunoStatus === 'pending' && !audioUrl) {
     return (
-      <div className={styles.skeletonHistoryItem} onClick={handleClick}>
+      <div
+        className={styles.skeletonHistoryItem}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={t.messages.untitled}
+      >
         <div className={`${styles.skeleton} ${styles.skeletonThumbnail}`} />
         <div className={styles.skeletonContent}>
           <div className={`${styles.skeleton} ${styles.skeletonTitle}`} />
@@ -66,15 +92,38 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
     <div
       className={`${styles.historyItem} ${isSelected ? styles.selected : ''} ${isCurrentlyPlaying ? styles.nowPlaying : ''}`}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`${displayTitle}${variationLabel}`}
     >
       <div className={styles.historyHeader}>
-        <img
-          src={item.sunoImageUrl || '/assets/placeholder.png'}
-          alt=""
-          className={styles.historyThumbnail}
-        />
+        <div className={styles.thumbnailWrapper}>
+          <img
+            src={item.sunoImageUrl || '/assets/placeholder.png'}
+            alt=""
+            className={styles.historyThumbnail}
+          />
+          {audioUrl && (
+            <button
+              type="button"
+              onClick={handlePlayPause}
+              className={`${styles.playButtonOverlay} ${isCurrentlyPlaying ? styles.playButtonOverlayActive : ''}`}
+              title={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
+              aria-label={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
+              aria-pressed={isCurrentlyPlaying}
+            >
+              {isCurrentlyPlaying ? '⏸' : '▶'}
+            </button>
+          )}
+        </div>
         <div className={styles.historyMeta}>
-          <strong className={styles.historyTitle}>{displayTitle}{variationLabel}</strong>
+          <div className={styles.titleWithDuration}>
+            <strong className={styles.historyTitle}>
+              {displayTitle}{variationLabel}
+            </strong>
+            {item.duration && <span className={styles.durationLabel}>{formatDuration(item.duration)}</span>}
+          </div>
           {item.sunoStatus === 'failed' && <span className={`${styles.statusBadge} ${styles.statusFailed}`}>{t.messages.failed}</span>}
           <span className={styles.historyDate}>
             {new Date(item.createdAt).toLocaleString('no-NO', {
@@ -88,19 +137,9 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
           </span>
         </div>
         <div className={styles.historyActions}>
-          {audioUrl && (
-            <button
-              onClick={handlePlayPause}
-              className={`${styles.playButton} ${isCurrentlyPlaying ? styles.playButtonActive : ''}`}
-              title={isCurrentlyPlaying ? 'Pause' : 'Play'}
-              aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
-              aria-pressed={isCurrentlyPlaying}
-            >
-              {isCurrentlyPlaying ? '⏸' : '▶'}
-            </button>
-          )}
           <div className={styles.feedbackButtons}>
             <button
+              type="button"
               onClick={() => onFeedback(item.id, item.feedback === 'up' ? null : 'up')}
               className={`${styles.thumbButton} ${item.feedback === 'up' ? styles.thumbButtonActive : ''}`}
               title={t.tooltips.thumbsUp}
@@ -109,6 +148,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
               👍
             </button>
             <button
+              type="button"
               onClick={() => onFeedback(item.id, item.feedback === 'down' ? null : 'down')}
               className={`${styles.thumbButton} ${item.feedback === 'down' ? styles.thumbButtonActive : ''}`}
               title={t.tooltips.thumbsDown}
@@ -118,6 +158,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
             </button>
           </div>
           <button
+            type="button"
             onClick={onDelete}
             className={styles.deleteButton}
             title={t.tooltips.delete}

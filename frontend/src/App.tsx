@@ -3,7 +3,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
 import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
-import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom } from './store';
+import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
@@ -15,11 +15,15 @@ function App() {
   const [selectedItemId, setSelectedItemId] = useAtom(selectedItemIdAtom);
   const selectedItem = useAtomValue(selectedItemAtom);
   const setSongGenerationStatus = useSetAtom(songGenerationStatusAtom);
+  const nowPlaying = useAtomValue(nowPlayingAtom);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<DetailPanelHandle>(null);
 
   const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistoryAtom();
   const { genres: genreHistory, addGenre, removeGenre } = useGenreHistoryAtom();
+
+  // Find the currently playing item from history
+  const nowPlayingItem = nowPlaying ? history.find(item => item.id === nowPlaying.id) : null;
   const { width: panelWidth, isDragging, handleMouseDown } = useResizable({
     containerRef,
     storageKey: PANEL_WIDTH_KEY,
@@ -93,6 +97,13 @@ function App() {
     removeHistoryItem(id);
   };
 
+  const handleSelectItemById = (itemId: string) => {
+    const item = history.find(h => h.id === itemId);
+    if (item) {
+      setSelectedItemId(itemId);
+    }
+  };
+
   return (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -110,6 +121,8 @@ function App() {
             onAddGenre={addGenre}
             onRemoveGenre={removeGenre}
             onClearSelection={handleClearSelection}
+            nowPlayingItem={nowPlayingItem ?? null}
+            onSelectItem={handleSelectItemById}
           />
         </div>
 

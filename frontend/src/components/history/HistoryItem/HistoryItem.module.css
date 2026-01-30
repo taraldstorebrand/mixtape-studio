@@ -12,13 +12,21 @@
   border-color: var(--color-border-strong);
 }
 
+.historyItem:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-color: var(--color-primary);
+}
+
 .selected {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--color-border-strong);
 }
 
 .nowPlaying {
-  border-left: 2px solid var(--color-primary);
-  background-color: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-primary);
 }
 
 .historyHeader {
@@ -26,6 +34,13 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--spacing-sm);
+}
+
+.thumbnailWrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
 }
 
 .historyThumbnail {
@@ -36,12 +51,58 @@
   flex-shrink: 0;
 }
 
+.playButtonOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--color-overlay-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-overlay-border);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  z-index: 1;
+}
+
+.playButtonOverlay:hover {
+  background-color: var(--color-overlay-bg-hover);
+  border-color: var(--color-primary);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.playButtonOverlay:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.playButtonOverlayActive {
+  background-color: var(--color-primary-alpha);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 8px var(--color-primary-alpha);
+}
+
 .historyMeta {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
   flex: 1;
   min-width: 0;
+}
+
+.titleWithDuration {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .historyTitle {
@@ -51,6 +112,14 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.durationLabel {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-dim);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .historyDate {
@@ -85,32 +154,6 @@
 
 .reuseButton:hover {
   background-color: var(--color-border-strong);
-}
-
-.playButton {
-  padding: var(--spacing-xs) 0.5rem;
-  background-color: transparent;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--color-text-dim);
-  transition: all var(--transition-base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.playButton:hover {
-  border-color: var(--color-primary);
-  background-color: var(--color-primary-alpha);
-  color: var(--color-text);
-}
-
-.playButtonActive {
-  border-color: var(--color-primary);
-  background-color: var(--color-primary-alpha);
-  color: var(--color-text);
 }
 
 .feedbackButtons {
