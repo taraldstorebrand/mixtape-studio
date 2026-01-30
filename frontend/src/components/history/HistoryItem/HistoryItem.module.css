@@ -9,16 +9,16 @@
 }
 
 .historyItem:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-border-strong);
 }
 
 .selected {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .nowPlaying {
-  border-left: 3px solid var(--color-primary);
-  background-color: rgba(255, 255, 255, 0.05);
+  border-left: 2px solid var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .historyHeader {

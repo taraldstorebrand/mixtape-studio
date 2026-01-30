@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   background-color: var(--color-bg-surface-alt);
-  border-top: 2px solid var(--color-primary);
+  border-top: 1px solid var(--color-border-strong);
   z-index: 1000;
   animation: slideUp 0.3s ease-out;
 }
@@ -21,15 +21,15 @@
 .content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--spacing-md) var(--spacing-xl);
+  padding: var(--spacing-sm) var(--spacing-lg);
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
 .thumbnail {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-sm);
   object-fit: cover;
   flex-shrink: 0;
@@ -63,13 +63,13 @@
   background-color: var(--color-primary);
   border: none;
   border-radius: var(--radius-full);
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: white;
   transition: background-color var(--transition-base);
   flex-shrink: 0;
@@ -83,12 +83,12 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.3rem;
-  padding: 4px;
+  font-size: 1.1rem;
+  padding: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text);
+  color: var(--color-text-dim);
   transition: color var(--transition-base), opacity var(--transition-base);
   flex-shrink: 0;
 }
@@ -105,7 +105,7 @@
 .progressContainer {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   flex: 1;
   min-width: 0;
 }
@@ -122,7 +122,7 @@
 .progressBar {
   position: relative;
   flex: 1;
-  height: 6px;
+  height: 4px;
   background-color: var(--color-border);
   border-radius: var(--radius-pill);
   cursor: pointer;
@@ -130,7 +130,7 @@
 }
 
 .progressBar:hover {
-  height: 8px;
+  height: 6px;
 }
 
 .progressBar:hover .progressHandle {
@@ -152,10 +152,10 @@
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
-  background-color: white;
-  border: 2px solid var(--color-primary);
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-text);
+  border: none;
   border-radius: var(--radius-full);
   pointer-events: none;
   opacity: 0;
@@ -190,7 +190,7 @@
 .volumeBar {
   position: relative;
   flex: 1;
-  height: 6px;
+  height: 4px;
   background-color: var(--color-border);
   border-radius: var(--radius-pill);
   cursor: pointer;
@@ -198,7 +198,7 @@
 }
 
 .volumeBar:hover {
-  height: 8px;
+  height: 6px;
 }
 
 .volumeBar:hover .volumeHandle {
@@ -220,10 +220,10 @@
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
-  background-color: white;
-  border: 2px solid var(--color-primary);
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-text);
+  border: none;
   border-radius: var(--radius-full);
   pointer-events: none;
   opacity: 0;
@@ -232,52 +232,57 @@
 
 @media (max-width: 900px) {
   .content {
-    padding: var(--spacing-sm) var(--spacing-md);
-    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .thumbnail {
+    width: 36px;
+    height: 36px;
   }
 
   .info {
-    flex: 0 0 120px;
-  }
-
-  .title {
-    font-size: 0.85rem;
-  }
-
-  .controls {
-    gap: 4px;
-  }
-
-  .playButton {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
-  }
-
-  .navButton {
-    font-size: 1.1rem;
-  }
-
-  .time {
-    font-size: 0.7rem;
-    min-width: 35px;
-  }
-
-  .progressHandle {
-    width: 12px;
-    height: 12px;
-  }
-
-  .volumeContainer {
     flex: 0 0 100px;
   }
 
-  .muteButton {
+  .title {
+    font-size: 0.8rem;
+  }
+
+  .controls {
+    gap: 2px;
+  }
+
+  .playButton {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .navButton {
     font-size: 1rem;
   }
 
+  .time {
+    font-size: 0.65rem;
+    min-width: 32px;
+  }
+
+  .progressHandle {
+    width: 10px;
+    height: 10px;
+  }
+
+  .volumeContainer {
+    flex: 0 0 80px;
+  }
+
+  .muteButton {
+    font-size: 0.9rem;
+  }
+
   .volumeHandle {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
   }
 }
