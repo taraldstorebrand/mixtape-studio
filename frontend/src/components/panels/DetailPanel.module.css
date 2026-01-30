@@ -18,6 +18,10 @@
   z-index: 10;
   background-color: var(--color-bg-base);
   padding: var(--spacing-sm) 0;
+  margin-left: calc(-1 * var(--spacing-lg));
+  margin-right: calc(-1 * var(--spacing-lg));
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
 }
 
 .generateSongButton {
@@ -44,10 +48,14 @@
 
 .generateSongButton:disabled {
   background: linear-gradient(180deg, var(--color-border-strong) 0%, color-mix(in srgb, var(--color-border-strong) 92%, black) 100%);
-  color: var(--color-text-subtle);
+  color: var(--color-text-muted);
   cursor: not-allowed;
   opacity: 0.85;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.generateSongButton:disabled:hover {
+  filter: brightness(1.05);
 }
 
 .sunoMissingHint {

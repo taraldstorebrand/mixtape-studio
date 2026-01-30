@@ -22,10 +22,14 @@
 
 .mixtapeButton:disabled {
   background: linear-gradient(180deg, var(--color-border-strong) 0%, color-mix(in srgb, var(--color-border-strong) 92%, black) 100%);
-  color: var(--color-text-subtle);
+  color: var(--color-text-muted);
   cursor: not-allowed;
   opacity: 0.85;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.mixtapeButton:disabled:hover {
+  filter: brightness(1.05);
 }
 
 @keyframes spinner-rotate {
