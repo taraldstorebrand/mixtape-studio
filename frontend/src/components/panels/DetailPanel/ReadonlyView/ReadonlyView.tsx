@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 import type { HistoryItem } from '../../../../types';
 import { t } from '../../../../i18n';
 import { isPlayingAtom } from '../../../../store';
+import { CollapsibleSection } from '../CollapsibleSection/CollapsibleSection';
 import styles from '../../DetailPanel.module.css';
 
 interface ReadonlyViewProps {
@@ -14,6 +16,14 @@ interface ReadonlyViewProps {
 
 export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, onSelectItem }: ReadonlyViewProps) {
   const isPlaying = useAtomValue(isPlayingAtom);
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+  const [isLyricsExpanded, setIsLyricsExpanded] = useState(false);
+
+  // Reset expanded state when item changes
+  useEffect(() => {
+    setIsPromptExpanded(false);
+    setIsLyricsExpanded(false);
+  }, [item.id]);
 
   // Show indicator if a different song is playing
   const showNowPlayingIndicator =
@@ -68,16 +78,24 @@ export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, o
         <img src={item.sunoImageUrl || '/assets/placeholder.png'} alt={item.title} />
       </div>
       {item.prompt && (
-        <div className={styles.readonlyField}>
-          <label>{t.labels.chatGptPrompt}</label>
-          <p>{item.prompt}</p>
-        </div>
+        <CollapsibleSection
+          label={t.labels.chatGptPrompt}
+          isExpanded={isPromptExpanded}
+          onToggle={() => setIsPromptExpanded(!isPromptExpanded)}
+          mode="readonly"
+        >
+          <p className={styles.readonlyPromptContent}>{item.prompt}</p>
+        </CollapsibleSection>
       )}
       {item.lyrics && (
-        <div className={styles.readonlyField}>
-          <label>{t.labels.lyrics}</label>
-          <pre className={styles.readonlyLyrics}>{item.lyrics}</pre>
-        </div>
+        <CollapsibleSection
+          label={t.labels.lyrics}
+          isExpanded={isLyricsExpanded}
+          onToggle={() => setIsLyricsExpanded(!isLyricsExpanded)}
+          mode="readonly"
+        >
+          <pre className={styles.readonlyLyricsContent}>{item.lyrics}</pre>
+        </CollapsibleSection>
       )}
     </div>
   );

@@ -3,6 +3,7 @@ import { useAtom } from 'jotai';
 import { PromptInput } from '../lyrics/PromptInput';
 import { LyricsTextarea } from '../lyrics/LyricsTextarea';
 import { ReadonlyView } from './DetailPanel/ReadonlyView/ReadonlyView';
+import { CollapsibleSection } from './DetailPanel/CollapsibleSection/CollapsibleSection';
 import { generateLyrics, generateSong, checkConfigStatus } from '../../services/api';
 import { songGenerationStatusAtom } from '../../store';
 import { HistoryItem } from '../../types';
@@ -47,6 +48,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
     const stored = localStorage.getItem('aiAssistEnabled');
     return stored === 'true';
   });
+  const [isLyricsEditExpanded, setIsLyricsEditExpanded] = useState(true);
+  const [isPromptEditExpanded, setIsPromptEditExpanded] = useState(true);
 
   useEffect(() => {
     checkConfigStatus().then((status: { suno: boolean; openai: boolean }) => {
@@ -127,6 +130,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
       setTitle(selectedItem.title || '');
       setCurrentLyrics(selectedItem.lyrics || '');
       setGenre(selectedItem.genre || '');
+      setIsLyricsEditExpanded(true);
+      setIsPromptEditExpanded(true);
       onClearSelection();
     }
   };
@@ -137,6 +142,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
     setCurrentLyrics('');
     setGenre('');
     setError(null);
+    setIsLyricsEditExpanded(true);
+    setIsPromptEditExpanded(true);
     onClearSelection();
   };
 
@@ -180,41 +187,57 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
             </button>
           )}
 
-          <LyricsTextarea
-            lyrics={currentLyrics}
-            onChange={setCurrentLyrics}
-            title={title}
-            onTitleChange={setTitle}
-            genre={genre}
-            onGenreChange={setGenre}
-            isLoading={isLoading}
-            genreHistory={genreHistory}
-            onRemoveGenre={onRemoveGenre}
-          />
-
-          <div className={styles.aiAssistSection}>
-            <label className={styles.aiToggleLabel}>
-              <input
-                type="checkbox"
-                checked={aiAssistEnabled && openaiAvailable}
-                onChange={(e) => handleAiAssistToggle(e.target.checked)}
-                disabled={!openaiAvailable}
-                className={styles.aiToggleCheckbox}
-              />
-              {t.labels.useAiToGenerateLyrics}
-            </label>
-            {!openaiAvailable && (
-              <p className={styles.sunoMissingHint}>{t.errors.openaiApiKeyMissing}</p>
-            )}
-
-            {aiAssistEnabled && openaiAvailable && (
-              <PromptInput
-                onGenerate={handleGenerateLyrics}
+          <CollapsibleSection
+            label={t.labels.lyrics}
+            isExpanded={isLyricsEditExpanded}
+            onToggle={() => setIsLyricsEditExpanded(!isLyricsEditExpanded)}
+            mode="edit"
+          >
+            <div className={styles.lyricsEditContainer}>
+              <LyricsTextarea
+                lyrics={currentLyrics}
+                onChange={setCurrentLyrics}
+                title={title}
+                onTitleChange={setTitle}
+                genre={genre}
+                onGenreChange={setGenre}
                 isLoading={isLoading}
-                initialValue={prompt}
+                genreHistory={genreHistory}
+                onRemoveGenre={onRemoveGenre}
               />
-            )}
-          </div>
+            </div>
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            label={t.labels.chatGptPrompt}
+            isExpanded={isPromptEditExpanded}
+            onToggle={() => setIsPromptEditExpanded(!isPromptEditExpanded)}
+            mode="edit"
+          >
+            <div className={styles.aiAssistSection}>
+              <label className={styles.aiToggleLabel}>
+                <input
+                  type="checkbox"
+                  checked={aiAssistEnabled && openaiAvailable}
+                  onChange={(e) => handleAiAssistToggle(e.target.checked)}
+                  disabled={!openaiAvailable}
+                  className={styles.aiToggleCheckbox}
+                />
+                {t.labels.useAiToGenerateLyrics}
+              </label>
+              {!openaiAvailable && (
+                <p className={styles.sunoMissingHint}>{t.errors.openaiApiKeyMissing}</p>
+              )}
+
+              {aiAssistEnabled && openaiAvailable && (
+                <PromptInput
+                  onGenerate={handleGenerateLyrics}
+                  isLoading={isLoading}
+                  initialValue={prompt}
+                />
+              )}
+            </div>
+          </CollapsibleSection>
         </div>
       )}
     </>
