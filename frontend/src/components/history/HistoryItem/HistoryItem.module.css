@@ -19,7 +19,8 @@
 }
 
 .selected {
-  background-color: var(--color-bg-selected);
+  background-color: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
 }
 
 .nowPlaying {

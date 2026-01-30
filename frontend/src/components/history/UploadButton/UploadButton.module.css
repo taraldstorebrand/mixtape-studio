@@ -29,11 +29,11 @@
 }
 
 .button:disabled {
-  background: linear-gradient(180deg, var(--color-border) 0%, color-mix(in srgb, var(--color-border) 92%, black) 100%);
-  color: var(--color-text-disabled);
+  background: linear-gradient(180deg, var(--color-border-strong) 0%, color-mix(in srgb, var(--color-border-strong) 92%, black) 100%);
+  color: var(--color-text-subtle);
   cursor: not-allowed;
-  opacity: 0.6;
-  box-shadow: none;
+  opacity: 0.85;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
 }
 
 .form {
@@ -114,11 +114,11 @@
 }
 
 .confirmButton:disabled {
-  background: linear-gradient(180deg, var(--color-border) 0%, color-mix(in srgb, var(--color-border) 92%, black) 100%);
-  color: var(--color-text-disabled);
+  background: linear-gradient(180deg, var(--color-border-strong) 0%, color-mix(in srgb, var(--color-border-strong) 92%, black) 100%);
+  color: var(--color-text-subtle);
   cursor: not-allowed;
-  opacity: 0.6;
-  box-shadow: none;
+  opacity: 0.85;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
 }
 
 .cancelButton {
