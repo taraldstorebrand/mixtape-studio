@@ -349,8 +349,13 @@
 }
 
 @media (max-width: 900px) {
+  .nowPlayingBar {
+    background-color: rgba(26, 26, 31, 0.9);
+    backdrop-filter: blur(8px);
+  }
+
   .content {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-sm);
     padding-right: var(--spacing-sm);
     gap: var(--spacing-xs);
   }
@@ -389,14 +394,14 @@
   }
 
   .playButton {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
   }
 
   .navButton {
     font-size: 1.1rem;
-    padding: 4px;
+    padding: 8px;
   }
 
   .time {
