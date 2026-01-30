@@ -6,94 +6,74 @@ No active task
 
 ## Pending Tasks
 
-### Task 1: Utvid database med artist og album-felter
+### Task 1: Reduce visual dominance of list titles
 
-**Goal:** Legg til `artist` og `album` som nye kolonner i `history_items`-tabellen. Oppdater TypeScript-typer og database-funksjonalitet for å håndtere disse feltene. Når vi genererer sanger selv, skal artist settes til "Mixtapte Studio AI" og album skal være blankt.
+**Goal:** Lower brightness/contrast of song titles in the list slightly. Keep main app and details titles brighter than list items for better visual hierarchy.
 
 **Files:**
 
-- `shared/types/index.ts` - Legg til artist og album i HistoryItem-interfacet
-- `backend/src/db/index.ts` - Legg til kolonner i database schema og migrering
-- `backend/src/db/index.ts` - Oppdater rowToHistoryItem, createHistoryItem, og updateHistoryItem funksjoner
+- `frontend/src/components/history/HistoryItem/HistoryItem.module.css` - Adjust title color to be less dominant
 
 **Details:**
 
-- Legg til `artist TEXT` og `album TEXT` kolonner i history_items-tabellen
-- Kjør migrering for eksisterende databaser (sjekk om kolonnene eksisterer)
-- Oppdater HistoryItemRow interface med de nye feltene
-- Håndter mapping mellom database og TypeScript typer
+- Reduce brightness of song titles in the history list
+- Use a dimmer CSS variable (e.g., `var(--color-text-soft)` instead of `var(--color-text)`)
+- Do NOT change the main app title or selected song title in DetailPanel
+- Maintain readability while reducing visual weight
 
 ---
 
-### Task 2: Ekstraher metadata fra uploaded MP3-filer
+### Task 2: Improve text hierarchy for section headers
 
-**Goal:** Når brukere laster opp MP3-filer, ekstraher artist, album og genre fra filens metadata (ID3 tags). Bruk disse verdiene når de er tilgjengelige.
+**Goal:** Reduce font-size of "Songs (N)" header slightly (≈10–15%) to make it feel like a section label rather than a primary title.
 
 **Files:**
 
-- `backend/src/routes/upload.ts` (eller relevant upload-handler fil)
-- `package.json` - Legg til metadata-bibliotek hvis nødvendig (f.eks. music-metadata)
+- `frontend/src/components/history/HistoryPanel.module.css` - Adjust header font-size and styling
 
 **Details:**
 
-- Les ID3 tags fra uploaded MP3-filer
-- Ekstraher artist, album og genre fra metadata
-- Bruk disse verdiene når du oppretter history item for uploaded fil
-- Hvis metadata mangler: la feltene være undefined/null
+- Reduce font-size by approximately 10-15%
+- Ensure it still feels like a header but less dominant
+- Should look like a section label, not a primary title
+- Maintain existing spacing and layout
 
 ---
 
-### Task 3: Vis artist og genre i DetailPanel ReadonlyView
+### Task 3: Tone down metadata text
 
-**Goal:** Vis "artist - genre" under tittelen i ReadonlyView-komponenten i DetailPanel. Dette gir brukeren mer informasjon om sangen.
-
-**Files:**
-
-- `frontend/src/components/panels/DetailPanel/ReadonlyView/ReadonlyView.tsx`
-- `frontend/src/components/panels/DetailPanel.module.css` (styling hvis nødvendig)
-
-**Details:**
-
-- Legg til visning av artist under tittel i ReadonlyView
-- Format: "[artist] - [genre]" (kun vis hvis verdier finnes)
-- Hvis bare artist finnes: vis bare artist
-- Hvis bare genre finnes: vis bare genre
-- Bruk eksisterende styles eller legg til nye om nødvendig
-
----
-
-### Task 4: Lag engangs-migreringsscript
-
-**Goal:** Lag et engangs-migreringsscript som setter artist="Mixtapte Studio AI" for alle eksisterende genererte sanger (der isUploaded !== true), og som ekstraherer metadata fra eksisterende uploaded filer. Scriptet skal slettes etter kjøring.
+**Goal:** Use slightly dimmer color for date, duration and secondary info to ensure titles remain the primary visual focus.
 
 **Files:**
 
-- `backend/src/scripts/migrate-existing-songs.ts` - Nytt migreringsscript
+- `frontend/src/components/history/HistoryItem/HistoryItem.module.css` - Adjust metadata color
 
 **Details:**
 
-- Hent alle history items
-- For genererte sanger (isUploaded !== true):
-  - Sett artist="Mixtapte Studio AI"
-- For uploaded sanger (isUploaded === true):
-  - Kjør metadata-ekstraksjon (music-metadata eller mediainfo) på filen
-  - Ekstraher artist, album og genre fra filens metadata
-  - Oppdater history item med ekstraherte verdier
-- Logg antall oppdaterte sanger i begge kategorier
-- Dette scriptet skal bare kjøres én gang etter brukerens godkjenning
-- Scriptet skal slettes etter vellykket kjøring
+- Make date and duration text more subtle
+- Use a dimmer CSS variable (e.g., `var(--color-text-subtle)` or `var(--color-text-dim)`)
+- Ensure metadata doesn't compete with song titles for attention
+- Maintain readability
 
 ---
 
 ## Constraints
 
 - Follow AGENTS.md style rules
-- No new dependencies (unntatt metadata-bibliotek for Task 2 hvis nødvendig)
+- No new dependencies
 - Minimal changes to existing architecture
-- Bakoverkompatibilitet: eksisterende sanger uten artist/album skal fortsatt fungere
+- Do NOT change layout or structure - only adjust colors and font sizes
+- Do NOT change main app title or selected song title styling in DetailPanel
+- Always use CSS variables from `frontend/src/styles/variables.css`
+
+---
+
+## Goal
+
+Clearer visual hierarchy without changing layout or structure.
 
 ---
 
 ## Completed
 
-Tasks completed before this session have been archived.
+All previous tasks from the artist/album/genre implementation have been completed and archived.
