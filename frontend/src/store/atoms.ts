@@ -18,8 +18,17 @@ export const songGenerationStatusAtom = atom<SongGenerationStatus>('idle');
 
 export const genreHistoryAtom = atom<string[]>([]);
 
-// Global audio playback state
-export const nowPlayingAtom = atom<HistoryItem | null>(null);
+// Audio source for playback (ID + URL snapshot, immutable once set)
+type AudioSource = { id: string; url: string } | null;
+export const audioSourceAtom = atom<AudioSource>(null);
+
+// Derived atom that returns the full HistoryItem (synced with historyAtom for UI display)
+export const nowPlayingAtom = atom((get) => {
+  const source = get(audioSourceAtom);
+  if (!source) return null;
+  const history = get(historyAtom);
+  return history.find((item) => item.id === source.id) ?? null;
+});
 
 export const audioRefAtom = atom<HTMLAudioElement | null>(null);
 

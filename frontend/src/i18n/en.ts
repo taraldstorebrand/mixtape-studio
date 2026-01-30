@@ -47,6 +47,10 @@ export const en = {
   },
 
   tooltips: {
+    previous: 'Previous',
+    play: 'Play',
+    pause: 'Pause',
+    next: 'Next',
     clear: 'Clear',
     removeFromHistory: 'Remove from history',
     addToMixtape: 'Add to mixtape',

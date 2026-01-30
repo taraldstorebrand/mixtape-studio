@@ -4,6 +4,7 @@ export {
   selectedItemAtom,
   songGenerationStatusAtom,
   genreHistoryAtom,
+  audioSourceAtom,
   nowPlayingAtom,
   audioRefAtom,
   isPlayingAtom,

@@ -1,7 +1,7 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
-import { nowPlayingAtom, audioRefAtom, isPlayingAtom } from '../../../store';
+import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom } from '../../../store';
 import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {
@@ -17,9 +17,10 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
   const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
 
-  const [nowPlaying, setNowPlaying] = useAtom(nowPlayingAtom);
-  const [audioRef] = useAtom(audioRefAtom);
-  const [isPlaying] = useAtom(isPlayingAtom);
+  const nowPlaying = useAtomValue(nowPlayingAtom);
+  const setAudioSource = useSetAtom(audioSourceAtom);
+  const audioRef = useAtomValue(audioRefAtom);
+  const isPlaying = useAtomValue(isPlayingAtom);
 
   const isCurrentlyPlaying = nowPlaying?.id === item.id && isPlaying;
 
@@ -37,7 +38,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
       }
     } else {
       // Different song - switch to this one
-      setNowPlaying(item);
+      setAudioSource({ id: item.id, url: audioUrl });
     }
   };
 

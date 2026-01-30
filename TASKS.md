@@ -10,73 +10,32 @@ _No pending tasks_
 
 ---
 
+## Constraints
+
+- Follow AGENTS.md style rules
+- No new dependencies
+- Minimal changes to existing architecture
+- Reuse existing patterns from HistoryItem where possible
+
+---
+
 ## Completed
 
-### Task 1: Reduce NowPlayingBar vertical height
-**Files:**
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
+### Task 1: Standard previous button behavior
+**Status:** Completed
 
 **Changes:**
-- Reduced padding: `var(--spacing-md)` → `var(--spacing-sm)`
-- Reduced gaps: `var(--spacing-md)` → `var(--spacing-sm)`
-- Reduced thumbnail: 48px → 40px
-- Reduced play button: 40px → 36px
-- Reduced nav buttons: font-size 1.3rem → 1.1rem
-- Changed border-top: 2px primary → 1px border-strong (more subtle)
-
-**Status:** Completed
+- Modified `handlePrevious` in NowPlayingBar.tsx
+- If `currentTime > 3`: seeks to 0 (restarts song)
+- If `currentTime ≤ 3`: goes to previous track
 
 ---
 
-### Task 2: Make progress bar less visually dominant
-**Files:**
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
+### Task 2: Add like/dislike buttons to NowPlayingBar
+**Status:** Completed
 
 **Changes:**
-- Reduced bar height: 6px → 4px (hover: 8px → 6px)
-- Reduced handle size: 14px → 12px
-- Simplified handle: removed border, solid color
-- Applied same changes to volume bar
-
-**Status:** Completed
-
----
-
-### Task 3: Unify active song visual style
-**Files:**
-- `frontend/src/components/history/HistoryItem/HistoryItem.module.css`
-
-**Changes:**
-- `.selected`: More subtle background (0.03 → 0.02 opacity)
-- `.nowPlaying`: Thinner left border (3px → 2px), subtler background
-- `.historyItem:hover`: Changed from primary to border-strong color
-
-**Status:** Completed
-
----
-
-### Task 4: Verify responsive layout
-**Files:**
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
-
-**Changes (mobile @900px):**
-- Further reduced padding/gaps
-- Thumbnail: 36px
-- Play button: 32px
-- Info section: 100px
-- Volume container: 80px
-- Smaller font sizes and handles
-
-**Status:** Completed
-
----
-
-## Summary
-
-All visual refinements completed:
-- NowPlayingBar is more compact (less vertical space)
-- Progress/volume bars are thinner and less dominant
-- Active song styling is subtle and consistent
-- Responsive layout scales well on mobile
-- No logic or architecture changes made
-- Dark theme consistency maintained
+- Added `useHistoryAtom` import for `handleFeedback`
+- Added thumbs up/down buttons after VolumeControl
+- Added `.feedbackButtons`, `.thumbButton`, `.thumbButtonActive` styles
+- Hidden on mobile (≤900px) to save space

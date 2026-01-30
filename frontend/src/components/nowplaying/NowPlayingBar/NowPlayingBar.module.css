@@ -102,6 +102,12 @@
   cursor: not-allowed;
 }
 
+.navButton:focus-visible,
+.playButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .progressContainer {
   display: flex;
   align-items: center;
@@ -230,6 +236,41 @@
   transition: opacity var(--transition-base);
 }
 
+.feedbackButtons {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.thumbButton {
+  padding: 4px 6px;
+  background-color: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  filter: grayscale(100%) opacity(0.5);
+  transition: all var(--transition-base);
+}
+
+.thumbButton:hover {
+  border-color: var(--color-primary);
+  filter: grayscale(50%) opacity(0.7);
+}
+
+.thumbButtonActive {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-alpha);
+  color: var(--color-text);
+  filter: none;
+}
+
+.thumbButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 @media (max-width: 900px) {
   .content {
     padding: var(--spacing-xs) var(--spacing-sm);
@@ -284,5 +325,9 @@
   .volumeHandle {
     width: 10px;
     height: 10px;
+  }
+
+  .feedbackButtons {
+    display: none;
   }
 }

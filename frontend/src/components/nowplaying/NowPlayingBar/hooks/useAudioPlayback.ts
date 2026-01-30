@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
+  audioSourceAtom,
   nowPlayingAtom,
   audioRefAtom,
   isPlayingAtom,
   currentTimeAtom,
   durationAtom,
 } from '../../../../store';
+import { HistoryItem } from '../../../../types';
 
 export function useAudioPlayback() {
-  const [nowPlaying, setNowPlaying] = useAtom(nowPlayingAtom);
+  const [audioSource, setAudioSource] = useAtom(audioSourceAtom);
+  const nowPlaying = useAtomValue(nowPlayingAtom);
   const [, setAudioRef] = useAtom(audioRefAtom);
   const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
   const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
@@ -38,7 +41,7 @@ export function useAudioPlayback() {
 
     const handleEnded = () => {
       setIsPlaying(false);
-      setNowPlaying(null);
+      setAudioSource(null);
       setCurrentTime(0);
     };
 
@@ -52,7 +55,7 @@ export function useAudioPlayback() {
 
     const handleError = () => {
       setIsPlaying(false);
-      setNowPlaying(null);
+      setAudioSource(null);
       setCurrentTime(0);
       setDuration(0);
     };
@@ -72,14 +75,14 @@ export function useAudioPlayback() {
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('error', handleError);
     };
-  }, [setCurrentTime, setDuration, setIsPlaying, setNowPlaying]);
+  }, [setCurrentTime, setDuration, setIsPlaying, setAudioSource]);
 
-  // Load audio when nowPlaying changes
+  // Load audio when audioSource changes
   useEffect(() => {
     const audio = internalAudioRef.current;
     if (!audio) return;
 
-    if (!nowPlaying) {
+    if (!audioSource) {
       audio.pause();
       audio.removeAttribute('src');
       audio.load();
@@ -89,19 +92,16 @@ export function useAudioPlayback() {
       return;
     }
 
-    const audioUrl = nowPlaying.sunoLocalUrl || nowPlaying.sunoAudioUrl;
-    if (!audioUrl) return;
-
     audio.pause();
     setCurrentTime(0);
     setDuration(0);
-    audio.src = audioUrl;
+    audio.src = audioSource.url;
     audio.load();
     audio.play().catch((error) => {
       console.error('Failed to play audio:', error);
       setIsPlaying(false);
     });
-  }, [nowPlaying, setIsPlaying, setCurrentTime, setDuration]);
+  }, [audioSource, setIsPlaying, setCurrentTime, setDuration]);
 
   const play = () => {
     const audio = internalAudioRef.current;
@@ -134,6 +134,17 @@ export function useAudioPlayback() {
 
     audio.currentTime = time;
     setCurrentTime(time);
+  };
+
+  const setNowPlaying = (item: HistoryItem | null) => {
+    if (!item) {
+      setAudioSource(null);
+      return;
+    }
+    const url = item.sunoLocalUrl || item.sunoAudioUrl;
+    if (url) {
+      setAudioSource({ id: item.id, url });
+    }
   };
 
   return {

@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { filteredHistoryAtom } from '../../../store';
+import { filteredHistoryAtom, useHistoryAtom } from '../../../store';
 import { useAudioPlayback } from './hooks/useAudioPlayback';
 import { ProgressBar } from './ProgressBar/ProgressBar';
 import { VolumeControl } from './VolumeControl/VolumeControl';
@@ -19,8 +19,16 @@ export function NowPlayingBar() {
   } = useAudioPlayback();
 
   const filteredHistory = useAtomValue(filteredHistoryAtom);
+  const { handleFeedback } = useHistoryAtom();
 
   const handlePrevious = () => {
+    // Standard behavior: if >3s into song, restart; otherwise go to previous
+    const time = Number.isFinite(currentTime) ? currentTime : 0;
+    if (time > 3) {
+      seek(0);
+      return;
+    }
+
     if (filteredHistory.length === 0) return;
 
     const currentIndex = nowPlaying
@@ -75,29 +83,32 @@ export function NowPlayingBar() {
             </div>
             <div className={styles.controls}>
               <button
+                type="button"
                 className={styles.navButton}
                 onClick={handlePrevious}
                 disabled={filteredHistory.length === 0}
-                title="Previous"
-                aria-label="Previous"
+                title={t.tooltips.previous}
+                aria-label={t.tooltips.previous}
               >
                 ⏮
               </button>
               <button
+                type="button"
                 className={styles.playButton}
                 onClick={togglePlayPause}
-                title={isPlaying ? 'Pause' : 'Play'}
-                aria-label={isPlaying ? 'Pause' : 'Play'}
+                title={isPlaying ? t.tooltips.pause : t.tooltips.play}
+                aria-label={isPlaying ? t.tooltips.pause : t.tooltips.play}
                 aria-pressed={isPlaying}
               >
                 {isPlaying ? '⏸' : '▶'}
               </button>
               <button
+                type="button"
                 className={styles.navButton}
                 onClick={handleNext}
                 disabled={filteredHistory.length === 0}
-                title="Next"
-                aria-label="Next"
+                title={t.tooltips.next}
+                aria-label={t.tooltips.next}
               >
                 ⏭
               </button>
@@ -107,6 +118,28 @@ export function NowPlayingBar() {
               duration={duration}
               onSeek={seek}
             />
+            <div className={styles.feedbackButtons}>
+              <button
+                type="button"
+                onClick={() => handleFeedback(nowPlaying.id, nowPlaying.feedback === 'up' ? null : 'up')}
+                className={`${styles.thumbButton} ${nowPlaying.feedback === 'up' ? styles.thumbButtonActive : ''}`}
+                title={t.tooltips.thumbsUp}
+                aria-label={t.tooltips.thumbsUp}
+                aria-pressed={nowPlaying.feedback === 'up'}
+              >
+                👍
+              </button>
+              <button
+                type="button"
+                onClick={() => handleFeedback(nowPlaying.id, nowPlaying.feedback === 'down' ? null : 'down')}
+                className={`${styles.thumbButton} ${nowPlaying.feedback === 'down' ? styles.thumbButtonActive : ''}`}
+                title={t.tooltips.thumbsDown}
+                aria-label={t.tooltips.thumbsDown}
+                aria-pressed={nowPlaying.feedback === 'down'}
+              >
+                👎
+              </button>
+            </div>
             <VolumeControl audioRef={audioRef} />
           </div>
         </div>
