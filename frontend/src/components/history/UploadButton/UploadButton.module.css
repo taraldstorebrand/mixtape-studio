@@ -88,22 +88,30 @@
 .confirmButton {
   flex: 1;
   padding: var(--spacing-sm);
-  background-color: var(--color-primary);
+  background: linear-gradient(180deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 92%, black) 100%);
   color: var(--color-text);
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.85rem;
+  box-shadow: var(--shadow-button), var(--shadow-inset-light);
+  transition: all var(--transition-base);
+  position: relative;
 }
 
 .confirmButton:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
+  background: linear-gradient(180deg, var(--color-primary-hover) 0%, color-mix(in srgb, var(--color-primary-hover) 92%, black) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.3), var(--shadow-inset-light);
+  filter: brightness(1.05);
 }
 
 .confirmButton:disabled {
-  background-color: var(--color-border);
+  background: linear-gradient(180deg, var(--color-border) 0%, color-mix(in srgb, var(--color-border) 92%, black) 100%);
   color: var(--color-text-disabled);
   cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
 }
 
 .cancelButton {
