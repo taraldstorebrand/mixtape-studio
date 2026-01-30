@@ -122,16 +122,26 @@
   white-space: nowrap;
 }
 
+.dateWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+  min-width: 140px;
+  justify-content: flex-end;
+}
+
+.uploadedIcon {
+  font-size: 0.7rem;
+  color: var(--color-text-dim);
+  flex-shrink: 0;
+}
+
 .historyDate {
   font-size: 0.75rem;
   color: var(--color-text-disabled);
   white-space: nowrap;
-}
-
-.uploadedLabel {
-  margin-left: var(--spacing-sm);
-  color: var(--color-text-dim);
-  font-style: italic;
 }
 
 .historyActions {

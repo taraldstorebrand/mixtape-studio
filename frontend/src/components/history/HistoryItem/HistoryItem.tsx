@@ -125,16 +125,22 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
             {item.duration && <span className={styles.durationLabel}>{formatDuration(item.duration)}</span>}
           </div>
           {item.sunoStatus === 'failed' && <span className={`${styles.statusBadge} ${styles.statusFailed}`}>{t.messages.failed}</span>}
-          <span className={styles.historyDate}>
-            {new Date(item.createdAt).toLocaleString('no-NO', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-            {item.isUploaded && <span className={styles.uploadedLabel}>{t.messages.uploaded}</span>}
-          </span>
+          <div className={styles.dateWrapper}>
+            {item.isUploaded && (
+              <span className={styles.uploadedIcon} title={t.messages.uploaded} aria-label={t.messages.uploaded}>
+                ⬆
+              </span>
+            )}
+            <span className={styles.historyDate}>
+              {new Date(item.createdAt).toLocaleString('no-NO', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </span>
+          </div>
         </div>
         <div className={styles.historyActions}>
           <div className={styles.feedbackButtons}>
