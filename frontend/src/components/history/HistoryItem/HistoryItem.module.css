@@ -88,6 +88,10 @@
   box-shadow: 0 0 8px var(--color-primary-alpha);
 }
 
+.playButtonOverlayPlay {
+  padding-left: 0.5rem;
+}
+
 .historyMeta {
   display: flex;
   align-items: center;

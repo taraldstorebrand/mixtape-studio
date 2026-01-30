@@ -6,54 +6,39 @@ No active task
 
 ## Pending Tasks
 
-### Task 1: Reduce visual dominance of list titles
+### Task 1: Fix optical alignment of play icon in song list
 
-**Goal:** Lower brightness/contrast of song titles in the list slightly. Keep main app and details titles brighter than list items for better visual hierarchy.
+**Goal:** Adjust the play triangle icon in the song list overlay button so it appears visually centered. The triangle currently looks left-heavy and needs to be shifted slightly to the right.
 
 **Files:**
 
-- `frontend/src/components/history/HistoryItem/HistoryItem.module.css` - Adjust title color to be less dominant
+- `frontend/src/components/history/HistoryItem/HistoryItem.module.css` - Adjust `.playButtonOverlay` to optically center the play icon
 
 **Details:**
 
-- Reduce brightness of song titles in the history list
-- Use a dimmer CSS variable (e.g., `var(--color-text-soft)` instead of `var(--color-text)`)
-- Do NOT change the main app title or selected song title in DetailPanel
-- Maintain readability while reducing visual weight
+- Add a small horizontal offset to the play icon using CSS (e.g., `padding-left` or transform adjustment)
+- Only apply the offset when the button shows the play icon (▶), not the pause icon (⏸)
+- Keep button size and click area unchanged
+- Maintain existing hover and focus states
+- Use minimal CSS changes for optical centering
 
 ---
 
-### Task 2: Improve text hierarchy for section headers
+### Task 2: Fix optical alignment of play icon in NowPlayingBar
 
-**Goal:** Reduce font-size of "Songs (N)" header slightly (≈10–15%) to make it feel like a section label rather than a primary title.
-
-**Files:**
-
-- `frontend/src/components/history/HistoryPanel.module.css` - Adjust header font-size and styling
-
-**Details:**
-
-- Reduce font-size by approximately 10-15%
-- Ensure it still feels like a header but less dominant
-- Should look like a section label, not a primary title
-- Maintain existing spacing and layout
-
----
-
-### Task 3: Tone down metadata text
-
-**Goal:** Use slightly dimmer color for date, duration and secondary info to ensure titles remain the primary visual focus.
+**Goal:** Adjust the play triangle icon in the NowPlayingBar control button so it appears visually centered, matching the fix applied to the song list.
 
 **Files:**
 
-- `frontend/src/components/history/HistoryItem/HistoryItem.module.css` - Adjust metadata color
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css` - Adjust `.playButton` to optically center the play icon
 
 **Details:**
 
-- Make date and duration text more subtle
-- Use a dimmer CSS variable (e.g., `var(--color-text-subtle)` or `var(--color-text-dim)`)
-- Ensure metadata doesn't compete with song titles for attention
-- Maintain readability
+- Add a small horizontal offset to the play icon using CSS
+- Only apply the offset when the button shows the play icon (▶), not the pause icon (⏸)
+- Keep button size and click area unchanged
+- Maintain existing hover, focus, and aria-pressed states
+- Match the optical centering approach used in the song list
 
 ---
 
@@ -62,18 +47,19 @@ No active task
 - Follow AGENTS.md style rules
 - No new dependencies
 - Minimal changes to existing architecture
-- Do NOT change layout or structure - only adjust colors and font sizes
-- Do NOT change main app title or selected song title styling in DetailPanel
+- Do NOT change button size or click area
+- Do NOT adjust pause icon alignment
+- Only use CSS for icon positioning
 - Always use CSS variables from `frontend/src/styles/variables.css`
 
 ---
 
 ## Goal
 
-Clearer visual hierarchy without changing layout or structure.
+Improve visual centering of play triangle icon without changing button functionality or layout.
 
 ---
 
 ## Completed
 
-All previous tasks from the artist/album/genre implementation have been completed and archived.
+All previous tasks have been completed and archived.

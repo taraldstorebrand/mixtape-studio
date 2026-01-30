@@ -108,7 +108,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
             <button
               type="button"
               onClick={handlePlayPause}
-              className={`${styles.playButtonOverlay} ${isCurrentlyPlaying ? styles.playButtonOverlayActive : ''}`}
+              className={`${styles.playButtonOverlay} ${isCurrentlyPlaying ? styles.playButtonOverlayActive : styles.playButtonOverlayPlay}`}
               title={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
               aria-label={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
               aria-pressed={isCurrentlyPlaying}

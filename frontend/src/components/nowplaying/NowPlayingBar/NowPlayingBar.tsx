@@ -123,7 +123,7 @@ export function NowPlayingBar() {
                 </button>
                 <button
                   type="button"
-                  className={styles.playButton}
+                  className={`${styles.playButton} ${isPlaying ? styles.playButtonPause : styles.playButtonPlay}`}
                   onClick={togglePlayPause}
                   title={isPlaying ? t.tooltips.pause : t.tooltips.play}
                   aria-label={isPlaying ? t.tooltips.pause : t.tooltips.play}
