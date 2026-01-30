@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import type { HistoryItem } from '../../../../types';
 import { t } from '../../../../i18n';
@@ -19,11 +19,33 @@ export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, o
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const [isLyricsExpanded, setIsLyricsExpanded] = useState(false);
 
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
   // Reset expanded state when item changes
   useEffect(() => {
     setIsPromptExpanded(false);
     setIsLyricsExpanded(false);
   }, [item.id]);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      const el = titleRef.current;
+      if (!el) return;
+
+      const overflow = el.scrollWidth - el.clientWidth;
+      if (overflow > 0) {
+        el.style.setProperty('--marquee-distance', `-${overflow}px`);
+        setIsOverflowing(true);
+      } else {
+        setIsOverflowing(false);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [item.id, item.title]);
 
   // Show indicator if a different song is playing
   const showNowPlayingIndicator =
@@ -43,7 +65,13 @@ export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, o
       </button>
       <div className={styles.readonlyHeader}>
         <div className={styles.readonlyTitleRow}>
-          <h2 className={styles.readonlyTitle} title={item.title}>{item.title}</h2>
+          <h2
+            ref={titleRef}
+            className={`${styles.readonlyTitle} ${isOverflowing ? styles.readonlyTitleMarquee : ''}`}
+            title={item.title}
+          >
+            {isOverflowing ? <span>{item.title}</span> : item.title}
+          </h2>
           {(item.prompt || item.lyrics) && (
             <button type="button" className={styles.copyButton} onClick={onCopy} aria-label={t.actions.copy}>
               <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

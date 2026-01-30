@@ -27,7 +27,7 @@ export function SongPickerItem({ song, onAdd }: SongPickerItemProps) {
         className={styles.thumbnail}
       />
       <div className={styles.songInfo}>
-        <span className={styles.songTitle}>
+        <span className={styles.songTitle} title={`${displayTitle}${variationLabel}`}>
           {displayTitle}{variationLabel}
           {isLiked && <span className={styles.likedBadge}>♥</span>}
         </span>

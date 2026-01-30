@@ -105,7 +105,11 @@ export function NowPlayingBar() {
                   ref={titleRef}
                   className={`${styles.title} ${isOverflowing ? styles.titleMarquee : ''}`}
                 >
-                  {displayTitle}{variationLabel}
+                  {isOverflowing ? (
+                    <span>{displayTitle}{variationLabel}</span>
+                  ) : (
+                    <>{displayTitle}{variationLabel}</>
+                  )}
                 </div>
               </div>
             </div>

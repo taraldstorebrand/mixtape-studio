@@ -105,7 +105,7 @@
   align-items: flex-start;
   gap: var(--spacing-xs);
   min-width: 0;
-  overflow: hidden;
+  flex: 1;
 }
 
 .historyTitle {
@@ -115,6 +115,29 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
+}
+
+.historyTitleMarquee {
+  text-overflow: clip;
+}
+
+.historyTitleMarquee span {
+  display: inline-block;
+  animation: marquee 8s ease-in-out infinite;
+}
+
+.historyTitleMarquee:hover span {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0%, 20% {
+    transform: translateX(0);
+  }
+  80%, 100% {
+    transform: translateX(var(--marquee-distance, -50%));
+  }
 }
 
 .durationLabel {

@@ -79,11 +79,15 @@
 }
 
 .titleMarquee {
+  text-overflow: clip;
+}
+
+.titleMarquee span {
   display: inline-block;
   animation: marquee 8s ease-in-out infinite;
 }
 
-.titleMarquee:hover {
+.titleMarquee:hover span {
   animation-play-state: paused;
 }
 

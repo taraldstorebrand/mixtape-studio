@@ -116,6 +116,28 @@
   white-space: nowrap;
 }
 
+.readonlyTitleMarquee {
+  text-overflow: clip;
+}
+
+.readonlyTitleMarquee span {
+  display: inline-block;
+  animation: marquee 8s ease-in-out infinite;
+}
+
+.readonlyTitleMarquee:hover span {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0%, 20% {
+    transform: translateX(0);
+  }
+  80%, 100% {
+    transform: translateX(var(--marquee-distance, -50%));
+  }
+}
+
 .readonlyArtist {
   font-size: 0.85rem;
   color: var(--color-text-dim);

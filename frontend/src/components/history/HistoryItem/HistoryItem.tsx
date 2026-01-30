@@ -1,4 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useRef, useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
 import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom } from '../../../store';
@@ -32,6 +33,28 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
   const isPlaying = useAtomValue(isPlayingAtom);
 
   const isCurrentlyPlaying = nowPlaying?.id === item.id && isPlaying;
+
+  const titleRef = useRef<HTMLElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      const el = titleRef.current;
+      if (!el) return;
+
+      const overflow = el.scrollWidth - el.clientWidth;
+      if (overflow > 0) {
+        el.style.setProperty('--marquee-distance', `-${overflow}px`);
+        setIsOverflowing(true);
+      } else {
+        setIsOverflowing(false);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, [item.id, displayTitle, variationLabel]);
 
   const handlePlayPause = () => {
     if (!audioUrl) return;
@@ -119,8 +142,15 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
         </div>
         <div className={styles.historyMeta}>
           <div className={styles.titleWithDuration}>
-            <strong className={styles.historyTitle}>
-              {displayTitle}{variationLabel}
+            <strong
+              ref={titleRef}
+              className={`${styles.historyTitle} ${isOverflowing ? styles.historyTitleMarquee : ''}`}
+            >
+              {isOverflowing ? (
+                <span>{displayTitle}{variationLabel}</span>
+              ) : (
+                <>{displayTitle}{variationLabel}</>
+              )}
             </strong>
             {item.duration && <span className={styles.durationLabel}>{formatDuration(item.duration)}</span>}
           </div>

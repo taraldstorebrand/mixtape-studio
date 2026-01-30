@@ -56,7 +56,7 @@ export function SortableMixtapeItem({ item, index, onRemove, disabled }: Sortabl
         alt=""
         className={styles.itemThumbnail}
       />
-      <span className={styles.itemTitle}>
+      <span className={styles.itemTitle} title={`${displayTitle}${variationLabel}`}>
         {displayTitle}{variationLabel}
       </span>
       <button
