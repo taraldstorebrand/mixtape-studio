@@ -14,22 +14,46 @@ if (!fs.existsSync(imagesDir)) {
 
 const PLACEHOLDER_IMAGE_URL = '/assets/placeholder.png';
 
-async function extractCoverArt(filePath: string, baseFilename: string): Promise<string> {
+interface ExtractedMetadata {
+  imageUrl: string;
+  artist?: string;
+  album?: string;
+  genre?: string;
+}
+
+async function extractMetadata(filePath: string, baseFilename: string): Promise<ExtractedMetadata> {
+  const result: ExtractedMetadata = {
+    imageUrl: PLACEHOLDER_IMAGE_URL,
+  };
+
   try {
     const metadata = await musicMetadata.parseFile(filePath);
+
+    // Extract cover art
     const picture = metadata.common.picture?.[0];
-    
     if (picture) {
       const ext = picture.format === 'image/png' ? '.png' : '.jpg';
       const imageFilename = `${baseFilename}${ext}`;
       const imagePath = path.join(imagesDir, imageFilename);
       fs.writeFileSync(imagePath, picture.data);
-      return `/images/${imageFilename}`;
+      result.imageUrl = `/images/${imageFilename}`;
+    }
+
+    // Extract artist, album, and genre
+    if (metadata.common.artist) {
+      result.artist = metadata.common.artist;
+    }
+    if (metadata.common.album) {
+      result.album = metadata.common.album;
+    }
+    if (metadata.common.genre && metadata.common.genre.length > 0) {
+      result.genre = metadata.common.genre[0];
     }
   } catch (err) {
-    console.error('Could not extract cover art:', err);
+    console.error('Could not extract metadata:', err);
   }
-  return PLACEHOLDER_IMAGE_URL;
+
+  return result;
 }
 
 
@@ -117,7 +141,7 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
       fs.writeFileSync(filePath, file.buffer);
 
       const duration = getMp3DurationSync(filePath);
-      const imageUrl = await extractCoverArt(filePath, sanitized);
+      const metadata = await extractMetadata(filePath, sanitized);
       const id = `upload-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const localUrl = `/mp3s/${filename}`;
 
@@ -128,13 +152,16 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
         lyrics: '',
         createdAt: new Date().toISOString(),
         sunoLocalUrl: localUrl,
-        sunoImageUrl: imageUrl,
+        sunoImageUrl: metadata.imageUrl,
+        artist: metadata.artist,
+        album: metadata.album,
+        genre: metadata.genre,
         isUploaded: true,
         duration,
       };
 
       createHistoryItem(historyItem);
-      items.push({ id, localUrl, duration, imageUrl });
+      items.push({ id, localUrl, duration, imageUrl: metadata.imageUrl });
     }
 
     res.status(201).json({ success: true, items });

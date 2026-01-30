@@ -109,6 +109,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
           sunoJobId: result.jobId,
           sunoStatus: 'pending',
           genre: genre || undefined,
+          artist: 'Mixtape Studio AI',
           variationIndex: i,
         };
         onAddHistoryItem(newItem);
@@ -161,6 +162,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
         <div className={styles.generationSection}>
           <div className={styles.primaryActionContainer}>
             <button
+              type="button"
               onClick={handleGenerateSong}
               disabled={!sunoAvailable || !currentLyrics.trim() || !title.trim() || songGenerationStatus === 'pending'}
               className={styles.generateSongButton}
@@ -173,7 +175,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
             )}
           </div>
           {!isBlank && (
-            <button className={styles.newDraftButton} onClick={handleNewDraft}>
+            <button type="button" className={styles.newDraftButton} onClick={handleNewDraft}>
               {t.actions.newDraft}
             </button>
           )}
