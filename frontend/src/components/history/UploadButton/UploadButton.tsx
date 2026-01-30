@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSetAtom } from 'jotai';
 import { historyAtom } from '../../../store/atoms';
 import { uploadMp3Files } from '../../../services/api';
@@ -11,7 +11,11 @@ interface FileWithTitle {
   title: string;
 }
 
-export function UploadButton() {
+interface UploadButtonProps {
+  onUploadFormChange?: (isFormActive: boolean) => void;
+}
+
+export function UploadButton({ onUploadFormChange }: UploadButtonProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileWithTitle[]>([]);
@@ -91,6 +95,10 @@ export function UploadButton() {
   }
 
   const showForm = selectedFiles.length > 0;
+
+  useEffect(() => {
+    onUploadFormChange?.(showForm);
+  }, [showForm, onUploadFormChange]);
 
   return (
     <div className={styles.container}>

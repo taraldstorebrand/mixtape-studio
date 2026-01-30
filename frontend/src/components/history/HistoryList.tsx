@@ -21,6 +21,7 @@ interface HistoryListProps {
 
 export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDeleteItem }: HistoryListProps) {
   const [filter, setFilter] = useState<FilterType>('default');
+  const [isUploadFormActive, setIsUploadFormActive] = useState(false);
   const setFilteredHistory = useSetAtom(filteredHistoryAtom);
 
   const filteredItems = items.filter(item => {
@@ -40,9 +41,13 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     <div className={styles.historyList}>
       <div className={styles.panelActions}>
         <div className={styles.panelActionsButtons}>
-          <UploadButton />
-          <MixtapeButton likedItems={likedItems} />
-          <AdvancedMixtapeButton allSongs={items} />
+          <UploadButton onUploadFormChange={setIsUploadFormActive} />
+          {!isUploadFormActive && (
+            <>
+              <MixtapeButton likedItems={likedItems} />
+              <AdvancedMixtapeButton allSongs={items} />
+            </>
+          )}
         </div>
       </div>
       {items.length === 0 ? (

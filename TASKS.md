@@ -20,6 +20,26 @@ Ingen ventende oppgaver
 
 ## Completed
 
+### Task 4: Skjul "Create mixtape"-knapp og "Advanced" når upload-skjema er aktivt
+
+**Status:** Completed
+
+**Goal:** Skjule "Create mixtape (6 songs · 28:49)" og "Advanced"-knapp når brukeren holder på med file upload
+
+**Changes:**
+
+- La til `onUploadFormChange` callback prop i UploadButton
+- UploadButton kaller callback via useEffect når `showForm` state endrer seg
+- HistoryList tracker upload form state med `isUploadFormActive` state
+- MixtapeButton og AdvancedMixtapeButton rendres kun når `!isUploadFormActive`
+
+**Files:**
+
+- `frontend/src/components/history/UploadButton/UploadButton.tsx`
+- `frontend/src/components/history/HistoryList.tsx`
+
+---
+
 ### Task 3: Tone ned visuell dominans for progressbar og volumebar
 
 **Status:** Completed
