@@ -17,7 +17,8 @@
       "Bash(npm install:*)",
       "Bash(npm run install:all:*)",
       "Bash(npm run dev:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(npm run migrate:*)"
     ]
   }
 }

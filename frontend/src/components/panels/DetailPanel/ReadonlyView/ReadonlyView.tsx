@@ -34,7 +34,7 @@ export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, o
       <div className={styles.readonlyHeader}>
         <div className={styles.readonlyTitleRow}>
           <h2 className={styles.readonlyTitle} title={item.title}>{item.title}</h2>
-          {!item.isUploaded && (
+          {(item.prompt || item.lyrics) && (
             <button type="button" className={styles.copyButton} onClick={onCopy} aria-label={t.actions.copy}>
               <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc && xcopy src\\assets dist\\backend\\src\\assets /E /I /Y",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "migrate": "tsx src/scripts/migrate-existing-songs.ts"
   },
   "keywords": [],
   "author": "",

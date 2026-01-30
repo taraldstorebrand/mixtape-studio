@@ -64,7 +64,7 @@ No active task
 
 ### Task 4: Lag engangs-migreringsscript
 
-**Goal:** Lag et engangs-migreringsscript som setter artist="Mixtapte Studio AI" for alle eksisterende genererte sanger (der isUploaded !== true). Scriptet skal slettes etter kjøring.
+**Goal:** Lag et engangs-migreringsscript som setter artist="Mixtapte Studio AI" for alle eksisterende genererte sanger (der isUploaded !== true), og som ekstraherer metadata fra eksisterende uploaded filer. Scriptet skal slettes etter kjøring.
 
 **Files:**
 
@@ -72,9 +72,14 @@ No active task
 
 **Details:**
 
-- Hent alle history items der isUploaded !== true
-- Sett artist="Mixtapte Studio AI" for disse
-- Logg antall oppdaterte sanger
+- Hent alle history items
+- For genererte sanger (isUploaded !== true):
+  - Sett artist="Mixtapte Studio AI"
+- For uploaded sanger (isUploaded === true):
+  - Kjør metadata-ekstraksjon (music-metadata eller mediainfo) på filen
+  - Ekstraher artist, album og genre fra filens metadata
+  - Oppdater history item med ekstraherte verdier
+- Logg antall oppdaterte sanger i begge kategorier
 - Dette scriptet skal bare kjøres én gang etter brukerens godkjenning
 - Scriptet skal slettes etter vellykket kjøring
 
