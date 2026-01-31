@@ -14,7 +14,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-lg);
   gap: var(--spacing-sm);
 }
 
@@ -82,7 +81,7 @@
   }
 
   .headerBar {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
   }
 
   .historyList h2 {
