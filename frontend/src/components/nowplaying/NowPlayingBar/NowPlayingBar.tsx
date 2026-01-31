@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
-import { filteredHistoryAtom, useHistoryAtom } from '../../../store';
+import { playbackQueueAtom, historyAtom, useHistoryAtom } from '../../../store';
 import { useAudioPlayback } from './hooks/useAudioPlayback';
 import { ProgressBar } from './ProgressBar/ProgressBar';
 import { VolumeControl } from './VolumeControl/VolumeControl';
@@ -19,7 +19,8 @@ export function NowPlayingBar() {
     seek,
   } = useAudioPlayback();
 
-  const filteredHistory = useAtomValue(filteredHistoryAtom);
+  const playbackQueue = useAtomValue(playbackQueueAtom);
+  const history = useAtomValue(historyAtom);
   const { handleFeedback } = useHistoryAtom();
 
   const titleRef = useRef<HTMLDivElement>(null);
@@ -33,37 +34,63 @@ export function NowPlayingBar() {
       return;
     }
 
-    if (filteredHistory.length === 0) return;
+    if (playbackQueue.length === 0) return;
 
     const currentIndex = nowPlaying
-      ? filteredHistory.findIndex(item => item.id === nowPlaying.id)
+      ? playbackQueue.indexOf(nowPlaying.id)
       : -1;
 
-    let previousIndex: number;
-    if (currentIndex === -1 || currentIndex === 0) {
-      previousIndex = filteredHistory.length - 1;
-    } else {
-      previousIndex = currentIndex - 1;
+    // Find previous valid song (skip deleted songs)
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const prevId = playbackQueue[i];
+      const prevSong = history.find((s) => s.id === prevId);
+      const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
+      if (prevSong && prevUrl) {
+        setNowPlaying(prevSong);
+        return;
+      }
     }
 
-    setNowPlaying(filteredHistory[previousIndex]);
+    // Wrap to end of queue, find last valid song
+    for (let i = playbackQueue.length - 1; i > currentIndex; i--) {
+      const prevId = playbackQueue[i];
+      const prevSong = history.find((s) => s.id === prevId);
+      const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
+      if (prevSong && prevUrl) {
+        setNowPlaying(prevSong);
+        return;
+      }
+    }
   };
 
   const handleNext = () => {
-    if (filteredHistory.length === 0) return;
+    if (playbackQueue.length === 0) return;
 
     const currentIndex = nowPlaying
-      ? filteredHistory.findIndex(item => item.id === nowPlaying.id)
+      ? playbackQueue.indexOf(nowPlaying.id)
       : -1;
 
-    let nextIndex: number;
-    if (currentIndex === -1 || currentIndex === filteredHistory.length - 1) {
-      nextIndex = 0;
-    } else {
-      nextIndex = currentIndex + 1;
+    // Find next valid song (skip deleted songs)
+    for (let i = currentIndex + 1; i < playbackQueue.length; i++) {
+      const nextId = playbackQueue[i];
+      const nextSong = history.find((s) => s.id === nextId);
+      const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
+      if (nextSong && nextUrl) {
+        setNowPlaying(nextSong);
+        return;
+      }
     }
 
-    setNowPlaying(filteredHistory[nextIndex]);
+    // Wrap to start of queue, find first valid song
+    for (let i = 0; i < currentIndex; i++) {
+      const nextId = playbackQueue[i];
+      const nextSong = history.find((s) => s.id === nextId);
+      const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
+      if (nextSong && nextUrl) {
+        setNowPlaying(nextSong);
+        return;
+      }
+    }
   };
 
   const displayTitle = nowPlaying?.title || nowPlaying?.prompt || t.messages.untitled;
@@ -119,7 +146,7 @@ export function NowPlayingBar() {
                   type="button"
                   className={styles.navButton}
                   onClick={handlePrevious}
-                  disabled={filteredHistory.length === 0}
+                  disabled={playbackQueue.length === 0}
                   title={t.tooltips.previous}
                   aria-label={t.tooltips.previous}
                 >
@@ -139,7 +166,7 @@ export function NowPlayingBar() {
                   type="button"
                   className={styles.navButton}
                   onClick={handleNext}
-                  disabled={filteredHistory.length === 0}
+                  disabled={playbackQueue.length === 0}
                   title={t.tooltips.next}
                   aria-label={t.tooltips.next}
                 >

@@ -43,3 +43,7 @@ export const volumeAtom = atom<number>(1.0);
 
 // Filtered history list (updated by HistoryList component based on active filter)
 export const filteredHistoryAtom = atom<HistoryItem[]>([]);
+
+// Playback queue - captures song IDs at the moment playback starts (D-052)
+// Queue remains stable during filter changes; reset only when user manually selects a new song
+export const playbackQueueAtom = atom<string[]>([]);

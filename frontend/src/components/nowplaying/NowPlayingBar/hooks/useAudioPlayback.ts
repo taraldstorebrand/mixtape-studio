@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   audioSourceAtom,
   nowPlayingAtom,
@@ -7,6 +7,9 @@ import {
   isPlayingAtom,
   currentTimeAtom,
   durationAtom,
+  filteredHistoryAtom,
+  playbackQueueAtom,
+  historyAtom,
 } from '../../../../store';
 import { HistoryItem } from '../../../../types';
 
@@ -17,7 +20,27 @@ export function useAudioPlayback() {
   const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
   const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
   const [duration, setDuration] = useAtom(durationAtom);
+  const filteredHistory = useAtomValue(filteredHistoryAtom);
+  const [playbackQueue, setPlaybackQueue] = useAtom(playbackQueueAtom);
+  const history = useAtomValue(historyAtom);
   const internalAudioRef = useRef<HTMLAudioElement>(null);
+
+  // Refs to avoid stale closures in event handlers
+  const playbackQueueRef = useRef(playbackQueue);
+  const historyRef = useRef(history);
+  const audioSourceRef = useRef(audioSource);
+
+  useEffect(() => {
+    playbackQueueRef.current = playbackQueue;
+  }, [playbackQueue]);
+
+  useEffect(() => {
+    historyRef.current = history;
+  }, [history]);
+
+  useEffect(() => {
+    audioSourceRef.current = audioSource;
+  }, [audioSource]);
 
   // Initialize audio ref atom
   useEffect(() => {
@@ -40,6 +63,33 @@ export function useAudioPlayback() {
     };
 
     const handleEnded = () => {
+      // Autoplay next song in queue (D-052)
+      const queue = playbackQueueRef.current;
+      const currentSource = audioSourceRef.current;
+      const allSongs = historyRef.current;
+
+      if (!currentSource || queue.length === 0) {
+        setIsPlaying(false);
+        setAudioSource(null);
+        setCurrentTime(0);
+        return;
+      }
+
+      const currentIndex = queue.indexOf(currentSource.id);
+      
+      // Find next valid song (skip deleted songs)
+      for (let i = currentIndex + 1; i < queue.length; i++) {
+        const nextId = queue[i];
+        const nextSong = allSongs.find((s) => s.id === nextId);
+        const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
+        
+        if (nextSong && nextUrl) {
+          setAudioSource({ id: nextSong.id, url: nextUrl });
+          return;
+        }
+      }
+
+      // End of queue or no valid songs found - stop playback
       setIsPlaying(false);
       setAudioSource(null);
       setCurrentTime(0);
@@ -143,6 +193,8 @@ export function useAudioPlayback() {
     }
     const url = item.sunoLocalUrl || item.sunoAudioUrl;
     if (url) {
+      // Capture current filtered list as playback queue (D-052)
+      setPlaybackQueue(filteredHistory.map((h) => h.id));
       setAudioSource({ id: item.id, url });
     }
   };

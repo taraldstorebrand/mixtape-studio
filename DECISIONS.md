@@ -1043,3 +1043,27 @@ Rationale:
 - Local storage ensures images remain available indefinitely
 
 ---
+
+## D-052 – Autoplay and playback queue behavior
+Status: Accepted
+
+Decision:
+Autoplay to next song is implemented with a "locked queue" model:
+
+1. **Queue capture:** When playback starts (user clicks play on a song), the current filtered list is captured as the playback queue
+2. **Queue persistence:** The queue remains stable regardless of filter changes during playback
+3. **Queue reset:** Queue is updated only when user manually selects a new song to play
+4. **Next song:** Autoplay advances to the next song in the captured queue when current song ends
+5. **End of queue:** Playback stops when the last song in the queue finishes (no loop)
+
+Edge cases:
+- **Current song deleted:** Stop playback immediately
+- **Next song deleted:** Skip to next valid song in queue
+- **All queue songs deleted:** Stop playback
+
+Rationale:
+- Matches Suno's behavior and user expectations from music players
+- Prevents confusion when filter changes mid-playback
+- Explicit user action (selecting a song) establishes intent for new queue
+
+---

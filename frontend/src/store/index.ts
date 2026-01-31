@@ -12,6 +12,7 @@ export {
   durationAtom,
   volumeAtom,
   filteredHistoryAtom,
+  playbackQueueAtom,
 } from './atoms';
 export type { SongGenerationStatus } from './atoms';
 export { useHistoryAtom } from './useHistoryAtom';
