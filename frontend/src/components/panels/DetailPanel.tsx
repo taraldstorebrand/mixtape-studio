@@ -1,11 +1,12 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { PromptInput } from '../lyrics/PromptInput';
 import { LyricsTextarea } from '../lyrics/LyricsTextarea';
 import { ReadonlyView } from './DetailPanel/ReadonlyView/ReadonlyView';
 import { CollapsibleSection } from './DetailPanel/CollapsibleSection/CollapsibleSection';
+import { EmptyState } from './DetailPanel/EmptyState/EmptyState';
 import { generateLyrics, generateSong, checkConfigStatus } from '../../services/api';
-import { songGenerationStatusAtom } from '../../store';
+import { songGenerationStatusAtom, editorOpenAtom } from '../../store';
 import { HistoryItem } from '../../types';
 import { t } from '../../i18n';
 import styles from './DetailPanel.module.css';
@@ -19,6 +20,7 @@ interface DetailPanelProps {
   onClearSelection: () => void;
   nowPlayingItem?: HistoryItem | null;
   onSelectItem?: (itemId: string) => void;
+  hasHistory?: boolean;
 }
 
 export interface DetailPanelHandle {
@@ -34,6 +36,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   onClearSelection,
   nowPlayingItem,
   onSelectItem,
+  hasHistory = false,
 }, ref) {
   const [currentLyrics, setCurrentLyrics] = useState('');
   const [title, setTitle] = useState('');
@@ -41,6 +44,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [songGenerationStatus, setSongGenerationStatus] = useAtom(songGenerationStatusAtom);
+  const editorOpen = useAtomValue(editorOpenAtom);
+  const setEditorOpen = useSetAtom(editorOpenAtom);
   const [error, setError] = useState<string | null>(null);
   const [sunoAvailable, setSunoAvailable] = useState(true);
   const [openaiAvailable, setOpenaiAvailable] = useState(true);
@@ -132,7 +137,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
       setGenre(selectedItem.genre || '');
       setIsLyricsEditExpanded(true);
       setIsPromptEditExpanded(true);
-      onClearSelection();
+      setEditorOpen(true);
     }
   };
 
@@ -144,7 +149,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
     setError(null);
     setIsLyricsEditExpanded(true);
     setIsPromptEditExpanded(true);
-    onClearSelection();
+    setEditorOpen(true);
   };
 
   const isBlank = !currentLyrics.trim() && !title.trim() && !genre.trim() && !prompt.trim();
@@ -157,14 +162,15 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
         </div>
       )}
 
-      {selectedItem ? (
+      {!editorOpen && selectedItem ? (
         <ReadonlyView
           item={selectedItem}
           onCopy={handleCopy}
-          onClearSelection={onClearSelection}
           nowPlayingItem={nowPlayingItem}
           onSelectItem={onSelectItem}
         />
+      ) : !editorOpen && !selectedItem && !hasHistory ? (
+        <EmptyState sunoAvailable={sunoAvailable} hasHistory={hasHistory} />
       ) : (
         <div className={styles.generationSection}>
           <div className={styles.primaryActionContainer}>
@@ -184,6 +190,11 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
           {!isBlank && (
             <button type="button" className={styles.newDraftButton} onClick={handleNewDraft}>
               {t.actions.newDraft}
+            </button>
+          )}
+          {selectedItem && (
+            <button type="button" className={styles.newDraftButton} onClick={() => setEditorOpen(false)}>
+              {t.actions.backToDetails}
             </button>
           )}
 

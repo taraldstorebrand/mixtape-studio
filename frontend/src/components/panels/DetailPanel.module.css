@@ -71,6 +71,16 @@
   gap: var(--spacing-lg);
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
 .newDraftButton {
   align-self: flex-start;
   padding: var(--spacing-xs) 0;

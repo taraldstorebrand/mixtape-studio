@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import type { HistoryItem } from '../../../../types';
 import { t } from '../../../../i18n';
-import { isPlayingAtom } from '../../../../store';
+import { isPlayingAtom, editorOpenAtom } from '../../../../store';
 import { CollapsibleSection } from '../CollapsibleSection/CollapsibleSection';
 import styles from '../../DetailPanel.module.css';
 
 interface ReadonlyViewProps {
   item: HistoryItem;
   onCopy: () => void;
-  onClearSelection: () => void;
   nowPlayingItem?: HistoryItem | null;
   onSelectItem?: (itemId: string) => void;
 }
 
-export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, onSelectItem }: ReadonlyViewProps) {
+export function ReadonlyView({ item, onCopy, nowPlayingItem, onSelectItem }: ReadonlyViewProps) {
+  const setEditorOpen = useSetAtom(editorOpenAtom);
   const isPlaying = useAtomValue(isPlayingAtom);
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const [isLyricsExpanded, setIsLyricsExpanded] = useState(false);
@@ -60,7 +60,7 @@ export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, o
   };
   return (
     <div className={styles.readonlyView}>
-      <button type="button" className={styles.newDraftButton} onClick={onClearSelection}>
+      <button type="button" className={styles.newDraftButton} onClick={() => setEditorOpen(true)}>
         {t.actions.createSong}
       </button>
       <div className={styles.readonlyHeader}>

@@ -47,3 +47,7 @@ export const filteredHistoryAtom = atom<HistoryItem[]>([]);
 // Playback queue - captures song IDs at the moment playback starts (D-052)
 // Queue remains stable during filter changes; reset only when user manually selects a new song
 export const playbackQueueAtom = atom<string[]>([]);
+
+// Editor overlay state - independent of selectedId (D-xxx)
+// true = show editor overlay, false = show detail view (or empty state if no selection)
+export const editorOpenAtom = atom<boolean>(false);

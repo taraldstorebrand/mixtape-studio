@@ -18,7 +18,8 @@ export const en = {
     cancel: 'Cancel',
     copy: 'Copy',
     newDraft: '← New draft',
-    createSong:  'Create song',
+    createSong: '✨ Create song',
+    backToDetails: '← Back',
     advanced: 'Advanced',
     close: 'Close',
   },
@@ -75,6 +76,8 @@ export const en = {
     failed: 'Failed',
     songCount: (count: number) => (count === 1 ? 'song' : 'songs'),
     nowPlaying: (title: string) => `▶ Now playing: ${title}`,
+    uploadToStart: '📤 Upload songs to start',
+    createFirstSong: '✨ Create your first song',
   },
 
   errors: {

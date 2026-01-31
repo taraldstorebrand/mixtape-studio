@@ -1,9 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
 import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
-import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom } from './store';
+import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
@@ -16,10 +16,17 @@ function App() {
   const selectedItem = useAtomValue(selectedItemAtom);
   const setSongGenerationStatus = useSetAtom(songGenerationStatusAtom);
   const nowPlaying = useAtomValue(nowPlayingAtom);
+  const setEditorOpen = useSetAtom(editorOpenAtom);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<DetailPanelHandle>(null);
 
   const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistoryAtom();
+
+  useEffect(() => {
+    if (history.length > 0 && selectedItemId === null) {
+      setSelectedItemId(history[0].id);
+    }
+  }, [history, selectedItemId, setSelectedItemId]);
   const { genres: genreHistory, addGenre, removeGenre } = useGenreHistoryAtom();
 
   // Find the currently playing item from history
@@ -86,6 +93,7 @@ function App() {
       setSelectedItemId(null);
     } else {
       setSelectedItemId(item.id);
+      setEditorOpen(false);
     }
   };
 
@@ -123,6 +131,7 @@ function App() {
             onClearSelection={handleClearSelection}
             nowPlayingItem={nowPlayingItem ?? null}
             onSelectItem={handleSelectItemById}
+            hasHistory={history.length > 0}
           />
         </div>
 
