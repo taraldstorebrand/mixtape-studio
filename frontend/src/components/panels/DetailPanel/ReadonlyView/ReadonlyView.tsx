@@ -4,6 +4,7 @@ import type { HistoryItem } from '../../../../types';
 import { t } from '../../../../i18n';
 import { isPlayingAtom, editorOpenAtom } from '../../../../store';
 import { CollapsibleSection } from '../CollapsibleSection/CollapsibleSection';
+import { formatDuration } from '../../../../utils/formatDuration';
 import styles from '../../DetailPanel.module.css';
 
 interface ReadonlyViewProps {
@@ -104,17 +105,10 @@ export function ReadonlyView({ item, onCopy, nowPlayingItem, onSelectItem }: Rea
       </div>
       <div className={styles.readonlyCoverImage}>
         <img src={item.sunoImageUrl || '/assets/placeholder.png'} alt={item.title} />
+        {item.duration != null && item.duration > 0 && (
+          <span className={styles.durationBadge}>{formatDuration(item.duration)}</span>
+        )}
       </div>
-      {item.prompt && (
-        <CollapsibleSection
-          label={t.labels.chatGptPrompt}
-          isExpanded={isPromptExpanded}
-          onToggle={() => setIsPromptExpanded(!isPromptExpanded)}
-          mode="readonly"
-        >
-          <p className={styles.readonlyPromptContent}>{item.prompt}</p>
-        </CollapsibleSection>
-      )}
       {item.lyrics && (
         <CollapsibleSection
           label={t.labels.lyrics}
@@ -123,6 +117,16 @@ export function ReadonlyView({ item, onCopy, nowPlayingItem, onSelectItem }: Rea
           mode="readonly"
         >
           <pre className={styles.readonlyLyricsContent}>{item.lyrics}</pre>
+        </CollapsibleSection>
+      )}
+      {item.prompt && (
+        <CollapsibleSection
+          label={t.labels.chatGptPrompt}
+          isExpanded={isPromptExpanded}
+          onToggle={() => setIsPromptExpanded(!isPromptExpanded)}
+          mode="readonly"
+        >
+          <p className={styles.readonlyPromptContent}>{item.prompt}</p>
         </CollapsibleSection>
       )}
     </div>

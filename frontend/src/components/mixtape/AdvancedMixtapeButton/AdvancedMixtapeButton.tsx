@@ -13,7 +13,7 @@ export function AdvancedMixtapeButton({ allSongs }: AdvancedMixtapeButtonProps) 
   const [isOpen, setIsOpen] = useState(false);
 
   const completedSongs = allSongs.filter(
-    (song) => song.sunoStatus === 'completed' && song.sunoLocalUrl
+    (song) => song.sunoLocalUrl || (song.sunoStatus === 'completed' && song.sunoAudioUrl)
   );
   const hasCompletedSongs = completedSongs.length > 0;
 

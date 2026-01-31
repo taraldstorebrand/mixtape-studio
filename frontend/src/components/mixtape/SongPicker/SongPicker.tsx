@@ -16,7 +16,7 @@ export function SongPicker({ songs, onAddSong }: SongPickerProps) {
   const [filter, setFilter] = useState<FilterType>('default');
 
   const completedSongs = songs.filter(
-    (song) => song.sunoStatus === 'completed' && song.sunoLocalUrl
+    (song) => song.sunoLocalUrl || (song.sunoStatus === 'completed' && song.sunoAudioUrl)
   );
 
   let filteredSongs = completedSongs;

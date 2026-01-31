@@ -47,8 +47,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   const editorOpen = useAtomValue(editorOpenAtom);
   const setEditorOpen = useSetAtom(editorOpenAtom);
   const [error, setError] = useState<string | null>(null);
-  const [sunoAvailable, setSunoAvailable] = useState(true);
-  const [openaiAvailable, setOpenaiAvailable] = useState(true);
+  const [sunoAvailable, setSunoAvailable] = useState(false);
+  const [openaiAvailable, setOpenaiAvailable] = useState(false);
   const [aiAssistEnabled, setAiAssistEnabled] = useState(() => {
     const stored = localStorage.getItem('aiAssistEnabled');
     return stored === 'true';
