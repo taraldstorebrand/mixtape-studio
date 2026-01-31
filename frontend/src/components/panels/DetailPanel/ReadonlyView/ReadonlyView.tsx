@@ -12,9 +12,10 @@ interface ReadonlyViewProps {
   onCopy: () => void;
   nowPlayingItem?: HistoryItem | null;
   onSelectItem?: (itemId: string) => void;
+  sunoAvailable?: boolean;
 }
 
-export function ReadonlyView({ item, onCopy, nowPlayingItem, onSelectItem }: ReadonlyViewProps) {
+export function ReadonlyView({ item, onCopy, nowPlayingItem, onSelectItem, sunoAvailable = false }: ReadonlyViewProps) {
   const setEditorOpen = useSetAtom(editorOpenAtom);
   const isPlaying = useAtomValue(isPlayingAtom);
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
@@ -61,9 +62,11 @@ export function ReadonlyView({ item, onCopy, nowPlayingItem, onSelectItem }: Rea
   };
   return (
     <div className={styles.readonlyView}>
-      <button type="button" className={styles.newDraftButton} onClick={() => setEditorOpen(true)}>
-        {t.actions.createSong}
-      </button>
+      {sunoAvailable && (
+        <button type="button" className={styles.newDraftButton} onClick={() => setEditorOpen(true)}>
+          {t.actions.createSong}
+        </button>
+      )}
       <div className={styles.readonlyHeader}>
         <div className={styles.readonlyTitleRow}>
           <h2

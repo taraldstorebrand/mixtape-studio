@@ -168,6 +168,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
           onCopy={handleCopy}
           nowPlayingItem={nowPlayingItem}
           onSelectItem={onSelectItem}
+          sunoAvailable={sunoAvailable}
         />
       ) : !editorOpen && !selectedItem && !hasHistory ? (
         <EmptyState sunoAvailable={sunoAvailable} hasHistory={hasHistory} />
