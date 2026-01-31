@@ -18,6 +18,7 @@ export const en = {
     cancel: 'Cancel',
     copy: 'Copy',
     newDraft: '← New draft',
+    createSong:  'Create song',
     advanced: 'Advanced',
     close: 'Close',
   },

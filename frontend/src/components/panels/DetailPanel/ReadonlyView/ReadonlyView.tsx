@@ -61,7 +61,7 @@ export function ReadonlyView({ item, onCopy, onClearSelection, nowPlayingItem, o
   return (
     <div className={styles.readonlyView}>
       <button type="button" className={styles.newDraftButton} onClick={onClearSelection}>
-        {t.actions.newDraft}
+        {t.actions.createSong}
       </button>
       <div className={styles.readonlyHeader}>
         <div className={styles.readonlyTitleRow}>
