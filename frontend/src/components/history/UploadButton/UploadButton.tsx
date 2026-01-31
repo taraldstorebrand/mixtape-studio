@@ -83,6 +83,8 @@ export function UploadButton({ onUploadFormChange }: UploadButtonProps) {
         sunoImageUrl: result.imageUrl,
         isUploaded: true,
         duration: result.duration,
+        artist: result.artist,
+        genre: result.genre,
       }));
 
       setHistory((prev) => [...newItems.reverse(), ...prev]);

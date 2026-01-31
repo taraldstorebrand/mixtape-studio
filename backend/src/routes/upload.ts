@@ -161,7 +161,7 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
       };
 
       createHistoryItem(historyItem);
-      items.push({ id, localUrl, duration, imageUrl: metadata.imageUrl });
+      items.push({ id, localUrl, duration, imageUrl: metadata.imageUrl, artist: metadata.artist, genre: metadata.genre });
     }
 
     res.status(201).json({ success: true, items });
