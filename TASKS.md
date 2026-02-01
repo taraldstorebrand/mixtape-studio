@@ -2,152 +2,161 @@
 
 ## Current Task
 
-Implement playlist functionality (CRUD + song management).
+Implement playlist functionality - Frontend (Phase 2).
 
 ## Goal
 
-Allow users to create, edit, and delete playlists. Each playlist can contain 0–100 songs. Songs can belong to multiple playlists. When a song is deleted, all playlist references to it are automatically removed.
+Add playlist UI to the Songs panel. Playlists act as alternate viewing contexts. Users can create, edit, delete playlists and manage songs within them via a modal editor.
 
 ---
 
-## Phase 1: Backend
+## Phase 2: Frontend
 
-### Task 1.1: Database schema for playlists
+### Task 2.1: Playlist state and API
 
-**Status:** ✅ Complete
+**Status:** Not started
 
 **Description:**
 
-- Add `playlists` table with columns:
-  - `id` TEXT PRIMARY KEY
-  - `name` TEXT NOT NULL
-  - `description` TEXT (nullable, for future use)
-  - `cover_image_url` TEXT (nullable, for future use)
-  - `created_at` TEXT NOT NULL
-  - `updated_at` TEXT NOT NULL
-- Add `playlist_songs` junction table with columns:
-  - `id` TEXT PRIMARY KEY
-  - `playlist_id` TEXT NOT NULL (FK → playlists.id, ON DELETE CASCADE)
-  - `song_id` TEXT NOT NULL (FK → history_items.id, ON DELETE CASCADE)
-  - `position` INTEGER NOT NULL
-- Note: No unique constraint on (playlist_id, song_id) — same song can appear multiple times in a playlist
-- Add index on `playlist_songs(playlist_id, position)`
-- Add migration logic for existing databases
+- Add Jotai atoms for playlist state:
+  - `playlistsAtom` - list of all playlists (metadata only, no songs)
+  - `selectedPlaylistIdAtom` - currently selected playlist ID (null = library mode)
+  - Note: This atom represents view context only. HistoryList fetches playlist data on change and may cache it locally for the active view.
+- Add API functions in a new service file:
+  - `fetchPlaylists()`
+  - `fetchPlaylist(id)`
+  - `createPlaylist(name)`
+  - `updatePlaylist(id, updates)`
+  - `deletePlaylist(id)`
+  - `addSongsToPlaylist(id, songIds)`
+  - `removeSongFromPlaylist(id, entryId)`
+  - `reorderPlaylistSongs(id, entryIds)`
 
 **Files to modify:**
 
-- `backend/src/db/index.ts`
+- `frontend/src/store/index.ts`
+- `frontend/src/services/playlists.ts` (new file)
 
 ---
 
-### Task 1.2: Database functions for playlists
+### Task 2.2: Playlist dropdown in HistoryList header
 
-**Status:** ✅ Complete
+**Status:** Not started
 
 **Description:**
 
-- `getAllPlaylists()` → returns all playlists (without songs)
-- `getPlaylistById(id)` → returns playlist with songs (ordered by position)
-- `createPlaylist(playlist)` → insert new playlist (enforce 100 limit)
-- `updatePlaylist(id, updates)` → update name (and description/cover later)
-- `deletePlaylist(id)` → delete playlist (CASCADE removes song refs)
-- `addSongsToPlaylist(playlistId, songIds)` → add songs at end (enforce 100 limit)
-- `removeSongFromPlaylist(playlistId, entryId)` → remove single entry by id
-- `reorderPlaylistSongs(playlistId, entryIds)` → update positions by entry id
+- Add playlist dropdown button in HistoryList header (replaces "Songs" label when in playlist mode)
+- Dropdown shows:
+  - List of all playlists
+  - Option to return to library (when in playlist mode)
+  - If no playlists exist: empty state with CTA to create playlist
+- When playlist selected → set `selectedPlaylistIdAtom`
+- Note: Playlist mode overrides existing history filters (Songs/Liked/All are hidden)
 
 **Files to modify:**
 
-- `backend/src/db/index.ts`
+- `frontend/src/components/history/HistoryList.tsx`
+- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.tsx` (new)
+- `frontend/src/components/history/HistoryList.module.css`
 
 ---
 
-### Task 1.3: Shared types for playlists
+### Task 2.3: Playlist mode header actions
 
-**Status:** ✅ Complete
+**Status:** Not started
 
 **Description:**
 
-- Add `Playlist` interface:
-  ```ts
-  interface Playlist {
-    id: string;
-    name: string;
-    description?: string;
-    coverImageUrl?: string;
-    createdAt: string;
-    updatedAt: string;
-  }
-  ```
-- Add `PlaylistSongEntry` interface:
-  ```ts
-  interface PlaylistSongEntry {
-    entryId: string;
-    position: number;
-    song: HistoryItem;
-  }
-  ```
-- Add `PlaylistWithSongs` interface:
-  ```ts
-  interface PlaylistWithSongs extends Playlist {
-    songs: PlaylistSongEntry[];
-  }
-  ```
+- When in playlist mode (selectedPlaylistId !== null):
+  - Hide "Songs", "Liked", "All" filter buttons
+  - Show instead:
+    - Library icon/button (return to full library)
+    - Edit button (opens playlist editor)
+    - Delete button (with confirmation) → after delete, return to library mode
+    - Create new playlist button
+- Create new playlist button also visible in library mode (next to dropdown)
+- "Create playlist" opens editor in new playlist mode
 
 **Files to modify:**
 
-- `shared/types/index.ts`
+- `frontend/src/components/history/HistoryList.tsx`
+- `frontend/src/components/history/PlaylistActions/PlaylistActions.tsx` (new)
+- `frontend/src/components/history/HistoryList.module.css`
 
 ---
 
-### Task 1.4: REST API endpoints for playlists
+### Task 2.4: Playlist editor modal
 
-**Status:** ✅ Complete
+**Status:** Not started
 
 **Description:**
 
-- `GET /api/playlists` → list all playlists
-- `POST /api/playlists` → create playlist (body: `{ name }`)
-- `GET /api/playlists/:id` → get playlist with songs
-- `PATCH /api/playlists/:id` → update playlist (body: `{ name? }`)
-- `DELETE /api/playlists/:id` → delete playlist
-- `POST /api/playlists/:id/songs` → add songs (body: `{ songIds: string[] }`)
-- `DELETE /api/playlists/:id/songs/:entryId` → remove song entry
-- `PATCH /api/playlists/:id/songs/reorder` → reorder (body: `{ entryIds: string[] }`)
+- Create PlaylistEditor component (similar to MixtapeEditor):
+  - Left column: SongPicker (reuse existing component)
+  - Right column: Drag-and-drop sortable playlist songs
+  - Header: Editable playlist name input
+- Props: `onClose`, `playlistId?` (if provided: edit mode, else: new playlist mode)
+- Handles one playlist at a time (no playlist switching inside editor)
+- New playlist mode:
+  - Do not create playlist until first user action (add song or rename)
+  - If editor closed before first action, no playlist is created
+  - Show placeholder until playlist is created
+- Auto-save (no explicit Save button):
+  - Add/remove: save immediately
+  - Reorder: save once on drag end (single API call)
+- On save error: show non-blocking toast error, do not rollback UI
+- Handle empty playlist with placeholder message
+- Note: Playlist editing does not affect mixtape state
 
 **Files to modify:**
 
-- `backend/src/routes/playlists.ts` (new file)
-- `backend/src/index.ts` (register routes)
+- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx` (new)
+- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.module.css` (new)
+- `frontend/src/components/playlist/PlaylistEditor/SortablePlaylistItem.tsx` (new)
 
 ---
 
-### Task 1.5: Update API.md documentation
+### Task 2.5: i18n strings
 
-**Status:** ✅ Complete
+**Status:** Not started
 
 **Description:**
 
-- Document all new playlist endpoints
-- Include request/response schemas and error codes
+- Add English strings for all new playlist UI:
+  - Button labels, tooltips, placeholders
+  - Error messages, confirmations
+  - Headings
 
 **Files to modify:**
 
-- `API.md`
+- `frontend/src/i18n/en.ts`
 
 ---
 
-## Phase 2: Frontend (future)
+### Task 2.6: Wire up HistoryList with playlist filtering
 
-_Tasks will be added after Phase 1 is complete._
+**Status:** Not started
+
+**Description:**
+
+- When `selectedPlaylistIdAtom` is set:
+  - Fetch playlist with songs using API from Task 2.1
+  - Display only songs in that playlist (in playlist order)
+  - Override existing filters (do not combine with Songs/Liked/All)
+- Update header to show playlist name instead of "Songs"
+- Handle empty playlist with placeholder message
+
+**Files to modify:**
+
+- `frontend/src/components/history/HistoryList.tsx`
 
 ---
 
 ## Constraints
 
-- Max 100 playlists total
-- Max 100 songs per playlist
-- Songs can belong to multiple playlists
-- Deleting a song cascades to remove playlist references
+- Reuse existing SongPicker component for playlist editor
+- Follow MixtapeEditor patterns for drag-and-drop
 - Use CSS variables from `variables.css`
 - Follow AGENTS.md accessibility rules
+- No routing changes, no new navigation
 - Minimal diffs
