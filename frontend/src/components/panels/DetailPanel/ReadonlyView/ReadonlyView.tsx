@@ -62,11 +62,15 @@ export function ReadonlyView({ item, onCopy, nowPlayingItem, onSelectItem, sunoA
   };
   return (
     <div className={styles.readonlyView}>
-      {sunoAvailable && (
-        <button type="button" className={styles.newDraftButton} onClick={() => setEditorOpen(true)}>
-          {t.actions.createSong}
-        </button>
-      )}
+      <button
+        type="button"
+        className={styles.newDraftButton}
+        onClick={() => setEditorOpen(true)}
+        style={sunoAvailable ? undefined : { visibility: 'hidden', pointerEvents: 'none' }}
+        tabIndex={sunoAvailable ? 0 : -1}
+      >
+        {t.actions.createSong}
+      </button>
       <div className={styles.readonlyHeader}>
         <div className={styles.readonlyTitleRow}>
           <h2
