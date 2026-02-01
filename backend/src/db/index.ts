@@ -38,6 +38,7 @@ const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrent access
 db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 
 // Initialize tables
 db.exec(`
@@ -70,6 +71,26 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_history_created_at ON history_items(created_at);
   CREATE INDEX IF NOT EXISTS idx_genre_last_used ON genre_history(last_used_at);
+
+  CREATE TABLE IF NOT EXISTS playlists (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    cover_image_url TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS playlist_songs (
+    id TEXT PRIMARY KEY,
+    playlist_id TEXT NOT NULL,
+    song_id TEXT NOT NULL,
+    position INTEGER NOT NULL,
+    FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
+    FOREIGN KEY (song_id) REFERENCES history_items(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_playlist_songs_position ON playlist_songs(playlist_id, position);
 `);
 
 // Migration: Add is_uploaded column to existing databases
