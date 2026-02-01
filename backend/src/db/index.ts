@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
-import type { HistoryItem } from '../../../shared/types';
+import type { HistoryItem, Playlist, PlaylistWithSongs, PlaylistSongEntry } from '../../../shared/types';
 
 interface HistoryItemRow {
   id: string;
@@ -26,6 +26,8 @@ interface HistoryItemRow {
 
 const HISTORY_LIMIT = 10000;
 const GENRE_LIMIT = 50;
+const PLAYLIST_LIMIT = 100;
+const PLAYLIST_SONGS_LIMIT = 100;
 
 // Ensure data directory exists
 const dataDir = path.join(__dirname, '../../data');
@@ -347,6 +349,203 @@ export function removeGenre(genre: string): void {
 
 function enforceGenreLimit(): void {
   enforceLimit(countGenresStmt, deleteOldestGenresStmt, GENRE_LIMIT);
+}
+
+// ============== Playlists ==============
+
+interface PlaylistRow {
+  id: string;
+  name: string;
+  description: string | null;
+  cover_image_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface PlaylistSongRow extends HistoryItemRow {
+  entry_id: string;
+  position: number;
+}
+
+const getAllPlaylistsStmt = db.prepare(`
+  SELECT * FROM playlists ORDER BY updated_at DESC
+`);
+
+const getPlaylistByIdStmt = db.prepare(`
+  SELECT * FROM playlists WHERE id = ?
+`);
+
+const getPlaylistSongsStmt = db.prepare(`
+  SELECT ps.id as entry_id, ps.position, hi.*
+  FROM playlist_songs ps
+  JOIN history_items hi ON ps.song_id = hi.id
+  WHERE ps.playlist_id = ?
+  ORDER BY ps.position ASC
+`);
+
+const insertPlaylistStmt = db.prepare(`
+  INSERT INTO playlists (id, name, description, cover_image_url, created_at, updated_at)
+  VALUES (@id, @name, @description, @coverImageUrl, @createdAt, @updatedAt)
+`);
+
+const updatePlaylistStmt = db.prepare(`
+  UPDATE playlists SET
+    name = COALESCE(@name, name),
+    description = COALESCE(@description, description),
+    cover_image_url = COALESCE(@coverImageUrl, cover_image_url),
+    updated_at = @updatedAt
+  WHERE id = @id
+`);
+
+const deletePlaylistStmt = db.prepare(`
+  DELETE FROM playlists WHERE id = ?
+`);
+
+const countPlaylistsStmt = db.prepare(`
+  SELECT COUNT(*) as count FROM playlists
+`);
+
+const countPlaylistSongsStmt = db.prepare(`
+  SELECT COUNT(*) as count FROM playlist_songs WHERE playlist_id = ?
+`);
+
+const getMaxPositionStmt = db.prepare(`
+  SELECT MAX(position) as maxPos FROM playlist_songs WHERE playlist_id = ?
+`);
+
+const insertPlaylistSongStmt = db.prepare(`
+  INSERT INTO playlist_songs (id, playlist_id, song_id, position)
+  VALUES (@id, @playlistId, @songId, @position)
+`);
+
+const deletePlaylistSongStmt = db.prepare(`
+  DELETE FROM playlist_songs WHERE playlist_id = ? AND id = ?
+`);
+
+const updatePlaylistSongPositionStmt = db.prepare(`
+  UPDATE playlist_songs SET position = ? WHERE id = ?
+`);
+
+function rowToPlaylist(row: PlaylistRow): Playlist {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description ?? undefined,
+    coverImageUrl: row.cover_image_url ?? undefined,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function rowToPlaylistSongEntry(row: PlaylistSongRow): PlaylistSongEntry {
+  return {
+    entryId: row.entry_id,
+    position: row.position,
+    song: rowToHistoryItem(row),
+  };
+}
+
+export function getAllPlaylists(): Playlist[] {
+  const rows = getAllPlaylistsStmt.all() as PlaylistRow[];
+  return rows.map(rowToPlaylist);
+}
+
+export function getPlaylistById(id: string): PlaylistWithSongs | null {
+  const row = getPlaylistByIdStmt.get(id) as PlaylistRow | undefined;
+  if (!row) return null;
+  const songRows = getPlaylistSongsStmt.all(id) as PlaylistSongRow[];
+  return {
+    ...rowToPlaylist(row),
+    songs: songRows.map(rowToPlaylistSongEntry),
+  };
+}
+
+export function createPlaylist(playlist: Omit<Playlist, 'createdAt' | 'updatedAt'>): void {
+  if (getPlaylistCount() >= PLAYLIST_LIMIT) {
+    throw new Error(`Maximum ${PLAYLIST_LIMIT} playlists allowed`);
+  }
+  const now = new Date().toISOString();
+  insertPlaylistStmt.run({
+    id: playlist.id,
+    name: playlist.name,
+    description: playlist.description ?? null,
+    coverImageUrl: playlist.coverImageUrl ?? null,
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+export function updatePlaylist(id: string, updates: Partial<Pick<Playlist, 'name' | 'description' | 'coverImageUrl'>>): void {
+  const now = new Date().toISOString();
+  updatePlaylistStmt.run({
+    id,
+    name: updates.name ?? null,
+    description: updates.description ?? null,
+    coverImageUrl: updates.coverImageUrl ?? null,
+    updatedAt: now,
+  });
+}
+
+export function deletePlaylist(id: string): void {
+  deletePlaylistStmt.run(id);
+}
+
+export function getPlaylistCount(): number {
+  const result = countPlaylistsStmt.get() as { count: number };
+  return result.count;
+}
+
+export function getPlaylistSongCount(playlistId: string): number {
+  const result = countPlaylistSongsStmt.get(playlistId) as { count: number };
+  return result.count;
+}
+
+export function addSongsToPlaylist(playlistId: string, songIds: string[]): string[] {
+  const currentCount = getPlaylistSongCount(playlistId);
+  const available = PLAYLIST_SONGS_LIMIT - currentCount;
+  const toAdd = songIds.slice(0, available);
+  
+  const { maxPos } = getMaxPositionStmt.get(playlistId) as { maxPos: number | null };
+  let position = (maxPos ?? -1) + 1;
+  
+  const entryIds: string[] = [];
+  for (const songId of toAdd) {
+    const entryId = crypto.randomUUID();
+    insertPlaylistSongStmt.run({
+      id: entryId,
+      playlistId,
+      songId,
+      position,
+    });
+    entryIds.push(entryId);
+    position++;
+  }
+  
+  const now = new Date().toISOString();
+  updatePlaylistStmt.run({ id: playlistId, name: null, description: null, coverImageUrl: null, updatedAt: now });
+  
+  return entryIds;
+}
+
+export function removeSongFromPlaylist(playlistId: string, entryId: string): void {
+  const result = deletePlaylistSongStmt.run(playlistId, entryId);
+  if (result.changes === 0) {
+    throw new Error('Playlist entry not found');
+  }
+  const now = new Date().toISOString();
+  updatePlaylistStmt.run({ id: playlistId, name: null, description: null, coverImageUrl: null, updatedAt: now });
+}
+
+export function reorderPlaylistSongs(playlistId: string, entryIds: string[]): void {
+  const currentCount = getPlaylistSongCount(playlistId);
+  if (entryIds.length !== currentCount) {
+    throw new Error('entryIds count does not match existing playlist entries');
+  }
+  for (let i = 0; i < entryIds.length; i++) {
+    updatePlaylistSongPositionStmt.run(i, entryIds[i]);
+  }
+  const now = new Date().toISOString();
+  updatePlaylistStmt.run({ id: playlistId, name: null, description: null, coverImageUrl: null, updatedAt: now });
 }
 
 // ============== Database Management ==============

@@ -537,6 +537,244 @@ Upload one or more MP3 files and create history items.
 
 ---
 
+## Playlist Endpoints
+
+### GET /api/playlists
+
+List all playlists (without songs).
+
+**Success Response (200)**
+
+```json
+[
+  {
+    "id": "string",
+    "name": "string",
+    "description": "string (optional)",
+    "coverImageUrl": "string (optional)",
+    "createdAt": "string (ISO date)",
+    "updatedAt": "string (ISO date)"
+  }
+]
+```
+
+---
+
+### POST /api/playlists
+
+Create a new playlist.
+
+**Request Body**
+
+```json
+{ "name": "string (required)" }
+```
+
+**Success Response (201)**
+
+```json
+{ "success": true, "id": "string" }
+```
+
+**Error Response (400)**
+
+```json
+{ "error": "Name is required" }
+```
+
+```json
+{ "error": "Maximum 100 playlists allowed" }
+```
+
+---
+
+### GET /api/playlists/:id
+
+Get a playlist with its songs.
+
+**Path Parameters**
+
+- `id`: string (required) - The playlist ID
+
+**Success Response (200)**
+
+```json
+{
+  "id": "string",
+  "name": "string",
+  "description": "string (optional)",
+  "coverImageUrl": "string (optional)",
+  "createdAt": "string (ISO date)",
+  "updatedAt": "string (ISO date)",
+  "songs": [
+    {
+      "entryId": "string",
+      "position": 0,
+      "song": { /* HistoryItem object */ }
+    }
+  ]
+}
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Playlist not found" }
+```
+
+---
+
+### PATCH /api/playlists/:id
+
+Update a playlist.
+
+**Path Parameters**
+
+- `id`: string (required) - The playlist ID
+
+**Request Body**
+
+```json
+{ "name": "string (optional)" }
+```
+
+**Success Response (200)**
+
+```json
+{ "success": true, "playlist": { /* updated PlaylistWithSongs object */ } }
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Playlist not found" }
+```
+
+---
+
+### DELETE /api/playlists/:id
+
+Delete a playlist. Songs are not deleted.
+
+**Path Parameters**
+
+- `id`: string (required) - The playlist ID
+
+**Success Response (200)**
+
+```json
+{ "success": true, "id": "string" }
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Playlist not found" }
+```
+
+---
+
+### POST /api/playlists/:id/songs
+
+Add songs to a playlist.
+
+**Path Parameters**
+
+- `id`: string (required) - The playlist ID
+
+**Request Body**
+
+```json
+{ "songIds": ["string", "string"] }
+```
+
+**Success Response (201)**
+
+```json
+{ "success": true, "entryIds": ["string", "string"] }
+```
+
+**Error Response (400)**
+
+```json
+{ "error": "songIds must be a non-empty array" }
+```
+
+```json
+{ "error": "Maximum 100 songs per playlist" }
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Playlist not found" }
+```
+
+---
+
+### DELETE /api/playlists/:id/songs/:entryId
+
+Remove a song entry from a playlist.
+
+**Path Parameters**
+
+- `id`: string (required) - The playlist ID
+- `entryId`: string (required) - The entry ID (not song ID)
+
+**Success Response (200)**
+
+```json
+{ "success": true, "entryId": "string" }
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Playlist not found" }
+```
+
+```json
+{ "error": "Playlist entry not found" }
+```
+
+---
+
+### PATCH /api/playlists/:id/songs/reorder
+
+Reorder songs in a playlist.
+
+**Path Parameters**
+
+- `id`: string (required) - The playlist ID
+
+**Request Body**
+
+```json
+{ "entryIds": ["string", "string", "string"] }
+```
+
+Entry IDs in desired order. Positions are assigned 0, 1, 2, etc.
+
+**Success Response (200)**
+
+```json
+{ "success": true }
+```
+
+**Error Response (400)**
+
+```json
+{ "error": "entryIds do not match existing playlist entries" }
+```
+
+**Error Response (404)**
+
+```json
+{ "error": "Playlist not found" }
+```
+
+---
+
 ## Implementation Notes
 
 1. **Suno job completion**: The backend uses polling only. No callback endpoint is implemented. The backend polls Suno every 5 seconds and pushes updates to clients via WebSocket.

@@ -18,3 +18,22 @@ export interface HistoryItem {
   isUploaded?: boolean;
   duration?: number;
 }
+
+export interface Playlist {
+  id: string;
+  name: string;
+  description?: string;
+  coverImageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlaylistSongEntry {
+  entryId: string;
+  position: number;
+  song: HistoryItem;
+}
+
+export interface PlaylistWithSongs extends Playlist {
+  songs: PlaylistSongEntry[];
+}

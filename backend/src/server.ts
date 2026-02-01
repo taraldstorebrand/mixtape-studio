@@ -11,6 +11,7 @@ import genresRoutes from './routes/genres';
 import mixtapeRoutes, { cleanupOldTempFiles } from './routes/mixtape';
 import uploadRoutes from './routes/upload';
 import configStatusRoutes from './routes/configStatus';
+import playlistsRoutes from './routes/playlists';
 import { errorHandler } from './middleware/errorHandler';
 import './db';
 
@@ -50,6 +51,7 @@ app.use('/api/genres', genresRoutes);
 app.use('/api/mixtape', mixtapeRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/config-status', configStatusRoutes);
+app.use('/api/playlists', playlistsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

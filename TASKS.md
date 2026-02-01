@@ -42,7 +42,7 @@ Allow users to create, edit, and delete playlists. Each playlist can contain 0â€
 
 ### Task 1.2: Database functions for playlists
 
-**Status:** Not started
+**Status:** âœ… Complete
 
 **Description:**
 
@@ -63,7 +63,7 @@ Allow users to create, edit, and delete playlists. Each playlist can contain 0â€
 
 ### Task 1.3: Shared types for playlists
 
-**Status:** Not started
+**Status:** âœ… Complete
 
 **Description:**
 
@@ -101,7 +101,7 @@ Allow users to create, edit, and delete playlists. Each playlist can contain 0â€
 
 ### Task 1.4: REST API endpoints for playlists
 
-**Status:** Not started
+**Status:** âœ… Complete
 
 **Description:**
 
@@ -123,7 +123,7 @@ Allow users to create, edit, and delete playlists. Each playlist can contain 0â€
 
 ### Task 1.5: Update API.md documentation
 
-**Status:** Not started
+**Status:** âœ… Complete
 
 **Description:**
 
