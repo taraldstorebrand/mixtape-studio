@@ -9,6 +9,7 @@ import { generateLyrics, generateSong, checkConfigStatus } from '../../services/
 import { songGenerationStatusAtom, editorOpenAtom } from '../../store';
 import { HistoryItem } from '../../types';
 import { t } from '../../i18n';
+import { getErrorMessage } from '../../utils/errors';
 import styles from './DetailPanel.module.css';
 
 interface DetailPanelProps {
@@ -82,8 +83,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
     try {
       const lyrics = await generateLyrics(inputPrompt);
       setCurrentLyrics(lyrics);
-    } catch (err: any) {
-      setError(err.message || t.errors.couldNotGenerateLyrics);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || t.errors.couldNotGenerateLyrics);
       console.error('Error generating lyrics:', err);
     } finally {
       setIsLoading(false);
@@ -122,8 +123,8 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
         };
         onAddHistoryItem(newItem);
       }
-    } catch (err: any) {
-      setError(err.message || t.errors.couldNotGenerateSong);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || t.errors.couldNotGenerateSong);
       console.error('Error generating song:', err);
       setSongGenerationStatus('failed');
     }

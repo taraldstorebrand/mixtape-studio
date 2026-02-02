@@ -20,6 +20,7 @@ import { SongPicker } from '../../mixtape/SongPicker';
 import { SortablePlaylistItem, type PlaylistSongEntry } from './SortablePlaylistItem';
 import { fetchPlaylist, createPlaylist, updatePlaylist, addSongsToPlaylist, removeSongFromPlaylist, reorderPlaylistSongs } from '../../../services/playlists';
 import { t } from '../../../i18n';
+import { getErrorMessage } from '../../../utils/errors';
 import styles from './PlaylistEditor.module.css';
 
 interface PlaylistEditorProps {
@@ -71,8 +72,8 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
         setCreatedPlaylistId(null);
         setHasChanges(false);
       })
-      .catch((err) => {
-        setError(t.errors.couldNotFetchPlaylists);
+      .catch((err: unknown) => {
+        setError(getErrorMessage(err) || t.errors.couldNotFetchPlaylists);
         console.error(err);
       })
       .finally(() => setIsLoading(false));
@@ -171,8 +172,8 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
 
       onPlaylistChanged(finalPlaylistId);
       onClose();
-    } catch (err) {
-      setError(t.errors.couldNotUpdatePlaylist);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || t.errors.couldNotUpdatePlaylist);
       console.error(err);
       setIsLoading(false);
     }
