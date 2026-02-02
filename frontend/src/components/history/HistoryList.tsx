@@ -1,19 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { HistoryItem as HistoryItemType } from '../../types';
 import { HistoryItem } from './HistoryItem/HistoryItem';
 import { MixtapeButton } from './MixtapeButton/MixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
 import { PlaylistDropdown } from './PlaylistDropdown/PlaylistDropdown';
 import { PlaylistActions } from './PlaylistActions/PlaylistActions';
-import { currentPlaylistSongsAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store';
+import { currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store';
 import { t } from '../../i18n';
 import { fetchPlaylists, fetchPlaylist, deletePlaylist } from '../../services/playlists';
 import { Modal } from '../common/Modal/Modal';
 import { PlaylistEditor } from '../playlist/PlaylistEditor/PlaylistEditor';
 import styles from './HistoryList.module.css';
-
-type FilterType = 'default' | 'liked' | 'all';
 
 interface HistoryListProps {
     items: HistoryItemType[];
@@ -24,23 +22,17 @@ interface HistoryListProps {
 }
 
 export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDeleteItem }: HistoryListProps) {
-    const [filter, setFilter] = useState<FilterType>('default');
+    const [filter, setFilter] = useAtom(filterAtom);
     const [isUploadFormActive, setIsUploadFormActive] = useState(false);
     const [isPlaylistEditorOpen, setIsPlaylistEditorOpen] = useState(false);
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | undefined>(undefined);
-    const setFilteredHistory = useSetAtom(filteredHistoryAtom);
     const playlists = useAtomValue(playlistsAtom);
     const selectedPlaylistId = useAtomValue(selectedPlaylistIdAtom);
     const setPlaylists = useSetAtom(playlistsAtom);
     const setSelectedPlaylistId = useSetAtom(selectedPlaylistIdAtom);
     const setCurrentPlaylistSongs = useSetAtom(currentPlaylistSongsAtom);
     const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
-
-    const filteredItems = items.filter(item => {
-        if (filter === 'all') return true;
-        if (filter === 'liked') return item.feedback === 'up';
-        return item.feedback !== 'down';
-    });
+    const filteredItems = useAtomValue(filteredHistoryAtom);
 
     const completedSongs = (songs: HistoryItemType[]) => songs.filter(song => song.sunoLocalUrl || (song.sunoStatus === 'completed' && song.sunoAudioUrl));
     const likedItems = completedSongs(items.filter(item => item.feedback === 'up'));
@@ -123,11 +115,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             })
             .catch(console.error);
     }, [selectedPlaylistId, setCurrentPlaylistSongs]);
-
-    // Update global filtered history atom whenever filteredItems changes
-    useEffect(() => {
-        setFilteredHistory(filteredItems);
-    }, [filteredItems, setFilteredHistory]);
 
     return (
         <div className={styles.historyList}>

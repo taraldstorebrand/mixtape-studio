@@ -1,5 +1,6 @@
 export {
   historyAtom,
+  filterAtom,
   selectedItemIdAtom,
   selectedItemAtom,
   songGenerationStatusAtom,
@@ -18,7 +19,7 @@ export {
   selectedPlaylistIdAtom,
   currentPlaylistSongsAtom,
 } from './atoms';
-export type { SongGenerationStatus } from './atoms';
+export type { FilterType, SongGenerationStatus } from './atoms';
 export { useInitializeHistory, useHistoryActions } from './useHistoryAtom';
 export { useGenreHistoryAtom } from './useGenreHistoryAtom';
 export { useVolumeAtom } from './useVolumeAtom';

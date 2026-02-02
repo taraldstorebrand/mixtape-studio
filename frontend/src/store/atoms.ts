@@ -2,8 +2,11 @@ import { atom } from 'jotai';
 import { HistoryItem, Playlist } from '../types';
 
 export type SongGenerationStatus = 'idle' | 'pending' | 'completed' | 'failed';
+export type FilterType = 'default' | 'liked' | 'all';
 
 export const historyAtom = atom<HistoryItem[]>([]);
+
+export const filterAtom = atom<FilterType>('default');
 
 export const selectedItemIdAtom = atom<string | null>(null);
 
@@ -41,8 +44,17 @@ export const durationAtom = atom<number>(0);
 // Volume control (0-1 range, initialized via useVolumeAtom hook per D-040)
 export const volumeAtom = atom<number>(1.0);
 
-// Filtered history list (updated by HistoryList component based on active filter)
-export const filteredHistoryAtom = atom<HistoryItem[]>([]);
+// Filtered history list (derived from historyAtom and filterAtom)
+export const filteredHistoryAtom = atom((get) => {
+  const history = get(historyAtom);
+  const filter = get(filterAtom);
+
+  return history.filter((item) => {
+    if (filter === 'all') return true;
+    if (filter === 'liked') return item.feedback === 'up';
+    return item.feedback !== 'down';
+  });
+});
 
 // Playback queue - captures song IDs at the moment playback starts (D-052)
 // Queue remains stable during filter changes; reset only when user manually selects a new song
