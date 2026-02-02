@@ -42,7 +42,9 @@ function App() {
   });
 
   const handleSunoUpdate = (data: SunoUpdateData) => {
-    console.log('Received Suno update:', data);
+    if (import.meta.env.DEV) {
+      console.log('Received Suno update:', data);
+    }
 
     // Find all history items with matching jobId (one per variation)
     const matchingItems = history.filter(item => item.sunoJobId === data.jobId);
