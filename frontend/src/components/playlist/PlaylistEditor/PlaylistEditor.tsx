@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   DndContext,
   closestCenter,
@@ -21,6 +22,7 @@ import { SortablePlaylistItem, type PlaylistSongEntry } from './SortablePlaylist
 import { fetchPlaylist, createPlaylist, updatePlaylist, addSongsToPlaylist, removeSongFromPlaylist, reorderPlaylistSongs } from '../../../services/playlists';
 import { t } from '../../../i18n';
 import { getErrorMessage } from '../../../utils/errors';
+import { audioSourceAtom, playbackQueueAtom } from '../../../store';
 import styles from './PlaylistEditor.module.css';
 
 interface PlaylistEditorProps {
@@ -37,6 +39,18 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+
+  const audioSource = useAtomValue(audioSourceAtom);
+  const setPlaybackQueue = useSetAtom(playbackQueueAtom);
+
+  // Sync playback queue when editor entries change (if currently playing from editor)
+  useEffect(() => {
+    if (!audioSource) return;
+    const isPlayingFromEditor = playlistEntries.some((e) => e.song.id === audioSource.id);
+    if (isPlayingFromEditor) {
+      setPlaybackQueue(playlistEntries.map((e) => e.song.id));
+    }
+  }, [playlistEntries, audioSource, setPlaybackQueue]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -232,6 +246,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
                       entry={entry}
                       index={index}
                       onRemove={handleRemoveSong}
+                      allEntries={playlistEntries}
                     />
                   ))}
                 </div>

@@ -2,18 +2,20 @@
 
 ## P0 – Kritiske
 
-### Task 1: Fiks next-sang bug ved bytte fra playlist til library
+### Task 1: Legg til avspilling i PlaylistEditor
 
 **Status:** ✅ Completed
 
-**Problem:**
-Når bruker var i playlist og byttet tilbake til library, spilte "next" feil sang.
+**Krav:**
+- Legg til play/pause-funksjonalitet på `SortablePlaylistItem`
+- Bruk samme visuelle stil som `HistoryItem` (thumbnail overlay med ▶/⏸, nowPlaying-styling)
+- Avspilling fra editor skal sette `playbackQueue` til editorens sangliste
+- Next/previous skal navigere innenfor editorens liste
+- NowPlaying-markering skal vises på sangen som spilles
 
-**Årsak:**
-Playback-logikken sjekket om nåværende sang fantes i playlist for å bestemme kontekst, i stedet for å bruke `currentPlaylistSongsAtom` direkte. Dette førte til at køen ikke ble synkronisert korrekt.
+**Filer å endre:**
+- `frontend/src/components/playlist/PlaylistEditor/SortablePlaylistItem.tsx`
+- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.module.css`
 
-**Løsning:**
-- `HistoryItem.tsx`: Bruker nå `currentPlaylistSongs ?? filteredHistory` for å sette playback-kø
-- `useAudioPlayback.ts`: 
-  - `getSongsToSearch()` bruker nå kontekst direkte (`currentPlaylistSongs` eller `filteredHistory`)
-  - `setNowPlaying()` og `handleEnded` bruker samme logikk
+**Referanse:**
+- `frontend/src/components/history/HistoryItem/HistoryItem.tsx` (visuell stil og playback-logikk)

@@ -47,10 +47,11 @@ export function useAudioPlayback() {
 
   // Update playback queue when context changes (playlist ↔ library) while a song is playing
   useEffect(() => {
-    if (!audioSource) return;
+    if (!audioSourceRef.current) return;
     const songsForQueue = currentPlaylistSongs ?? filteredHistory;
     setPlaybackQueue(songsForQueue.map((s) => s.id));
-  }, [currentPlaylistSongs, audioSource, filteredHistory, setPlaybackQueue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPlaylistSongs]);
 
   useEffect(() => {
     audioSourceRef.current = audioSource;
@@ -90,8 +91,8 @@ export function useAudioPlayback() {
         return;
       }
 
-      // Use playlist if available, otherwise use full history for finding songs
-      const songsToSearch = playlistSongs ?? allSongs;
+      // Always use full history to find songs - the queue defines playback order
+      const songsToSearch = allSongs;
 
       const currentIndex = queue.indexOf(currentSource.id);
 
@@ -233,11 +234,9 @@ export function useAudioPlayback() {
   };
 
   const getSongsToSearch = () => {
-    // Use playlist if available, otherwise use filtered library (not full history)
-    if (currentPlaylistSongs) {
-      return currentPlaylistSongs;
-    }
-    return filteredHistory;
+    // Always use full history to find songs - the queue already defines playback order
+    // This ensures we can find songs that exist in the queue but not in the current view
+    return history;
   };
 
   return {
