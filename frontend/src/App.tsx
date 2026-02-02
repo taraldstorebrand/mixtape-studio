@@ -33,8 +33,6 @@ function App() {
   }, [history, selectedItemId, setSelectedItemId]);
   const { genres: genreHistory, addGenre, removeGenre } = useGenreHistoryAtom();
 
-  // Find the currently playing item from history
-  const nowPlayingItem = nowPlaying ? history.find(item => item.id === nowPlaying.id) : null;
   const { width: panelWidth, isDragging, handleMouseDown, handleKeyDown } = useResizable({
     containerRef,
     storageKey: PANEL_WIDTH_KEY,
@@ -136,7 +134,7 @@ function App() {
               onAddGenre={addGenre}
               onRemoveGenre={removeGenre}
               onClearSelection={handleClearSelection}
-              nowPlayingItem={nowPlayingItem ?? null}
+              nowPlayingItem={nowPlaying ?? null}
               onSelectItem={handleSelectItemById}
               hasHistory={history.length > 0}
             />
