@@ -2,24 +2,21 @@
 
 ## P0 – Kritiske (korrekthet / policy-brudd)
 
-### Task 2: Fiks A11y/AGENTS-brudd
+### Task 3: Legg til ErrorBoundary
 
 **Status:** Completed
 
 **Problem:**
-- Hardkodet tekst i `App.tsx` header (mangler i18n)
-- Trunkert tittel i NowPlayingBar uten `title`-attributt
-- Resize-handle uten `role`, `tabIndex`, keyboard handlers
+Ingen error boundary – én runtime-feil kan ta ned hele appen.
 
 **Løsning:**
-1. Legg til i18n-nøkler for "Mixtape Studio" og "Upload your music..."
-2. Legg til `title={displayTitle + variationLabel}` på trunkert tekst
-3. Gjør resize-handle til `role="separator"` med `tabIndex={0}` og keyboard-støtte (piltaster)
+1. Lag `ErrorBoundary`-komponent med fallback UI og "Reload"-knapp
+2. Wrap `<main>` i `App.tsx` med ErrorBoundary
+3. Vurder separate boundaries for DetailPanel/HistoryPanel/NowPlayingBar
 
 **Filer:**
+- `frontend/src/components/common/ErrorBoundary/ErrorBoundary.tsx` (ny)
 - `frontend/src/App.tsx`
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
-- `frontend/src/i18n/en.ts`
 
 ---
 

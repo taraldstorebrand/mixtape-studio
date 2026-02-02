@@ -3,6 +3,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
 import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
+import { ErrorBoundary } from './components/common/ErrorBoundary/ErrorBoundary';
 import { useInitializeHistory, useHistoryActions, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
@@ -121,43 +122,47 @@ function App() {
         <p>{t.headings.tagline}</p>
       </header>
 
-      <main className={styles.main} ref={containerRef}>
-        <div className={styles.panelLeft} style={{ width: `${panelWidth}%` }}>
-          <DetailPanel
-            ref={detailPanelRef}
-            selectedItem={selectedItem ?? null}
-            genreHistory={genreHistory}
-            onAddHistoryItem={addHistoryItem}
-            onAddGenre={addGenre}
-            onRemoveGenre={removeGenre}
-            onClearSelection={handleClearSelection}
-            nowPlayingItem={nowPlayingItem ?? null}
-            onSelectItem={handleSelectItemById}
-            hasHistory={history.length > 0}
+      <ErrorBoundary>
+        <main className={styles.main} ref={containerRef}>
+          <div className={styles.panelLeft} style={{ width: `${panelWidth}%` }}>
+            <DetailPanel
+              ref={detailPanelRef}
+              selectedItem={selectedItem ?? null}
+              genreHistory={genreHistory}
+              onAddHistoryItem={addHistoryItem}
+              onAddGenre={addGenre}
+              onRemoveGenre={removeGenre}
+              onClearSelection={handleClearSelection}
+              nowPlayingItem={nowPlayingItem ?? null}
+              onSelectItem={handleSelectItemById}
+              hasHistory={history.length > 0}
+            />
+          </div>
+
+          <div
+            role="separator"
+            tabIndex={0}
+            className={`${styles.resizeHandle} ${isDragging ? styles.resizeHandleDragging : ''}`}
+            onMouseDown={handleMouseDown}
+            onKeyDown={handleKeyDown}
+            aria-label="Resize panels"
           />
-        </div>
 
-        <div
-          role="separator"
-          tabIndex={0}
-          className={`${styles.resizeHandle} ${isDragging ? styles.resizeHandleDragging : ''}`}
-          onMouseDown={handleMouseDown}
-          onKeyDown={handleKeyDown}
-          aria-label="Resize panels"
-        />
+          <div className={styles.panelRight}>
+            <HistoryPanel
+              items={history}
+              selectedItemId={selectedItemId}
+              onFeedback={handleFeedback}
+              onSelect={handleSelect}
+              onDeleteItem={handleDeleteItem}
+            />
+          </div>
+        </main>
 
-        <div className={styles.panelRight}>
-          <HistoryPanel
-            items={history}
-            selectedItemId={selectedItemId}
-            onFeedback={handleFeedback}
-            onSelect={handleSelect}
-            onDeleteItem={handleDeleteItem}
-          />
-        </div>
-      </main>
-
-      <NowPlayingBar />
+        <ErrorBoundary>
+          <NowPlayingBar />
+        </ErrorBoundary>
+      </ErrorBoundary>
     </div>
   );
 }
