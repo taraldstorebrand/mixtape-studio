@@ -8,7 +8,9 @@ const API_BASE_URL = '/api';
 let socket: Socket | null = null;
 
 export function connectSocket() {
-  console.log('Connecting to WebSocket...');
+  if (import.meta.env.DEV) {
+    console.log('Connecting to WebSocket...');
+  }
   if (!socket) {
     // Bruk samme origin (går via Vite proxy)
     socket = io({
@@ -20,18 +22,24 @@ export function connectSocket() {
     });
     
     socket.on('connect', () => {
-      console.log('Connected to WebSocket');
+      if (import.meta.env.DEV) {
+        console.log('Connected to WebSocket');
+      }
     });
     
     socket.on('disconnect', () => {
-      console.log('Disconnected from WebSocket');
+      if (import.meta.env.DEV) {
+        console.log('Disconnected from WebSocket');
+      }
     });
   }
   return socket;
 }
 
 export function disconnectSocket() {
-  console.log('Disconnecting from WebSocket...');
+  if (import.meta.env.DEV) {
+    console.log('Disconnecting from WebSocket...');
+  }
   if (socket) {
     socket.disconnect();
     socket = null;

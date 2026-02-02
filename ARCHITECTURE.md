@@ -135,4 +135,4 @@ Environment variables (`.env` in backend/):
    - `editorOpenAtom` – editor overlay state
    - `playlistsAtom`, `selectedPlaylistIdAtom`, `currentPlaylistSongsAtom` – playlist state
 
-5. **Drag-and-drop**: Playlist and mixtape editors use @dnd-kit/core and @dnd-kit/sortable for reordering.
+5. **Drag-and-drop**: Playlist editor uses @dnd-kit/core and @dnd-kit/sortable for reordering.

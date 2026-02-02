@@ -2,60 +2,38 @@
 
 ## P0 – Kritiske (korrekthet / policy-brudd)
 
-### Task 3: Legg til ErrorBoundary
+### Task 1: Splitt useHistoryAtom for å unngå dobbel init
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-Ingen error boundary – én runtime-feil kan ta ned hele appen.
-
-**Løsning:**
-1. Lag `ErrorBoundary`-komponent med fallback UI og "Reload"-knapp
-2. Wrap `<main>` i `App.tsx` med ErrorBoundary
-3. Vurder separate boundaries for DetailPanel/HistoryPanel/NowPlayingBar
-
-**Filer:**
-- `frontend/src/components/common/ErrorBoundary/ErrorBoundary.tsx` (ny)
-- `frontend/src/App.tsx`
+**Verifisert:**
+- `useInitializeHistory()` oppretter og returnerer history, kjører fetch kun én gang
+- `useHistoryActions()` gir add/update/delete/feedback uten init-effekt
+- App.tsx bruker `useInitializeHistory()`, NowPlayingBar bruker `useHistoryActions()`
+- Begge bruker `globalErrorAtom` for feilhåndtering
 
 ---
 
 ### Task 2: Fiks A11y/AGENTS-brudd
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-- Hardkodet tekst i `App.tsx` header (mangler i18n)
-- Trunkert tittel i NowPlayingBar uten `title`-attributt
-- Resize-handle uten `role`, `tabIndex`, keyboard handlers
-
-**Løsning:**
-1. Legg til i18n-nøkler for "Mixtape Studio" og "Upload your music..."
-2. Legg til `title={displayTitle + variationLabel}` på trunkert tekst
-3. Gjør resize-handle til `role="separator"` med `tabIndex={0}` og keyboard-støtte (piltaster)
-
-**Filer:**
-- `frontend/src/App.tsx`
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
-- `frontend/src/i18n/en.ts`
+**Verifisert:**
+- Header bruker `t.headings.mixtapeStudio` og `t.headings.tagline`
+- NowPlayingBar har `title={displayTitle + variationLabel}` på trunkert tekst
+- Resize-handle har `role="separator"`, `tabIndex={0}`, `onKeyDown`, `aria-label`
+- useResizable returnerer `handleKeyDown` for ArrowLeft/ArrowRight
 
 ---
 
 ### Task 3: Legg til ErrorBoundary
 
-**Status:** Pending
+**Status:** ✅ Completed
 
-**Problem:**
-Ingen error boundary – én runtime-feil kan ta ned hele appen.
-
-**Løsning:**
-1. Lag `ErrorBoundary`-komponent med fallback UI og "Reload"-knapp
-2. Wrap `<main>` i `App.tsx` med ErrorBoundary
-3. Vurder separate boundaries for DetailPanel/HistoryPanel/NowPlayingBar
-
-**Filer:**
-- `frontend/src/components/common/ErrorBoundary/ErrorBoundary.tsx` (ny)
-- `frontend/src/App.tsx`
+**Verifisert:**
+- ErrorBoundary-komponent med `getDerivedStateFromError`, fallback UI, reload-knapp
+- Bruker CSS-variabler, har `role="alert"` og `aria-label`
+- App.tsx wrapper `<main>` og `<NowPlayingBar>` med ErrorBoundary
 
 ---
 
@@ -63,83 +41,59 @@ Ingen error boundary – én runtime-feil kan ta ned hele appen.
 
 ### Task 4: Fjern redundant playlist-state
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-`playlistSongs` (lokal i HistoryList) + `currentPlaylistSongsAtom` (global) holdes i sync manuelt → drift-risiko.
-
-**Løsning:**
-Fjern `playlistSongs` lokal state og bruk kun `currentPlaylistSongsAtom`. Oppdater alle referanser.
-
-**Filer:**
-- `frontend/src/components/history/HistoryList.tsx`
+**Verifisert:**
+- `playlistSongs` lokal state er fjernet fra HistoryList
+- Bruker kun `currentPlaylistSongsAtom` via `useAtomValue`
+- Feedback-oppdatering synkroniserer med `setCurrentPlaylistSongs`
 
 ---
 
 ### Task 5: Fiks filteredHistoryAtom-synk
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-`filteredHistoryAtom` settes i `useEffect` med ny array hver render → unødvendige atom-updates og re-renders.
-
-**Løsning:**
-Gjør `filteredHistoryAtom` til en derived atom som leser fra `historyAtom` og en `filterAtom`, i stedet for imperativ setting.
-
-**Filer:**
-- `frontend/src/store/atoms.ts`
-- `frontend/src/components/history/HistoryList.tsx`
+**Verifisert:**
+- `filteredHistoryAtom` er nå en derived atom (linje 48-57 i atoms.ts)
+- Leser fra `historyAtom` og `filterAtom`
+- Ingen imperativ setting via useEffect
+- HistoryList bruker `useAtomValue(filteredHistoryAtom)` og `useAtom(filterAtom)`
 
 ---
 
 ### Task 6: Optimaliser playlist-save
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-`PlaylistEditor.handleClose` fjerner alle sanger via O(n) API-kall før re-adding. Tregt med mange sanger.
-
-**Løsning:**
-Beregn diff i frontend: `toRemove` og `toAdd`, kall bare nødvendige APIer.
-
-**Filer:**
-- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx`
+**Verifisert:**
+- PlaylistEditor.handleClose beregner nå diff:
+  - `toRemove`: entries som finnes i existing men ikke i nye
+  - `toAdd`: entries som finnes i nye men ikke i existing
+- Kun nødvendige API-kall gjøres
 
 ---
 
 ### Task 7: Standardiser feilhåndtering
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-Noen komponenter viser feil i UI, andre bare `console.error`.
-
-**Løsning:**
-1. Lag `globalErrorAtom` + `ErrorBanner`-komponent med `role="alert"`
-2. Oppdater `useHistoryAtom` actions til å sette global error ved feil
-3. Legg til `role="alert"` på eksisterende error-meldinger i DetailPanel
-
-**Filer:**
-- `frontend/src/store/atoms.ts`
-- `frontend/src/store/useHistoryAtom.ts`
-- `frontend/src/components/common/ErrorBanner/ErrorBanner.tsx` (ny)
-- `frontend/src/components/panels/DetailPanel.tsx`
-- `frontend/src/App.tsx`
+**Verifisert:**
+- `globalErrorAtom` eksisterer i atoms.ts
+- `ErrorBanner` komponent med `role="alert"` og auto-dismiss
+- useHistoryAtom bruker `setGlobalError` ved feil
+- DetailPanel har `role="alert" aria-live="polite"` på error-div
 
 ---
 
 ### Task 8: Fjern redundant nowPlayingItem-lookup
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-`App.tsx` slår opp `nowPlayingItem` selv om `nowPlayingAtom` allerede gjør dette.
-
-**Løsning:**
-Fjern `nowPlayingItem`-variabelen og bruk `nowPlaying` direkte (eller pass `nowPlayingAtom` til DetailPanel).
-
-**Filer:**
-- `frontend/src/App.tsx`
+**Verifisert:**
+- App.tsx bruker `nowPlaying` direkte fra `nowPlayingAtom`
+- Sender `nowPlaying ?? null` til DetailPanel som `nowPlayingItem`
+- Ingen ekstra `.find()` i App.tsx
 
 ---
 
@@ -147,50 +101,30 @@ Fjern `nowPlayingItem`-variabelen og bruk `nowPlaying` direkte (eller pass `nowP
 
 ### Task 9: Type guards for errors
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-Bruker `err: any` i catch-blokker.
-
-**Løsning:**
-Lag en utility `getErrorMessage(err: unknown): string` og bruk den i alle catch-blokker.
-
-**Filer:**
-- `frontend/src/utils/errors.ts` (ny)
-- `frontend/src/components/panels/DetailPanel.tsx`
-- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx`
+**Verifisert:**
+- `frontend/src/utils/errors.ts` inneholder `getErrorMessage(err: unknown): string`
+- Håndterer Error, string, og objekter med message-property
+- Brukes i DetailPanel og PlaylistEditor med `catch (err: unknown)`
 
 ---
 
 ### Task 10: Fjern debug logging
 
-**Status:** Completed
+**Status:** ✅ Completed
 
-**Problem:**
-`console.log('Received Suno update:', data)` og annen debug-logging bør fjernes i produksjon.
-
-**Løsning:**
-Fjern eller guard med `import.meta.env.DEV`.
-
-**Filer:**
-- `frontend/src/App.tsx`
-- `frontend/src/store/useHistoryAtom.ts`
+**Verifisert:**
+- App.tsx: `console.log` er wrappet i `if (import.meta.env.DEV)` ✅
+- api.ts: WebSocket-logging er nå wrappet i `if (import.meta.env.DEV)` ✅
 
 ---
 
-## Oppdater dokumentasjon
+### Task 11: Oppdater dokumentasjon (fjern D-055)
 
-### Task 11: Fjern D-055 fra DECISIONS.md
+**Status:** ✅ Completed
 
-**Status:** Completed
-
-**Problem:**
-Advanced Mixtape Editor er fjernet (per TASKS.md completed task), men D-055 dokumenterer fortsatt denne funksjonaliteten.
-
-**Løsning:**
-Marker D-055 som "Superseded" eller fjern den.
-
-**Filer:**
-- `DECISIONS.md`
-- `SPEC.md` (fjern §14 Advanced Mixtape Editor)
-- `ARCHITECTURE.md` (fjern mixtape-referanser)
+**Verifisert:**
+- D-055 ble aldri lagt til DECISIONS.md (filen sluttet ved D-054)
+- SPEC.md inneholder ikke §14 Advanced Mixtape Editor
+- ARCHITECTURE.md oppdatert: fjernet "mixtape editors" fra drag-and-drop-beskrivelsen
