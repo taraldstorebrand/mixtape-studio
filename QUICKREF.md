@@ -89,7 +89,16 @@ Frontend (React SPA)          Backend (Express + Socket.IO)
 - `PATCH /api/history/:id` - Oppdater item
 - `DELETE /api/history/:id` - Slett item (+ MP3 fil)
 - `POST /api/upload` - Last opp MP3-fil
+- `GET /api/playlists` - Hent alle playlister
+- `GET /api/playlists/:id` - Hent playlist med sanger
+- `POST /api/playlists` - Opprett playlist
+- `PATCH /api/playlists/:id` - Oppdater playlist
+- `DELETE /api/playlists/:id` - Slett playlist
+- `POST /api/playlists/:id/songs` - Legg til sanger i playlist
+- `DELETE /api/playlists/:id/songs/:entryId` - Fjern sang fra playlist
+- `PATCH /api/playlists/:id/songs/reorder` - Reorder playlist-sanger
 - `POST /api/mixtape/liked` - Start mixtape-generering
+- `POST /api/mixtape/playlist/:playlistId` - Start mixtape fra playlist
 - `GET /api/mixtape/download/:downloadId` - Last ned mixtape
 
 **WebSocket (Socket.IO)**

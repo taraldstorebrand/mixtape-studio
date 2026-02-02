@@ -270,10 +270,17 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 6. User enters playlist name
 7. Changes are saved on close
 
+**Mixtape from Playlist**:
+
+When viewing a playlist, mixtape generation honors:
+- Playlist order (not chronological)
+- Filtered songs (only completed songs in playlist)
+- Playlist name (as mixtape filename)
+
 **Constraints**:
 
-- Maximum 100 playlists
-- Maximum 100 songs per playlist
+- Maximum 10 playlists (configurable via PLAYLIST_LIMIT constant)
+- Maximum 500 songs per playlist (configurable via PLAYLIST_SONGS_LIMIT constant)
 - Same song can appear multiple times in a playlist
 - Deleting a playlist does not delete songs
 
@@ -281,7 +288,11 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 ### 14. Advanced Mixtape Editor
 
-**Flow**:
+**Status**: Removed (superseded by playlist functionality)
+
+This feature has been removed because playlists provide identical functionality:
+
+**Previous Flow** (removed):
 
 1. User clicks "⚙ Advanced" button next to regular mixtape button
 2. Modal opens with MixtapeEditor
@@ -293,10 +304,24 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 8. User clicks "Lag mixtape" to generate
 9. Same backend process as simple mixtape (M4B with chapters)
 
-**Difference from simple mixtape**:
+**New Workflow (playlists)**:
 
-- Simple: all liked songs in chronological order
-- Advanced: user-selected songs in user-defined order, duplicates allowed
+1. User creates/edit playlist with PlaylistEditor (same drag-and-drop UX)
+2. Playlist is persistent and can be edited later
+3. Mixtape button generates from playlist (honors playlist order)
+4. Duplicates allowed in playlists
+
+**Removed components**:
+
+- `AdvancedMixtapeButton` component
+- `MixtapeEditor` component
+- `useMixtapeCreation` hook
+- `POST /api/mixtape/custom` endpoint
+
+**See Also**:
+
+- Playlist functionality (Section 13)
+- Mixtape generation from playlists
 
 ---
 

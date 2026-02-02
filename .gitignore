@@ -32,6 +32,10 @@ yarn-error.log*
 *.swo
 *~
 
+# Add github
+!.github/
+
+
 # OS
 .DS_Store
 Thumbs.db

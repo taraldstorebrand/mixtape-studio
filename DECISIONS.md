@@ -1129,26 +1129,38 @@ Rationale:
 ---
 
 ## D-055 – Advanced mixtape editor
-Status: Accepted
+Status: Superseded (2025-02-02)
 
-Decision:
+Previous Decision:
 An "Advanced" button opens a MixtapeEditor modal for custom mixtape creation.
 Users can pick songs individually and reorder via drag-and-drop before generating.
 
-Features:
-- SongPicker shows available songs (filtered by completed status)
-- Drag-and-drop reordering using @dnd-kit/core and @dnd-kit/sortable
-- Custom mixtape name input (defaults to "Mixtape YYYY-MM-DD")
-- Total duration display
-- Songs can be added multiple times (duplicates allowed)
+Superseded by:
+**Playlist functionality** (D-xxx - playlist support, implemented 2025-02-02)
 
-Difference from simple mixtape button:
-- Simple button: generates mixtape from all liked songs in chronological order
-- Advanced editor: user-selected songs in user-defined order
+Reason for removal:
+- **Redundancy**: Playlist mode provides identical functionality - users can create playlists with custom song selection and ordering
+- **Simpler UI**: Removing "Advanced" button reduces cognitive load and interface complexity
+- **Better workflow**: Users now create playlists first (persistent, editable), then generate mixtape from playlist
+- **Consistency**: All mixtape creation now follows same pattern (liked songs or playlist)
 
-Rationale:
-- Provides control for users who want custom track selection and ordering
-- Complements the quick "liked songs" mixtape workflow
-- Uses same backend endpoint for generation
+New workflow:
+1. Users create/edit playlists via playlist editor (same drag-and-drop, song picker UX)
+2. Mixtape button generates mixtape from:
+   - All liked songs (legacy workflow)
+   - Current playlist (new workflow - honors playlist order and filtering)
+
+Removed components:
+- `AdvancedMixtapeButton` component
+- `MixtapeEditor` component
+- `useMixtapeCreation` hook
+- `POST /api/mixtape/custom` API endpoint
+- Related i18n strings
+
+Files modified:
+- `frontend/src/components/history/HistoryList.tsx`
+- `frontend/src/services/api.ts`
+- `backend/src/routes/mixtape.ts`
+- `frontend/src/i18n/en.ts`
 
 ---

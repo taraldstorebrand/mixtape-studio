@@ -20,7 +20,6 @@ export const en = {
     newDraft: '← New draft',
     createSong: '✨ Create song',
     backToDetails: '← Back',
-    advanced: 'Advanced',
     close: 'Close',
     createPlaylist: 'Create playlist',
   },
@@ -47,7 +46,6 @@ export const en = {
   headings: {
     selectedSong: 'Selected song',
     availableSongs: 'Available songs',
-    yourMixtape: 'Your mixtape',
     yourPlaylist: 'Your playlist',
     editPlaylist: 'Edit playlist',
     newPlaylist: 'New playlist',
@@ -67,7 +65,6 @@ export const en = {
     thumbsDown: 'Thumbs down',
     delete: 'Delete',
     remove: 'Remove',
-    createAdvancedMixtape: 'Create advanced mixtape',
     noSongsAvailable: 'No songs available',
     createPlaylist: 'Create new playlist',
     editPlaylist: 'Edit playlist',

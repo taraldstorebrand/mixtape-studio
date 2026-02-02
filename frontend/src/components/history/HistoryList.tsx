@@ -3,7 +3,6 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { HistoryItem as HistoryItemType } from '../../types';
 import { HistoryItem } from './HistoryItem/HistoryItem';
 import { MixtapeButton } from './MixtapeButton/MixtapeButton';
-import { AdvancedMixtapeButton } from '../mixtape/AdvancedMixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
 import { PlaylistDropdown } from './PlaylistDropdown/PlaylistDropdown';
 import { PlaylistActions } from './PlaylistActions/PlaylistActions';
@@ -138,10 +137,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
                 <div className={styles.panelActionsButtons}>
                     <UploadButton onUploadFormChange={setIsUploadFormActive} />
                     {!isUploadFormActive && (
-                        <>
-                            <MixtapeButton likedItems={selectedPlaylistId !== null ? completedSongs(playlistSongs ?? []) : likedItems} playlistId={selectedPlaylistId ?? undefined} />
-                            <AdvancedMixtapeButton allSongs={selectedPlaylistId !== null ? completedSongs(playlistSongs ?? []) : likedItems} />
-                        </>
+                        <MixtapeButton likedItems={selectedPlaylistId !== null ? completedSongs(playlistSongs ?? []) : likedItems} playlistId={selectedPlaylistId ?? undefined} />
                     )}
                 </div>
                 {!isUploadFormActive && (

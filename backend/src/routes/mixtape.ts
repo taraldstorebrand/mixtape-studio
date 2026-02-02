@@ -257,30 +257,6 @@ router.post('/playlist/:playlistId', async (req: Request, res: Response) => {
   res.json({ taskId });
 });
 
-// POST /api/mixtape/custom - Create mixtape from custom song list
-router.post('/custom', async (req: Request, res: Response) => {
-  const { songIds, name } = req.body as { songIds?: string[]; name?: string };
-
-  if (!songIds || !Array.isArray(songIds) || songIds.length === 0) {
-    return res.status(400).json({ error: 'No songs selected' });
-  }
-
-  const items = getAllHistoryItems();
-  const validCount = songIds.filter((id) =>
-    items.some((item) => item.id === id && item.sunoLocalUrl)
-  ).length;
-
-  if (validCount === 0) {
-    return res.status(400).json({ error: 'No valid songs found' });
-  }
-
-  const taskId = Date.now().toString();
-
-  generateMixtape({ taskId, songIds, name });
-
-  res.json({ taskId });
-});
-
 // GET /api/mixtape/download/:downloadId - Download generated mixtape
 router.get('/download/:downloadId', (req: Request, res: Response) => {
   const downloadId = req.params.downloadId as string;

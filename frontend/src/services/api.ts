@@ -244,27 +244,6 @@ export async function startMixtapeGeneration(playlistId?: string): Promise<strin
   return data.taskId;
 }
 
-export async function startCustomMixtapeGeneration(
-  songIds: string[],
-  name?: string
-): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/mixtape/custom`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ songIds, name }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || t.errors.couldNotStartMixtapeGeneration);
-  }
-
-  const data = await response.json();
-  return data.taskId;
-}
-
 export async function downloadMixtape(downloadId: string, fileName?: string): Promise<void> {
   const url = fileName
     ? `${API_BASE_URL}/mixtape/download/${downloadId}?fileName=${encodeURIComponent(fileName)}`

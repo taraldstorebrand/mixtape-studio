@@ -48,14 +48,13 @@ Instead of many individual files, you get **one structured file** — made to si
 - 🎧 Play tracks directly in the app
 - 👍 Mark favorites
 - 🔍 Filter tracks (All / Liked / Standard)
-- ⚙️ Advanced mixtape mode:
-  - choose track order
-  - include / exclude tracks
-  - name the mixtape before generation
+- 📋 Manage playlists:
+  - Create custom playlists with song selection
+  - Reorder tracks via drag-and-drop
+  - Edit or delete playlists
+  - Generate mixtape from playlists (honors playlist order)
 
-Mixtapes can be generated with a single click, or fine-tuned in detail using advanced mode.
-
-![Advanced Mixtape Screenshot](docs/advanced-mixtape.png)
+Mixtapes can be generated with a single click (from liked songs) or from playlists (custom order).
 
 ---
 
@@ -167,7 +166,8 @@ npm run dev -w frontend
 - **Feedback:** Use thumbs up/down on history items
 - **Filter:** Filter tracks by Standard, Liked, or All
 - **Upload MP3:** Upload your own songs (max 10 files, 10 MB per file)
-- **Create mixtape:** Download all selected tracks as a single M4B file with chapters
+- **Create playlists:** Organize tracks into custom playlists with drag-and-drop ordering
+- **Create mixtape:** Download all selected tracks as a single M4B file with chapters (from liked songs or playlists)
 
 ## Project structure
 
@@ -208,6 +208,17 @@ mixtape-studio/
 - `GET /api/genres` – Fetch genre history
 - `POST /api/genres` – Save a new genre
 - `DELETE /api/genres/:genre` – Delete a genre
+- `GET /api/playlists` – Fetch all playlists
+- `GET /api/playlists/:id` – Fetch playlist with songs
+- `POST /api/playlists` – Create playlist
+- `PATCH /api/playlists/:id` – Update playlist
+- `DELETE /api/playlists/:id` – Delete playlist
+- `POST /api/playlists/:id/songs` – Add songs to playlist
+- `DELETE /api/playlists/:id/songs/:entryId` – Remove song from playlist
+- `PATCH /api/playlists/:id/songs/reorder` – Reorder playlist songs
+- `POST /api/mixtape/liked` – Create mixtape from liked songs
+- `POST /api/mixtape/playlist/:playlistId` – Create mixtape from playlist
+- `GET /api/mixtape/download/:downloadId` – Download generated mixtape
 - `GET /health` – Health check
 
 ### WebSocket
@@ -219,9 +230,11 @@ mixtape-studio/
 - Maximum of 50 genres in genre history
 - Suno generates two song variations per request
 - Failed generations are automatically removed from history
-- API keys must be configured in the backend `.env` file
+- API keys must be configured in backend `.env` file
 - Resizable two-panel layout (30–70% width, persisted between sessions)
 - Mixtapes are exported as M4B (AAC, 192 kbps) with embedded chapters
+- Playlists support up to 500 songs each
+- Maximum 10 playlists
 
 ## License
 
