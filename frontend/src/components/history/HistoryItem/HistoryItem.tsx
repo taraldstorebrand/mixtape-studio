@@ -74,8 +74,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
     } else {
       // Different song - switch to this one and update playback queue (D-052)
       // Use playlist songs if in playlist mode, otherwise use filtered library
-      const songsForQueue = currentPlaylistSongs ?? filteredHistory;
-      setPlaybackQueue(songsForQueue.map((h) => h.id));
+      setPlaybackQueue((currentPlaylistSongs ?? filteredHistory).map((h, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: h.id })));
       setAudioSource({ id: item.id, url: audioUrl });
     }
   };

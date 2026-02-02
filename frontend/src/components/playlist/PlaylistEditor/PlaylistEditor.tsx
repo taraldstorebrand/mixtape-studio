@@ -48,7 +48,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
     if (!audioSource) return;
     const isPlayingFromEditor = playlistEntries.some((e) => e.song.id === audioSource.id);
     if (isPlayingFromEditor) {
-      setPlaybackQueue(playlistEntries.map((e) => e.song.id));
+      setPlaybackQueue(playlistEntries.map((e, index) => ({ entryId: `editor-entry-${Date.now()}-${index}`, songId: e.song.id })));
     }
   }, [playlistEntries, audioSource, setPlaybackQueue]);
 

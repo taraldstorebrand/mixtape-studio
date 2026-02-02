@@ -56,9 +56,14 @@ export const filteredHistoryAtom = atom((get) => {
   });
 });
 
-// Playback queue - captures song IDs at the moment playback starts (D-052)
+// Playback queue - captures song entries with unique IDs at the moment playback starts (D-052)
+// Each entry has a unique entryId to support duplicate songs in playlists
 // Queue remains stable during filter changes; reset only when user manually selects a new song
-export const playbackQueueAtom = atom<string[]>([]);
+export type QueueEntry = { entryId: string; songId: string };
+export const playbackQueueAtom = atom<QueueEntry[]>([]);
+
+// Current position in playback queue (supports duplicate songs)
+export const currentQueueIndexAtom = atom<number>(0);
 
 // Editor overlay state - independent of selectedId (D-xxx)
 // true = show editor overlay, false = show detail view (or empty state if no selection)

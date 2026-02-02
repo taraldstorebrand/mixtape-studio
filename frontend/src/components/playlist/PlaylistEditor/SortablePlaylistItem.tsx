@@ -60,10 +60,10 @@ export function SortablePlaylistItem({ entry, index, onRemove, disabled, allEntr
           console.error('Failed to play audio:', error);
         });
       }
-    } else {
-      setPlaybackQueue(allEntries.map((e) => e.song.id));
-      setAudioSource({ id: song.id, url: audioUrl });
-    }
+      } else {
+        setPlaybackQueue(allEntries.map((e, index) => ({ entryId: `sortable-entry-${Date.now()}-${index}`, songId: e.song.id })));
+        setAudioSource({ id: song.id, url: audioUrl });
+      }
   };
 
   return (

@@ -14,13 +14,14 @@ export {
   volumeAtom,
   filteredHistoryAtom,
   playbackQueueAtom,
+  currentQueueIndexAtom,
   editorOpenAtom,
   playlistsAtom,
   selectedPlaylistIdAtom,
   currentPlaylistSongsAtom,
   globalErrorAtom,
 } from './atoms';
-export type { FilterType, SongGenerationStatus } from './atoms';
+export type { FilterType, SongGenerationStatus, QueueEntry } from './atoms';
 export { useInitializeHistory, useHistoryActions } from './useHistoryAtom';
 export { useGenreHistoryAtom } from './useGenreHistoryAtom';
 export { useVolumeAtom } from './useVolumeAtom';

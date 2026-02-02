@@ -10,6 +10,7 @@ import {
   currentPlaylistSongsAtom,
   filteredHistoryAtom,
   playbackQueueAtom,
+  currentQueueIndexAtom,
   historyAtom,
 } from '../../../../store';
 import { HistoryItem } from '../../../../types';
@@ -24,11 +25,13 @@ export function useAudioPlayback() {
   const filteredHistory = useAtomValue(filteredHistoryAtom);
   const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
   const [playbackQueue, setPlaybackQueue] = useAtom(playbackQueueAtom);
+  const [currentQueueIndex, setCurrentQueueIndex] = useAtom(currentQueueIndexAtom);
   const history = useAtomValue(historyAtom);
   const internalAudioRef = useRef<HTMLAudioElement>(null);
 
   // Refs to avoid stale closures in event handlers
   const playbackQueueRef = useRef(playbackQueue);
+  const currentQueueIndexRef = useRef(currentQueueIndex);
   const historyRef = useRef(history);
   const currentPlaylistSongsRef = useRef(currentPlaylistSongs);
   const audioSourceRef = useRef(audioSource);
@@ -36,6 +39,10 @@ export function useAudioPlayback() {
   useEffect(() => {
     playbackQueueRef.current = playbackQueue;
   }, [playbackQueue]);
+
+  useEffect(() => {
+    currentQueueIndexRef.current = currentQueueIndex;
+  }, [currentQueueIndex]);
 
   useEffect(() => {
     historyRef.current = history;
@@ -49,9 +56,8 @@ export function useAudioPlayback() {
   useEffect(() => {
     if (!audioSourceRef.current) return;
     const songsForQueue = currentPlaylistSongs ?? filteredHistory;
-    setPlaybackQueue(songsForQueue.map((s) => s.id));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPlaylistSongs]);
+    setPlaybackQueue(songsToQueue.map((s, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: s.id })));
+  }, [currentPlaylistSongs, setPlaybackQueue]);
 
   useEffect(() => {
     audioSourceRef.current = audioSource;
@@ -80,11 +86,11 @@ export function useAudioPlayback() {
     const handleEnded = () => {
       // Autoplay next song in queue (D-052)
       const queue = playbackQueueRef.current;
-      const currentSource = audioSourceRef.current;
+      const queueIndex = currentQueueIndexRef.current;
       const allSongs = historyRef.current;
       const playlistSongs = currentPlaylistSongsRef.current;
 
-      if (!currentSource || queue.length === 0) {
+      if (queue.length === 0) {
         setIsPlaying(false);
         setAudioSource(null);
         setCurrentTime(0);
@@ -94,15 +100,14 @@ export function useAudioPlayback() {
       // Always use full history to find songs - the queue defines playback order
       const songsToSearch = allSongs;
 
-      const currentIndex = queue.indexOf(currentSource.id);
-
       // Find next valid song (skip deleted songs)
-      for (let i = currentIndex + 1; i < queue.length; i++) {
-        const nextId = queue[i];
-        const nextSong = songsToSearch.find((s) => s.id === nextId);
+      for (let i = queueIndex + 1; i < queue.length; i++) {
+        const nextEntry = queue[i];
+        const nextSong = songsToSearch.find((s) => s.id === nextEntry.songId);
         const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
 
         if (nextSong && nextUrl) {
+          setCurrentQueueIndex(i);
           setAudioSource({ id: nextSong.id, url: nextUrl });
           return;
         }
@@ -110,12 +115,13 @@ export function useAudioPlayback() {
 
       // If in playlist mode, wrap to start
       if (playlistSongs) {
-        for (let i = 0; i < currentIndex; i++) {
-          const nextId = queue[i];
-          const nextSong = songsToSearch.find((s) => s.id === nextId);
+        for (let i = 0; i < queueIndex; i++) {
+          const nextEntry = queue[i];
+          const nextSong = songsToSearch.find((s) => s.id === nextEntry.songId);
           const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
 
           if (nextSong && nextUrl) {
+            setCurrentQueueIndex(i);
             setAudioSource({ id: nextSong.id, url: nextUrl });
             return;
           }
@@ -219,7 +225,7 @@ export function useAudioPlayback() {
     setCurrentTime(time);
   };
 
-  const setNowPlaying = (item: HistoryItem | null) => {
+  const setNowPlaying = (item: HistoryItem | null, queueIndex?: number) => {
     if (!item) {
       setAudioSource(null);
       return;
@@ -228,7 +234,10 @@ export function useAudioPlayback() {
     if (url) {
       // Use playlist if in playlist mode, otherwise use filtered library
       const songsToQueue = currentPlaylistSongs ?? filteredHistory;
-      setPlaybackQueue(songsToQueue.map((h) => h.id));
+      setPlaybackQueue(songsToQueue.map((h, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: h.id })));
+      // Set queue index if provided, otherwise find first occurrence
+      const index = queueIndex ?? songsToQueue.findIndex((h) => h.id === item.id);
+      setCurrentQueueIndex(index >= 0 ? index : 0);
       setAudioSource({ id: item.id, url });
     }
   };
@@ -251,5 +260,7 @@ export function useAudioPlayback() {
     togglePlayPause,
     seek,
     getSongsToSearch,
+    currentQueueIndex,
+    setCurrentQueueIndex,
   };
 }
