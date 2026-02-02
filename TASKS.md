@@ -63,7 +63,7 @@ Ingen error boundary – én runtime-feil kan ta ned hele appen.
 
 ### Task 4: Fjern redundant playlist-state
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 `playlistSongs` (lokal i HistoryList) + `currentPlaylistSongsAtom` (global) holdes i sync manuelt → drift-risiko.

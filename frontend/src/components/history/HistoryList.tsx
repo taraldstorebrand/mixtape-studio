@@ -26,7 +26,6 @@ interface HistoryListProps {
 export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDeleteItem }: HistoryListProps) {
     const [filter, setFilter] = useState<FilterType>('default');
     const [isUploadFormActive, setIsUploadFormActive] = useState(false);
-    const [playlistSongs, setPlaylistSongs] = useState<HistoryItemType[] | null>(null);
     const [isPlaylistEditorOpen, setIsPlaylistEditorOpen] = useState(false);
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | undefined>(undefined);
     const setFilteredHistory = useSetAtom(filteredHistoryAtom);
@@ -35,6 +34,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const setPlaylists = useSetAtom(playlistsAtom);
     const setSelectedPlaylistId = useSetAtom(selectedPlaylistIdAtom);
     const setCurrentPlaylistSongs = useSetAtom(currentPlaylistSongsAtom);
+    const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
 
     const filteredItems = items.filter(item => {
         if (filter === 'all') return true;
@@ -45,7 +45,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const completedSongs = (songs: HistoryItemType[]) => songs.filter(song => song.sunoLocalUrl || (song.sunoStatus === 'completed' && song.sunoAudioUrl));
     const likedItems = completedSongs(items.filter(item => item.feedback === 'up'));
 
-    const displayItems = playlistSongs !== null ? playlistSongs : filteredItems;
+    const displayItems = currentPlaylistSongs !== null ? currentPlaylistSongs : filteredItems;
 
     const selectedPlaylist = playlists.find((p) => p.id === selectedPlaylistId);
 
@@ -80,10 +80,11 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const handleFeedback = async (id: string, feedback: 'up' | 'down' | null) => {
         await onFeedback(id, feedback);
 
-        if (selectedPlaylistId !== null) {
-            setPlaylistSongs((prev) =>
-                prev ? prev.map((item) => (item.id === id ? { ...item, feedback: feedback ?? undefined } : item)) : null
+        if (selectedPlaylistId !== null && currentPlaylistSongs) {
+            const updatedSongs = currentPlaylistSongs.map((item) =>
+                item.id === id ? { ...item, feedback: feedback ?? undefined } : item
             );
+            setCurrentPlaylistSongs(updatedSongs);
         }
     };
 
@@ -94,7 +95,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
         if (selectedPlaylistId === changedPlaylistId) {
             const updatedPlaylist = await fetchPlaylist(changedPlaylistId);
             const songs = updatedPlaylist.songs.map((entry) => entry.song);
-            setPlaylistSongs(songs);
             setCurrentPlaylistSongs(songs);
         }
     };
@@ -112,7 +112,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     // Fetch playlist songs when selectedPlaylistId changes
     useEffect(() => {
         if (selectedPlaylistId === null) {
-            setPlaylistSongs(null);
             setCurrentPlaylistSongs(null);
             return;
         }
@@ -120,7 +119,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
         fetchPlaylist(selectedPlaylistId)
             .then((playlistWithSongs) => {
                 const songs = playlistWithSongs.songs.map((entry) => entry.song);
-                setPlaylistSongs(songs);
                 setCurrentPlaylistSongs(songs);
             })
             .catch(console.error);
@@ -137,7 +135,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
                 <div className={styles.panelActionsButtons}>
                     <UploadButton onUploadFormChange={setIsUploadFormActive} />
                     {!isUploadFormActive && (
-                        <MixtapeButton likedItems={selectedPlaylistId !== null ? completedSongs(playlistSongs ?? []) : likedItems} playlistId={selectedPlaylistId ?? undefined} />
+                        <MixtapeButton likedItems={selectedPlaylistId !== null ? completedSongs(currentPlaylistSongs ?? []) : likedItems} playlistId={selectedPlaylistId ?? undefined} />
                     )}
                 </div>
                 {!isUploadFormActive && (
