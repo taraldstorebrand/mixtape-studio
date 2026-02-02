@@ -3,10 +3,11 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
 import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
-import { useHistoryAtom, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom } from './store';
+import { useInitializeHistory, useHistoryActions, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
+import { t } from './i18n';
 import styles from './App.module.css';
 
 const PANEL_WIDTH_KEY = 'sangtekst_panel_width';
@@ -20,7 +21,8 @@ function App() {
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<DetailPanelHandle>(null);
 
-  const { history, addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistoryAtom();
+  const history = useInitializeHistory();
+  const { addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistoryActions();
 
   useEffect(() => {
     if (history.length > 0 && selectedItemId === null) {
@@ -31,7 +33,7 @@ function App() {
 
   // Find the currently playing item from history
   const nowPlayingItem = nowPlaying ? history.find(item => item.id === nowPlaying.id) : null;
-  const { width: panelWidth, isDragging, handleMouseDown } = useResizable({
+  const { width: panelWidth, isDragging, handleMouseDown, handleKeyDown } = useResizable({
     containerRef,
     storageKey: PANEL_WIDTH_KEY,
     defaultWidth: 50,
@@ -115,8 +117,8 @@ function App() {
   return (
     <div className={styles.app}>
       <header className={styles.header}>
-        <h1>Mixtape Studio</h1>
-        <p>Upload your music and make mixtapes</p>
+        <h1>{t.headings.mixtapeStudio}</h1>
+        <p>{t.headings.tagline}</p>
       </header>
 
       <main className={styles.main} ref={containerRef}>
@@ -136,8 +138,12 @@ function App() {
         </div>
 
         <div
+          role="separator"
+          tabIndex={0}
           className={`${styles.resizeHandle} ${isDragging ? styles.resizeHandleDragging : ''}`}
           onMouseDown={handleMouseDown}
+          onKeyDown={handleKeyDown}
+          aria-label="Resize panels"
         />
 
         <div className={styles.panelRight}>

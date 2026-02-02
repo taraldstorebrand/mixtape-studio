@@ -9,7 +9,7 @@ import {
   deleteHistoryItem as apiDeleteHistoryItem,
 } from '../services/api';
 
-export function useHistoryAtom() {
+export function useInitializeHistory() {
   const [history, setHistory] = useAtom(historyAtom);
   const initializedRef = useRef(false);
 
@@ -28,6 +28,12 @@ export function useHistoryAtom() {
 
     initializeHistory();
   }, [setHistory]);
+
+  return history;
+}
+
+export function useHistoryActions() {
+  const [history, setHistory] = useAtom(historyAtom);
 
   const addHistoryItem = async (item: HistoryItem) => {
     setHistory((prev) => [item, ...prev]);

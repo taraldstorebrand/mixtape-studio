@@ -12,6 +12,7 @@ interface UseResizableReturn {
   width: number;
   isDragging: boolean;
   handleMouseDown: () => void;
+  handleKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
 export function useResizable({
@@ -35,6 +36,16 @@ export function useResizable({
     setIsDragging(true);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setWidth(Math.max(minWidth, width - 5));
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setWidth(Math.min(maxWidth, width + 5));
+    }
+  };
+
   useEffect(() => {
     if (!isDragging) return;
 
@@ -49,13 +60,25 @@ export function useResizable({
       setIsDragging(false);
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setWidth(Math.max(minWidth, width - 5));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setWidth(Math.min(maxWidth, width + 5));
+      }
+    };
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isDragging, containerRef, minWidth, maxWidth]);
+  }, [isDragging, containerRef, minWidth, maxWidth, width]);
 
-  return { width, isDragging, handleMouseDown };
+  return { width, isDragging, handleMouseDown, handleKeyDown };
 }

@@ -1,61 +1,199 @@
 # TASKS.md
 
-## Completed Tasks
+## P0 – Kritiske (korrekthet / policy-brudd)
 
-### Task: Fix playlist reorder and playback queue issues
+### Task 2: Fiks A11y/AGENTS-brudd
 
 **Status:** Completed
 
-**Description:**
+**Problem:**
+- Hardkodet tekst i `App.tsx` header (mangler i18n)
+- Trunkert tittel i NowPlayingBar uten `title`-attributt
+- Resize-handle uten `role`, `tabIndex`, keyboard handlers
 
-Fixed multiple issues with playlist functionality:
+**Løsning:**
+1. Legg til i18n-nøkler for "Mixtape Studio" og "Upload your music..."
+2. Legg til `title={displayTitle + variationLabel}` på trunkert tekst
+3. Gjør resize-handle til `role="separator"` med `tabIndex={0}` og keyboard-støtte (piltaster)
 
-1. **Playlist reorder with deleted songs:**
-   - Problem: Reorder failed when songs were deleted in the editor
-   - Solution: Delete all existing songs, then re-add all songs in correct order before reordering
-   - Files: `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx`
-
-2. **History panel playlist refresh:**
-   - Problem: Editing a playlist that is currently viewed did not update the displayed songs
-   - Solution: Added `currentPlaylistSongsAtom` to track playlist songs and update on edit
-   - Files:
-     - `frontend/src/store/atoms.ts`
-     - `frontend/src/store/index.ts`
-     - `frontend/src/components/history/HistoryList.tsx`
-
-3. **NowPlayingBar follows playlist context:**
-   - Problem: Next/previous buttons and autoplay followed library queue instead of playlist when in playlist mode
-   - Solution:
-     - Added `currentPlaylistSongsAtom` to track active playlist
-     - Updated `setNowPlaying` to use playlist queue when song is from playlist
-     - Updated `handleNext`, `handlePrevious`, and `handleEnded` to search in correct song list
-     - Added wrap-to-start support for playlists
-   - Files:
-     - `frontend/src/components/nowplaying/NowPlayingBar/hooks/useAudioPlayback.ts`
-     - `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
-
-4. **Remove Advanced Mixtape functionality:**
-   - Problem: Redundant functionality - playlist mode already covers custom mixtape creation
-   - Solution: Removed AdvancedMixtapeButton, MixtapeEditor, and related API endpoints
-   - Files removed:
-     - `frontend/src/components/mixtape/AdvancedMixtapeButton/`
-     - `frontend/src/components/mixtape/MixtapeEditor/`
-   - Files modified:
-     - `frontend/src/components/history/HistoryList.tsx`
-     - `frontend/src/services/api.ts`
-     - `backend/src/routes/mixtape.ts`
-     - `frontend/src/i18n/en.ts`
-
-**Key Changes:**
-
-- `currentPlaylistSongsAtom`: Global atom storing songs from currently selected playlist (null = library mode)
-- Playlist songs are now updated when playlist is edited, deleted, or changed
-- Playback queue respects playlist context when song is from a playlist
-- Next/previous and autoplay follow playlist order when in playlist mode
-- Removed redundant Advanced Mixtape button and editor
+**Filer:**
+- `frontend/src/App.tsx`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
+- `frontend/src/i18n/en.ts`
 
 ---
 
-## Future Tasks
+### Task 2: Fiks A11y/AGENTS-brudd
 
-No current tasks pending. All playlist and mixtape functionality is working as intended.
+**Status:** Pending
+
+**Problem:**
+- Hardkodet tekst i `App.tsx` header (mangler i18n)
+- Trunkert tittel i NowPlayingBar uten `title`-attributt
+- Resize-handle uten `role`, `tabIndex`, keyboard handlers
+
+**Løsning:**
+1. Legg til i18n-nøkler for "Mixtape Studio" og "Upload your music..."
+2. Legg til `title={displayTitle + variationLabel}` på trunkert tekst
+3. Gjør resize-handle til `role="separator"` med `tabIndex={0}` og keyboard-støtte (piltaster)
+
+**Filer:**
+- `frontend/src/App.tsx`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
+- `frontend/src/i18n/en.ts`
+
+---
+
+### Task 3: Legg til ErrorBoundary
+
+**Status:** Pending
+
+**Problem:**
+Ingen error boundary – én runtime-feil kan ta ned hele appen.
+
+**Løsning:**
+1. Lag `ErrorBoundary`-komponent med fallback UI og "Reload"-knapp
+2. Wrap `<main>` i `App.tsx` med ErrorBoundary
+3. Vurder separate boundaries for DetailPanel/HistoryPanel/NowPlayingBar
+
+**Filer:**
+- `frontend/src/components/common/ErrorBoundary/ErrorBoundary.tsx` (ny)
+- `frontend/src/App.tsx`
+
+---
+
+## P1 – Viktige forbedringer
+
+### Task 4: Fjern redundant playlist-state
+
+**Status:** Pending
+
+**Problem:**
+`playlistSongs` (lokal i HistoryList) + `currentPlaylistSongsAtom` (global) holdes i sync manuelt → drift-risiko.
+
+**Løsning:**
+Fjern `playlistSongs` lokal state og bruk kun `currentPlaylistSongsAtom`. Oppdater alle referanser.
+
+**Filer:**
+- `frontend/src/components/history/HistoryList.tsx`
+
+---
+
+### Task 5: Fiks filteredHistoryAtom-synk
+
+**Status:** Pending
+
+**Problem:**
+`filteredHistoryAtom` settes i `useEffect` med ny array hver render → unødvendige atom-updates og re-renders.
+
+**Løsning:**
+Gjør `filteredHistoryAtom` til en derived atom som leser fra `historyAtom` og en `filterAtom`, i stedet for imperativ setting.
+
+**Filer:**
+- `frontend/src/store/atoms.ts`
+- `frontend/src/components/history/HistoryList.tsx`
+
+---
+
+### Task 6: Optimaliser playlist-save
+
+**Status:** Pending
+
+**Problem:**
+`PlaylistEditor.handleClose` fjerner alle sanger via O(n) API-kall før re-adding. Tregt med mange sanger.
+
+**Løsning:**
+Beregn diff i frontend: `toRemove` og `toAdd`, kall bare nødvendige APIer.
+
+**Filer:**
+- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx`
+
+---
+
+### Task 7: Standardiser feilhåndtering
+
+**Status:** Pending
+
+**Problem:**
+Noen komponenter viser feil i UI, andre bare `console.error`.
+
+**Løsning:**
+1. Lag `globalErrorAtom` + `ErrorBanner`-komponent med `role="alert"`
+2. Oppdater `useHistoryAtom` actions til å sette global error ved feil
+3. Legg til `role="alert"` på eksisterende error-meldinger i DetailPanel
+
+**Filer:**
+- `frontend/src/store/atoms.ts`
+- `frontend/src/store/useHistoryAtom.ts`
+- `frontend/src/components/common/ErrorBanner/ErrorBanner.tsx` (ny)
+- `frontend/src/components/panels/DetailPanel.tsx`
+- `frontend/src/App.tsx`
+
+---
+
+### Task 8: Fjern redundant nowPlayingItem-lookup
+
+**Status:** Pending
+
+**Problem:**
+`App.tsx` slår opp `nowPlayingItem` selv om `nowPlayingAtom` allerede gjør dette.
+
+**Løsning:**
+Fjern `nowPlayingItem`-variabelen og bruk `nowPlaying` direkte (eller pass `nowPlayingAtom` til DetailPanel).
+
+**Filer:**
+- `frontend/src/App.tsx`
+
+---
+
+## P2 – Nice-to-have
+
+### Task 9: Type guards for errors
+
+**Status:** Pending
+
+**Problem:**
+Bruker `err: any` i catch-blokker.
+
+**Løsning:**
+Lag en utility `getErrorMessage(err: unknown): string` og bruk den i alle catch-blokker.
+
+**Filer:**
+- `frontend/src/utils/errors.ts` (ny)
+- `frontend/src/components/panels/DetailPanel.tsx`
+- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx`
+
+---
+
+### Task 10: Fjern debug logging
+
+**Status:** Pending
+
+**Problem:**
+`console.log('Received Suno update:', data)` og annen debug-logging bør fjernes i produksjon.
+
+**Løsning:**
+Fjern eller guard med `import.meta.env.DEV`.
+
+**Filer:**
+- `frontend/src/App.tsx`
+- `frontend/src/store/useHistoryAtom.ts`
+
+---
+
+## Oppdater dokumentasjon
+
+### Task 11: Fjern D-055 fra DECISIONS.md
+
+**Status:** Pending
+
+**Problem:**
+Advanced Mixtape Editor er fjernet (per TASKS.md completed task), men D-055 dokumenterer fortsatt denne funksjonaliteten.
+
+**Løsning:**
+Marker D-055 som "Superseded" eller fjern den.
+
+**Filer:**
+- `DECISIONS.md`
+- `SPEC.md` (fjern §14 Advanced Mixtape Editor)
+- `ARCHITECTURE.md` (fjern mixtape-referanser)

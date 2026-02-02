@@ -19,6 +19,6 @@ export {
   currentPlaylistSongsAtom,
 } from './atoms';
 export type { SongGenerationStatus } from './atoms';
-export { useHistoryAtom } from './useHistoryAtom';
+export { useInitializeHistory, useHistoryActions } from './useHistoryAtom';
 export { useGenreHistoryAtom } from './useGenreHistoryAtom';
 export { useVolumeAtom } from './useVolumeAtom';

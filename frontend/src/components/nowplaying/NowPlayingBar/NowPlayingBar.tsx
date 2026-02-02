@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
-import { playbackQueueAtom, useHistoryAtom } from '../../../store';
+import { playbackQueueAtom, useHistoryActions } from '../../../store';
 import { useAudioPlayback } from './hooks/useAudioPlayback';
 import { ProgressBar } from './ProgressBar/ProgressBar';
 import { VolumeControl } from './VolumeControl/VolumeControl';
@@ -21,7 +21,7 @@ export function NowPlayingBar() {
   } = useAudioPlayback();
 
   const playbackQueue = useAtomValue(playbackQueueAtom);
-  const { handleFeedback } = useHistoryAtom();
+  const { handleFeedback } = useHistoryActions();
 
   const titleRef = useRef<HTMLDivElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -138,6 +138,7 @@ export function NowPlayingBar() {
               <div className={styles.info}>
                 <div
                   ref={titleRef}
+                  title={displayTitle + variationLabel}
                   className={`${styles.title} ${isOverflowing ? styles.titleMarquee : ''}`}
                 >
                   {isOverflowing ? (

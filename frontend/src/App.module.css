@@ -67,6 +67,11 @@
   background-color: var(--color-primary);
 }
 
+.resizeHandle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 @media (max-width: 900px) {
   .app {
     height: auto;

@@ -49,6 +49,8 @@ export const en = {
     yourPlaylist: 'Your playlist',
     editPlaylist: 'Edit playlist',
     newPlaylist: 'New playlist',
+    mixtapeStudio: 'Mixtape Studio',
+    tagline: 'Upload your music and make mixtapes',
   },
 
   tooltips: {
