@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { HistoryItem } from '../types';
+import { HistoryItem, Playlist } from '../types';
 
 export type SongGenerationStatus = 'idle' | 'pending' | 'completed' | 'failed';
 
@@ -51,3 +51,13 @@ export const playbackQueueAtom = atom<string[]>([]);
 // Editor overlay state - independent of selectedId (D-xxx)
 // true = show editor overlay, false = show detail view (or empty state if no selection)
 export const editorOpenAtom = atom<boolean>(false);
+
+// Playlist state
+export const playlistsAtom = atom<Playlist[]>([]);
+
+// Currently selected playlist ID (null = library mode)
+// This atom represents view context only. HistoryList fetches playlist data on change.
+export const selectedPlaylistIdAtom = atom<string | null>(null);
+
+// Songs in the currently selected playlist (null = library mode)
+export const currentPlaylistSongsAtom = atom<HistoryItem[] | null>(null);

@@ -20,9 +20,10 @@ function formatDuration(totalSeconds: number): string {
 
 interface MixtapeButtonProps {
   likedItems: HistoryItem[];
+  playlistId?: string;
 }
 
-export function MixtapeButton({ likedItems }: MixtapeButtonProps) {
+export function MixtapeButton({ likedItems, playlistId }: MixtapeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +35,7 @@ export function MixtapeButton({ likedItems }: MixtapeButtonProps) {
     setError(null);
 
     try {
-      const taskId = await startMixtapeGeneration();
+      const taskId = await startMixtapeGeneration(playlistId);
 
       onceMixtapeReady(taskId, async (data) => {
         if (data.error) {

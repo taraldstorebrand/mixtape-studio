@@ -1,0 +1,109 @@
+import type { Playlist, PlaylistWithSongs } from '../../../shared/types';
+
+const API_BASE_URL = '/api';
+
+export async function fetchPlaylists(): Promise<Playlist[]> {
+  const response = await fetch(`${API_BASE_URL}/playlists`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not fetch playlists');
+  }
+
+  return response.json();
+}
+
+export async function fetchPlaylist(id: string): Promise<PlaylistWithSongs> {
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}`);
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not fetch playlist');
+  }
+
+  return response.json();
+}
+
+export async function createPlaylist(name: string): Promise<Playlist> {
+  const response = await fetch(`${API_BASE_URL}/playlists`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not create playlist');
+  }
+
+  return response.json();
+}
+
+export async function updatePlaylist(id: string, updates: Partial<{ name: string }>): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updates),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not update playlist');
+  }
+}
+
+export async function deletePlaylist(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not delete playlist');
+  }
+}
+
+export async function addSongsToPlaylist(id: string, songIds: string[]): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}/songs`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ songIds }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not add songs to playlist');
+  }
+}
+
+export async function removeSongFromPlaylist(id: string, entryId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}/songs/${entryId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not remove song from playlist');
+  }
+}
+
+export async function reorderPlaylistSongs(id: string, entryIds: string[]): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}/songs/reorder`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ entryIds }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not reorder playlist songs');
+  }
+}

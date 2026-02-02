@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
   audioSourceAtom,
   nowPlayingAtom,
@@ -7,6 +7,7 @@ import {
   isPlayingAtom,
   currentTimeAtom,
   durationAtom,
+  currentPlaylistSongsAtom,
   filteredHistoryAtom,
   playbackQueueAtom,
   historyAtom,
@@ -21,6 +22,7 @@ export function useAudioPlayback() {
   const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
   const [duration, setDuration] = useAtom(durationAtom);
   const filteredHistory = useAtomValue(filteredHistoryAtom);
+  const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
   const [playbackQueue, setPlaybackQueue] = useAtom(playbackQueueAtom);
   const history = useAtomValue(historyAtom);
   const internalAudioRef = useRef<HTMLAudioElement>(null);
@@ -28,6 +30,7 @@ export function useAudioPlayback() {
   // Refs to avoid stale closures in event handlers
   const playbackQueueRef = useRef(playbackQueue);
   const historyRef = useRef(history);
+  const currentPlaylistSongsRef = useRef(currentPlaylistSongs);
   const audioSourceRef = useRef(audioSource);
 
   useEffect(() => {
@@ -37,6 +40,10 @@ export function useAudioPlayback() {
   useEffect(() => {
     historyRef.current = history;
   }, [history]);
+
+  useEffect(() => {
+    currentPlaylistSongsRef.current = currentPlaylistSongs;
+  }, [currentPlaylistSongs]);
 
   useEffect(() => {
     audioSourceRef.current = audioSource;
@@ -67,6 +74,7 @@ export function useAudioPlayback() {
       const queue = playbackQueueRef.current;
       const currentSource = audioSourceRef.current;
       const allSongs = historyRef.current;
+      const playlistSongs = currentPlaylistSongsRef.current;
 
       if (!currentSource || queue.length === 0) {
         setIsPlaying(false);
@@ -75,17 +83,38 @@ export function useAudioPlayback() {
         return;
       }
 
+      // Determine which list to use based on which list is current song from
+      let songsToSearch = allSongs;
+      const isFromPlaylist = playlistSongs && playlistSongs.some(s => s.id === currentSource.id);
+      if (isFromPlaylist) {
+        songsToSearch = playlistSongs;
+      }
+
       const currentIndex = queue.indexOf(currentSource.id);
-      
+
       // Find next valid song (skip deleted songs)
       for (let i = currentIndex + 1; i < queue.length; i++) {
         const nextId = queue[i];
-        const nextSong = allSongs.find((s) => s.id === nextId);
+        const nextSong = songsToSearch.find((s) => s.id === nextId);
         const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
-        
+
         if (nextSong && nextUrl) {
           setAudioSource({ id: nextSong.id, url: nextUrl });
           return;
+        }
+      }
+
+      // If from playlist and end of queue, wrap to start
+      if (isFromPlaylist) {
+        for (let i = 0; i < currentIndex; i++) {
+          const nextId = queue[i];
+          const nextSong = songsToSearch.find((s) => s.id === nextId);
+          const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
+
+          if (nextSong && nextUrl) {
+            setAudioSource({ id: nextSong.id, url: nextUrl });
+            return;
+          }
         }
       }
 
@@ -193,10 +222,25 @@ export function useAudioPlayback() {
     }
     const url = item.sunoLocalUrl || item.sunoAudioUrl;
     if (url) {
-      // Capture current filtered list as playback queue (D-052)
-      setPlaybackQueue(filteredHistory.map((h) => h.id));
+      // Determine which list to use for playback queue based on where the song is playing from
+      // Prefer playlist if song exists there (even with duplicates)
+      let songsToQueue = filteredHistory;
+
+      if (currentPlaylistSongs && currentPlaylistSongs.some(s => s.id === item.id)) {
+        songsToQueue = currentPlaylistSongs;
+      }
+
+      setPlaybackQueue(songsToQueue.map((h) => h.id));
       setAudioSource({ id: item.id, url });
     }
+  };
+
+  const getSongsToSearch = () => {
+    if (!nowPlaying) return history;
+    if (currentPlaylistSongs && currentPlaylistSongs.some(s => s.id === nowPlaying.id)) {
+      return currentPlaylistSongs;
+    }
+    return history;
   };
 
   return {
@@ -210,5 +254,6 @@ export function useAudioPlayback() {
     pause,
     togglePlayPause,
     seek,
+    getSongsToSearch,
   };
 }

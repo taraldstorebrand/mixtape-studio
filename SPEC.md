@@ -231,6 +231,75 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 ---
 
+### 12. Now Playing Bar
+
+**Flow**:
+
+1. Clicking play on a song starts playback and shows the now playing bar at the bottom
+2. Bar shows: cover image thumbnail, song title, play/pause button, prev/next buttons, progress bar, volume control, feedback buttons
+3. Prev button: if >3 seconds into song, restarts; otherwise plays previous song in queue
+4. Next button: plays next song in queue
+5. Queue wraps around (last → first, first → last)
+
+**Playback queue behavior** (D-052):
+
+- Queue is captured when user starts playback (current filtered list)
+- Queue remains stable during filter changes
+- Queue resets when user manually selects a new song
+- Autoplay advances to next song when current ends
+- Playback stops at end of queue (no loop)
+
+---
+
+### 13. Playlists
+
+**Flow**:
+
+1. User clicks PlaylistDropdown to see available playlists
+2. Selecting a playlist switches view from library to playlist songs
+3. Filter buttons are hidden when viewing a playlist
+4. PlaylistActions provides create/edit/delete/return-to-library buttons
+
+**Create/Edit Playlist**:
+
+1. User clicks "+" (create) or edit button
+2. Modal opens with PlaylistEditor
+3. Left column: SongPicker shows all available songs
+4. Right column: Current playlist with drag-and-drop reordering
+5. User can add songs (click), remove songs (×), reorder (drag)
+6. User enters playlist name
+7. Changes are saved on close
+
+**Constraints**:
+
+- Maximum 100 playlists
+- Maximum 100 songs per playlist
+- Same song can appear multiple times in a playlist
+- Deleting a playlist does not delete songs
+
+---
+
+### 14. Advanced Mixtape Editor
+
+**Flow**:
+
+1. User clicks "⚙ Advanced" button next to regular mixtape button
+2. Modal opens with MixtapeEditor
+3. Left column: SongPicker shows available completed songs
+4. Right column: Mixtape tracklist with drag-and-drop reordering
+5. User can add songs (click), remove songs (×), reorder (drag)
+6. User enters mixtape name (defaults to "Mixtape YYYY-MM-DD")
+7. Total duration is displayed
+8. User clicks "Lag mixtape" to generate
+9. Same backend process as simple mixtape (M4B with chapters)
+
+**Difference from simple mixtape**:
+
+- Simple: all liked songs in chronological order
+- Advanced: user-selected songs in user-defined order, duplicates allowed
+
+---
+
 ## Data Persistence
 
 ### Backend Storage (SQLite)
@@ -267,6 +336,24 @@ History items and genre history are persisted server-side in a SQLite database.
 | id | INTEGER PRIMARY KEY | Auto-increment |
 | genre | TEXT UNIQUE NOT NULL | Genre name |
 | last_used_at | TEXT NOT NULL | ISO 8601 timestamp |
+
+**playlists**
+| Column | Type | Description |
+|--------|------|-------------|
+| id | TEXT PRIMARY KEY | UUID |
+| name | TEXT NOT NULL | Playlist name |
+| description | TEXT | Optional description |
+| cover_image_url | TEXT | Optional cover image |
+| created_at | TEXT NOT NULL | ISO 8601 timestamp |
+| updated_at | TEXT NOT NULL | ISO 8601 timestamp |
+
+**playlist_songs**
+| Column | Type | Description |
+|--------|------|-------------|
+| entry_id | TEXT PRIMARY KEY | UUID |
+| playlist_id | TEXT NOT NULL | Foreign key to playlists |
+| song_id | TEXT NOT NULL | Foreign key to history_items |
+| position | INTEGER NOT NULL | Order within playlist |
 
 ### Client-Side Storage (localStorage)
 

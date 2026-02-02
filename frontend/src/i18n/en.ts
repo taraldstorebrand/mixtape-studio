@@ -22,6 +22,7 @@ export const en = {
     backToDetails: '← Back',
     advanced: 'Advanced',
     close: 'Close',
+    createPlaylist: 'Create playlist',
   },
 
   labels: {
@@ -40,12 +41,16 @@ export const en = {
     selectOrWriteGenre: 'Select or type genre...',
     promptForLyrics: "Write a prompt for the lyrics (e.g. 'A song about summer')",
     searchForSongs: 'Search for songs...',
+    playlistName: 'Playlist name',
   },
 
   headings: {
     selectedSong: 'Selected song',
     availableSongs: 'Available songs',
     yourMixtape: 'Your mixtape',
+    yourPlaylist: 'Your playlist',
+    editPlaylist: 'Edit playlist',
+    newPlaylist: 'New playlist',
   },
 
   tooltips: {
@@ -64,6 +69,10 @@ export const en = {
     remove: 'Remove',
     createAdvancedMixtape: 'Create advanced mixtape',
     noSongsAvailable: 'No songs available',
+    createPlaylist: 'Create new playlist',
+    editPlaylist: 'Edit playlist',
+    deletePlaylist: 'Delete playlist',
+    returnToLibrary: 'Return to library',
   },
 
   messages: {
@@ -78,6 +87,8 @@ export const en = {
     nowPlaying: (title: string) => `▶ Now playing: ${title}`,
     uploadToStart: '📤 Upload songs to start',
     createFirstSong: '✨ Create your first song',
+    noSongsInPlaylist: 'No songs in this playlist',
+    createPlaylistFirst: 'Add a song or enter a name to create playlist',
   },
 
   errors: {
@@ -100,12 +111,20 @@ export const en = {
       'Suno API key missing. Add SUNO_API_KEY in backend .env and restart the server.',
     openaiApiKeyMissing:
       'OpenAI API key missing. Add OPENAI_API_KEY in backend .env and restart the server.',
+    couldNotFetchPlaylists: 'Could not fetch playlists',
+    couldNotCreatePlaylist: 'Could not create playlist',
+    couldNotUpdatePlaylist: 'Could not update playlist',
+    couldNotDeletePlaylist: 'Could not delete playlist',
+    couldNotAddSongsToPlaylist: 'Could not add songs to playlist',
+    couldNotRemoveSongFromPlaylist: 'Could not remove song from playlist',
+    couldNotReorderPlaylistSongs: 'Could not reorder playlist songs',
   },
 
   filters: {
     songs: 'Songs',
     liked: 'Liked',
     all: 'All',
+    library: 'Library',
   },
 } as const;
 

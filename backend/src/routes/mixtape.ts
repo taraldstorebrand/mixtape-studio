@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { spawn } from 'child_process';
 import ffmpegPath from 'ffmpeg-static';
-import { getAllHistoryItems } from '../db';
+import { getAllHistoryItems, getPlaylistById } from '../db';
 import { io } from '../server';
 import { getAudioDurationMs } from '../utils/ffmpeg';
 
@@ -229,6 +229,30 @@ router.post('/liked', async (req: Request, res: Response) => {
   const taskId = Date.now().toString();
 
   generateMixtape({ taskId });
+
+  res.json({ taskId });
+});
+
+// POST /api/mixtape/playlist/:playlistId - Create mixtape from playlist
+router.post('/playlist/:playlistId', async (req: Request, res: Response) => {
+  const playlistId = req.params.playlistId as string;
+
+  const playlist = getPlaylistById(playlistId);
+  if (!playlist) {
+    return res.status(404).json({ error: 'Playlist not found' });
+  }
+
+  const songIds = playlist.songs
+    .filter(entry => entry.song.sunoLocalUrl)
+    .map(entry => entry.song.id);
+
+  if (songIds.length === 0) {
+    return res.status(400).json({ error: 'No songs in playlist with audio files' });
+  }
+
+  const taskId = Date.now().toString();
+
+  generateMixtape({ taskId, songIds, name: playlist.name });
 
   res.json({ taskId });
 });

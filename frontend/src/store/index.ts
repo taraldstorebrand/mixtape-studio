@@ -14,6 +14,9 @@ export {
   filteredHistoryAtom,
   playbackQueueAtom,
   editorOpenAtom,
+  playlistsAtom,
+  selectedPlaylistIdAtom,
+  currentPlaylistSongsAtom,
 } from './atoms';
 export type { SongGenerationStatus } from './atoms';
 export { useHistoryAtom } from './useHistoryAtom';

@@ -1067,3 +1067,88 @@ Rationale:
 - Explicit user action (selecting a song) establishes intent for new queue
 
 ---
+
+## D-053 – Editor overlay state (editorOpenAtom)
+Status: Accepted
+
+Decision:
+An `editorOpenAtom` boolean controls whether the left panel shows editor mode or read-only view.
+- `true`: Show editor with editable fields (title, lyrics, genre, prompt)
+- `false`: Show read-only view of selected song, or empty state if no selection
+
+State transitions:
+- Selecting a song sets `editorOpenAtom = false` (show read-only view)
+- "Kopier" button sets `editorOpenAtom = true` and copies song data to editor
+- "Nytt utkast" button sets `editorOpenAtom = true` with empty fields
+- "Tilbake til detaljer" button sets `editorOpenAtom = false`
+
+Rationale:
+- Separates editor state from selection state
+- Allows viewing a song while preserving draft in editor
+- Explicit state management instead of implicit mode inference
+
+---
+
+## D-054 – Playlist management
+Status: Accepted
+
+Decision:
+Users can create, edit, and delete playlists to organize songs.
+
+Data model:
+- `Playlist`: id, name, description, coverImageUrl, createdAt, updatedAt
+- `PlaylistSongEntry`: entryId, position, song (HistoryItem reference)
+- Backend stores in SQLite: `playlists` and `playlist_songs` tables
+
+State atoms:
+- `playlistsAtom`: List of all playlists
+- `selectedPlaylistIdAtom`: Currently selected playlist ID (null = library mode)
+- `currentPlaylistSongsAtom`: Songs in selected playlist (null = library mode)
+
+UI behavior:
+- PlaylistDropdown shows available playlists
+- Selecting a playlist replaces library view with playlist songs
+- PlaylistActions provides create/edit/delete/return-to-library buttons
+- PlaylistEditor modal allows adding/removing/reordering songs with drag-and-drop
+
+API endpoints:
+- GET /api/playlists – list all playlists
+- POST /api/playlists – create playlist
+- GET /api/playlists/:id – get playlist with songs
+- PUT /api/playlists/:id – update playlist metadata
+- DELETE /api/playlists/:id – delete playlist
+- POST /api/playlists/:id/songs – add songs to playlist
+- DELETE /api/playlists/:id/songs/:entryId – remove song from playlist
+- PUT /api/playlists/:id/songs/reorder – reorder songs
+
+Rationale:
+- Enables organization beyond simple liked/all filtering
+- Playlists persist across sessions via SQLite
+- Drag-and-drop reordering provides intuitive UX
+
+---
+
+## D-055 – Advanced mixtape editor
+Status: Accepted
+
+Decision:
+An "Advanced" button opens a MixtapeEditor modal for custom mixtape creation.
+Users can pick songs individually and reorder via drag-and-drop before generating.
+
+Features:
+- SongPicker shows available songs (filtered by completed status)
+- Drag-and-drop reordering using @dnd-kit/core and @dnd-kit/sortable
+- Custom mixtape name input (defaults to "Mixtape YYYY-MM-DD")
+- Total duration display
+- Songs can be added multiple times (duplicates allowed)
+
+Difference from simple mixtape button:
+- Simple button: generates mixtape from all liked songs in chronological order
+- Advanced editor: user-selected songs in user-defined order
+
+Rationale:
+- Provides control for users who want custom track selection and ordering
+- Complements the quick "liked songs" mixtape workflow
+- Uses same backend endpoint for generation
+
+---

@@ -229,8 +229,9 @@ export async function removeGenre(genre: string): Promise<void> {
 
 // Mixtape API
 
-export async function startMixtapeGeneration(): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/mixtape/liked`, {
+export async function startMixtapeGeneration(playlistId?: string): Promise<string> {
+  const url = playlistId ? `${API_BASE_URL}/mixtape/playlist/${playlistId}` : `${API_BASE_URL}/mixtape/liked`;
+  const response = await fetch(url, {
     method: 'POST',
   });
 

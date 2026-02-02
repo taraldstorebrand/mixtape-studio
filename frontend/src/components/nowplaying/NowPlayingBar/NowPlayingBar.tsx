@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
-import { playbackQueueAtom, historyAtom, useHistoryAtom } from '../../../store';
+import { playbackQueueAtom, useHistoryAtom } from '../../../store';
 import { useAudioPlayback } from './hooks/useAudioPlayback';
 import { ProgressBar } from './ProgressBar/ProgressBar';
 import { VolumeControl } from './VolumeControl/VolumeControl';
@@ -17,10 +17,10 @@ export function NowPlayingBar() {
     duration,
     togglePlayPause,
     seek,
+    getSongsToSearch,
   } = useAudioPlayback();
 
   const playbackQueue = useAtomValue(playbackQueueAtom);
-  const history = useAtomValue(historyAtom);
   const { handleFeedback } = useHistoryAtom();
 
   const titleRef = useRef<HTMLDivElement>(null);
@@ -40,10 +40,12 @@ export function NowPlayingBar() {
       ? playbackQueue.indexOf(nowPlaying.id)
       : -1;
 
+    const songsToSearch = getSongsToSearch();
+
     // Find previous valid song (skip deleted songs)
     for (let i = currentIndex - 1; i >= 0; i--) {
       const prevId = playbackQueue[i];
-      const prevSong = history.find((s) => s.id === prevId);
+      const prevSong = songsToSearch.find((s) => s.id === prevId);
       const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
       if (prevSong && prevUrl) {
         setNowPlaying(prevSong);
@@ -54,13 +56,15 @@ export function NowPlayingBar() {
     // Wrap to end of queue, find last valid song
     for (let i = playbackQueue.length - 1; i > currentIndex; i--) {
       const prevId = playbackQueue[i];
-      const prevSong = history.find((s) => s.id === prevId);
+      const prevSong = songsToSearch.find((s) => s.id === prevId);
       const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
       if (prevSong && prevUrl) {
         setNowPlaying(prevSong);
         return;
       }
     }
+
+    // No valid songs found - stay on current or stop
   };
 
   const handleNext = () => {
@@ -70,10 +74,12 @@ export function NowPlayingBar() {
       ? playbackQueue.indexOf(nowPlaying.id)
       : -1;
 
+    const songsToSearch = getSongsToSearch();
+
     // Find next valid song (skip deleted songs)
     for (let i = currentIndex + 1; i < playbackQueue.length; i++) {
       const nextId = playbackQueue[i];
-      const nextSong = history.find((s) => s.id === nextId);
+      const nextSong = songsToSearch.find((s) => s.id === nextId);
       const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
       if (nextSong && nextUrl) {
         setNowPlaying(nextSong);
@@ -84,13 +90,15 @@ export function NowPlayingBar() {
     // Wrap to start of queue, find first valid song
     for (let i = 0; i < currentIndex; i++) {
       const nextId = playbackQueue[i];
-      const nextSong = history.find((s) => s.id === nextId);
+      const nextSong = songsToSearch.find((s) => s.id === nextId);
       const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
       if (nextSong && nextUrl) {
         setNowPlaying(nextSong);
         return;
       }
     }
+
+    // No valid songs found - stay on current or stop
   };
 
   const displayTitle = nowPlaying?.title || nowPlaying?.prompt || t.messages.untitled;

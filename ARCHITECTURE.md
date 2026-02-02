@@ -11,18 +11,25 @@ test-cursor/
 ├── frontend/          # React SPA
 │   ├── src/
 │   │   ├── components/   # React components
-│   │   │   ├── history/     # History list components
+│   │   │   ├── common/      # Shared UI components (Modal)
+│   │   │   ├── history/     # History list components (HistoryList, HistoryItem, PlaylistDropdown, PlaylistActions)
 │   │   │   ├── lyrics/      # Lyrics input components
-│   │   │   └── panels/      # Layout panels (DetailPanel, HistoryPanel)
-│   │   ├── hooks/        # Custom React hooks (useHistory, useResizable, etc.)
-│   │   ├── services/     # API client and localStorage services
+│   │   │   ├── mixtape/     # Mixtape editor components (MixtapeEditor, SongPicker, AdvancedMixtapeButton)
+│   │   │   ├── nowplaying/  # Now playing bar and audio controls (NowPlayingBar, ProgressBar, VolumeControl)
+│   │   │   ├── panels/      # Layout panels (DetailPanel, HistoryPanel)
+│   │   │   └── playlist/    # Playlist editor (PlaylistEditor, SortablePlaylistItem)
+│   │   ├── hooks/        # Custom React hooks (useResizable, useSunoSocket, useGenreHistory)
+│   │   ├── i18n/         # Internationalization strings
+│   │   ├── services/     # API client (api.ts, playlists.ts)
+│   │   ├── store/        # Jotai atoms and hooks (atoms.ts, useHistoryAtom.ts, etc.)
+│   │   ├── styles/       # Global CSS variables
 │   │   ├── types/        # Re-exports shared types
 │   │   └── App.tsx       # Main application orchestration (state, callbacks, layout)
 │   └── vite.config.ts
 ├── backend/           # Express REST API + WebSocket server
 │   ├── src/
 │   │   ├── db/           # SQLite database layer (index.ts)
-│   │   ├── routes/       # Express route handlers (chatgpt.ts, suno.ts, history.ts, genres.ts, mixtape.ts)
+│   │   ├── routes/       # Express route handlers (chatgpt.ts, suno.ts, history.ts, genres.ts, mixtape.ts, playlists.ts)
 │   │   ├── services/     # External API integrations (openai.ts, suno.ts)
 │   │   ├── middleware/   # Express middleware (errorHandler.ts)
 │   │   ├── utils/        # Utility functions (logger.ts)
@@ -35,7 +42,7 @@ test-cursor/
 │   └── package.json
 ├── shared/            # Shared TypeScript types
 │   └── types/
-│       └── index.ts      # HistoryItem interface
+│       └── index.ts      # HistoryItem, Playlist, PlaylistSongEntry, PlaylistWithSongs
 └── AGENTS.md
 ```
 
@@ -115,4 +122,17 @@ Environment variables (`.env` in backend/):
 
 2. **Shared types usage**: Both frontend and backend import types from `shared/types/index.ts`. The `HistoryItem` interface is the primary shared type.
 
-3. **SQLite database**: The backend uses better-sqlite3 for persistence. Tables: `history_items` (song history), `genre_history` (used genres). Database file is gitignored.
+3. **SQLite database**: The backend uses better-sqlite3 for persistence. Tables: `history_items` (song history), `genre_history` (used genres), `playlists` (user playlists), `playlist_songs` (playlist entries). Database file is gitignored.
+
+4. **Jotai atoms**: Frontend uses Jotai for shared state management. Key atoms:
+   - `historyAtom` – all history items
+   - `selectedItemIdAtom` / `selectedItemAtom` – currently selected song
+   - `songGenerationStatusAtom` – Suno generation lifecycle
+   - `audioSourceAtom` / `nowPlayingAtom` – current playback
+   - `isPlayingAtom`, `currentTimeAtom`, `durationAtom`, `volumeAtom` – playback state
+   - `filteredHistoryAtom` – filtered song list
+   - `playbackQueueAtom` – captured queue for prev/next navigation
+   - `editorOpenAtom` – editor overlay state
+   - `playlistsAtom`, `selectedPlaylistIdAtom`, `currentPlaylistSongsAtom` – playlist state
+
+5. **Drag-and-drop**: Playlist and mixtape editors use @dnd-kit/core and @dnd-kit/sortable for reordering.
