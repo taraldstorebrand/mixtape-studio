@@ -2,7 +2,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
-import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom } from '../../../store';
+import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom, currentPlaylistSongsAtom } from '../../../store';
 import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {
@@ -32,6 +32,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
   const audioRef = useAtomValue(audioRefAtom);
   const isPlaying = useAtomValue(isPlayingAtom);
   const filteredHistory = useAtomValue(filteredHistoryAtom);
+  const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
   const setPlaybackQueue = useSetAtom(playbackQueueAtom);
 
   const isCurrentlyPlaying = nowPlaying?.id === item.id && isPlaying;
@@ -72,7 +73,9 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
       }
     } else {
       // Different song - switch to this one and update playback queue (D-052)
-      setPlaybackQueue(filteredHistory.map((h) => h.id));
+      // Use playlist songs if in playlist mode, otherwise use filtered library
+      const songsForQueue = currentPlaylistSongs ?? filteredHistory;
+      setPlaybackQueue(songsForQueue.map((h) => h.id));
       setAudioSource({ id: item.id, url: audioUrl });
     }
   };

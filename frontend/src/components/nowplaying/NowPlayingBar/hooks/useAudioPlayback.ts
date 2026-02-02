@@ -45,6 +45,13 @@ export function useAudioPlayback() {
     currentPlaylistSongsRef.current = currentPlaylistSongs;
   }, [currentPlaylistSongs]);
 
+  // Update playback queue when context changes (playlist ↔ library) while a song is playing
+  useEffect(() => {
+    if (!audioSource) return;
+    const songsForQueue = currentPlaylistSongs ?? filteredHistory;
+    setPlaybackQueue(songsForQueue.map((s) => s.id));
+  }, [currentPlaylistSongs, audioSource, filteredHistory, setPlaybackQueue]);
+
   useEffect(() => {
     audioSourceRef.current = audioSource;
   }, [audioSource]);
@@ -83,12 +90,8 @@ export function useAudioPlayback() {
         return;
       }
 
-      // Determine which list to use based on which list is current song from
-      let songsToSearch = allSongs;
-      const isFromPlaylist = playlistSongs && playlistSongs.some(s => s.id === currentSource.id);
-      if (isFromPlaylist) {
-        songsToSearch = playlistSongs;
-      }
+      // Use playlist if available, otherwise use full history for finding songs
+      const songsToSearch = playlistSongs ?? allSongs;
 
       const currentIndex = queue.indexOf(currentSource.id);
 
@@ -104,8 +107,8 @@ export function useAudioPlayback() {
         }
       }
 
-      // If from playlist and end of queue, wrap to start
-      if (isFromPlaylist) {
+      // If in playlist mode, wrap to start
+      if (playlistSongs) {
         for (let i = 0; i < currentIndex; i++) {
           const nextId = queue[i];
           const nextSong = songsToSearch.find((s) => s.id === nextId);
@@ -222,25 +225,19 @@ export function useAudioPlayback() {
     }
     const url = item.sunoLocalUrl || item.sunoAudioUrl;
     if (url) {
-      // Determine which list to use for playback queue based on where the song is playing from
-      // Prefer playlist if song exists there (even with duplicates)
-      let songsToQueue = filteredHistory;
-
-      if (currentPlaylistSongs && currentPlaylistSongs.some(s => s.id === item.id)) {
-        songsToQueue = currentPlaylistSongs;
-      }
-
+      // Use playlist if in playlist mode, otherwise use filtered library
+      const songsToQueue = currentPlaylistSongs ?? filteredHistory;
       setPlaybackQueue(songsToQueue.map((h) => h.id));
       setAudioSource({ id: item.id, url });
     }
   };
 
   const getSongsToSearch = () => {
-    if (!nowPlaying) return history;
-    if (currentPlaylistSongs && currentPlaylistSongs.some(s => s.id === nowPlaying.id)) {
+    // Use playlist if available, otherwise use filtered library (not full history)
+    if (currentPlaylistSongs) {
       return currentPlaylistSongs;
     }
-    return history;
+    return filteredHistory;
   };
 
   return {
