@@ -14,7 +14,7 @@ test-cursor/
 │   │   │   ├── common/      # Shared UI components (Modal)
 │   │   │   ├── history/     # History list components (HistoryList, HistoryItem, PlaylistDropdown, PlaylistActions)
 │   │   │   ├── lyrics/      # Lyrics input components
-│   │   │   ├── mixtape/     # Mixtape editor components (MixtapeEditor, SongPicker, AdvancedMixtapeButton)
+│   │   │   ├── mixtape/     # Mixtape components (SongPicker)
 │   │   │   ├── nowplaying/  # Now playing bar and audio controls (NowPlayingBar, ProgressBar, VolumeControl)
 │   │   │   ├── panels/      # Layout panels (DetailPanel, HistoryPanel)
 │   │   │   └── playlist/    # Playlist editor (PlaylistEditor, SortablePlaylistItem)

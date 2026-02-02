@@ -22,7 +22,7 @@ Ingen error boundary – én runtime-feil kan ta ned hele appen.
 
 ### Task 2: Fiks A11y/AGENTS-brudd
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 - Hardkodet tekst i `App.tsx` header (mangler i18n)
@@ -78,7 +78,7 @@ Fjern `playlistSongs` lokal state og bruk kun `currentPlaylistSongsAtom`. Oppdat
 
 ### Task 5: Fiks filteredHistoryAtom-synk
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 `filteredHistoryAtom` settes i `useEffect` med ny array hver render → unødvendige atom-updates og re-renders.
@@ -94,7 +94,7 @@ Gjør `filteredHistoryAtom` til en derived atom som leser fra `historyAtom` og e
 
 ### Task 6: Optimaliser playlist-save
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 `PlaylistEditor.handleClose` fjerner alle sanger via O(n) API-kall før re-adding. Tregt med mange sanger.
@@ -109,7 +109,7 @@ Beregn diff i frontend: `toRemove` og `toAdd`, kall bare nødvendige APIer.
 
 ### Task 7: Standardiser feilhåndtering
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 Noen komponenter viser feil i UI, andre bare `console.error`.
@@ -130,7 +130,7 @@ Noen komponenter viser feil i UI, andre bare `console.error`.
 
 ### Task 8: Fjern redundant nowPlayingItem-lookup
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 `App.tsx` slår opp `nowPlayingItem` selv om `nowPlayingAtom` allerede gjør dette.
@@ -147,7 +147,7 @@ Fjern `nowPlayingItem`-variabelen og bruk `nowPlaying` direkte (eller pass `nowP
 
 ### Task 9: Type guards for errors
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 Bruker `err: any` i catch-blokker.
@@ -164,7 +164,7 @@ Lag en utility `getErrorMessage(err: unknown): string` og bruk den i alle catch-
 
 ### Task 10: Fjern debug logging
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 `console.log('Received Suno update:', data)` og annen debug-logging bør fjernes i produksjon.
@@ -182,7 +182,7 @@ Fjern eller guard med `import.meta.env.DEV`.
 
 ### Task 11: Fjern D-055 fra DECISIONS.md
 
-**Status:** Pending
+**Status:** Completed
 
 **Problem:**
 Advanced Mixtape Editor er fjernet (per TASKS.md completed task), men D-055 dokumenterer fortsatt denne funksjonaliteten.
