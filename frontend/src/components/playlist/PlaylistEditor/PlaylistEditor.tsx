@@ -136,20 +136,36 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
         await updatePlaylist(finalPlaylistId, { name });
       }
 
+      const existingSongIds = new Set<string>();
       if (isEdit && finalPlaylistId) {
         const existingPlaylist = await fetchPlaylist(finalPlaylistId);
-        
-        await Promise.all(
-          existingPlaylist.songs.map(s => removeSongFromPlaylist(finalPlaylistId, s.entryId))
-        );
+        const existingEntries = existingPlaylist.songs;
+
+        const newSongIds = new Set(playlistEntries.map((entry) => entry.song.id));
+
+        const toRemove = existingEntries.filter((entry) => !newSongIds.has(entry.song.id));
+        await Promise.all(toRemove.map((entry) => removeSongFromPlaylist(finalPlaylistId, entry.entryId)));
+
+        existingEntries.forEach((entry) => existingSongIds.add(entry.song.id));
+      }
+
+      const toAdd = playlistEntries.filter((entry) => !existingSongIds.has(entry.song.id));
+      if (toAdd.length > 0) {
+        const songIds = toAdd.map((entry) => entry.song.id);
+        await addSongsToPlaylist(finalPlaylistId, songIds);
       }
 
       if (playlistEntries.length > 0) {
-        const songIds = playlistEntries.map((entry) => entry.song.id);
-        await addSongsToPlaylist(finalPlaylistId, songIds);
-
         const updatedPlaylist = await fetchPlaylist(finalPlaylistId);
-        const entryIds = updatedPlaylist.songs.map(s => s.entryId);
+        const newEntriesMap = new Map(playlistEntries.map((entry, index) => [entry.song.id, index]));
+        const entryIds = updatedPlaylist.songs
+          .filter((entry) => newEntriesMap.has(entry.song.id))
+          .sort((a, b) => {
+            const aIndex = newEntriesMap.get(a.song.id) ?? 0;
+            const bIndex = newEntriesMap.get(b.song.id) ?? 0;
+            return aIndex - bIndex;
+          })
+          .map((entry) => entry.entryId);
         await reorderPlaylistSongs(finalPlaylistId, entryIds);
       }
 
