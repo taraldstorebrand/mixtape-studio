@@ -157,7 +157,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   return (
     <>
       {error && (
-        <div className={styles.errorMessage}>
+        <div className={styles.errorMessage} role="alert" aria-live="polite">
           {error}
         </div>
       )}

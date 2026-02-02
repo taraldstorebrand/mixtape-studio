@@ -4,6 +4,7 @@ import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel'
 import { HistoryPanel } from './components/panels/HistoryPanel';
 import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
 import { ErrorBoundary } from './components/common/ErrorBoundary/ErrorBoundary';
+import { ErrorBanner } from './components/common/ErrorBanner/ErrorBanner';
 import { useInitializeHistory, useHistoryActions, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
@@ -121,6 +122,8 @@ function App() {
         <h1>{t.headings.mixtapeStudio}</h1>
         <p>{t.headings.tagline}</p>
       </header>
+
+      <ErrorBanner />
 
       <ErrorBoundary>
         <main className={styles.main} ref={containerRef}>

@@ -73,3 +73,6 @@ export const selectedPlaylistIdAtom = atom<string | null>(null);
 
 // Songs in the currently selected playlist (null = library mode)
 export const currentPlaylistSongsAtom = atom<HistoryItem[] | null>(null);
+
+// Global error state for error banner
+export const globalErrorAtom = atom<string | null>(null);

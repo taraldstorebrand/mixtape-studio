@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
-import { historyAtom } from './atoms';
+import { historyAtom, globalErrorAtom } from './atoms';
 import { HistoryItem } from '../types';
 import {
   fetchHistory,
@@ -11,6 +11,7 @@ import {
 
 export function useInitializeHistory() {
   const [history, setHistory] = useAtom(historyAtom);
+  const setGlobalError = useAtom(globalErrorAtom)[1];
   const initializedRef = useRef(false);
 
   useEffect(() => {
@@ -23,17 +24,19 @@ export function useInitializeHistory() {
         setHistory(items);
       } catch (error) {
         console.error('Failed to fetch history:', error);
+        setGlobalError('Failed to load history. Please refresh the page.');
       }
     };
 
     initializeHistory();
-  }, [setHistory]);
+  }, [setHistory, setGlobalError]);
 
   return history;
 }
 
 export function useHistoryActions() {
   const [history, setHistory] = useAtom(historyAtom);
+  const setGlobalError = useAtom(globalErrorAtom)[1];
 
   const addHistoryItem = async (item: HistoryItem) => {
     setHistory((prev) => [item, ...prev]);
@@ -42,6 +45,7 @@ export function useHistoryActions() {
       await apiCreateHistoryItem(item);
     } catch (error) {
       console.error('Failed to create history item:', error);
+      setGlobalError('Failed to save history item.');
       setHistory((prev) => prev.filter((i) => i.id !== item.id));
     }
   };
@@ -63,6 +67,7 @@ export function useHistoryActions() {
       await apiUpdateHistoryItem(id, updates);
     } catch (error) {
       console.error('Failed to update history item:', error);
+      setGlobalError('Failed to update history item.');
       if (previousItem) {
         setHistory((prev) =>
           prev.map((item) => (item.id === id ? previousItem! : item))
@@ -87,6 +92,7 @@ export function useHistoryActions() {
       await apiDeleteHistoryItem(id);
     } catch (error) {
       console.error('Failed to delete history item:', error);
+      setGlobalError('Failed to delete history item.');
       if (removedItem) {
         setHistory((prev) => [removedItem!, ...prev]);
       }

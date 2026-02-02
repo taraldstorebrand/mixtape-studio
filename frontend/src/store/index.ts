@@ -18,6 +18,7 @@ export {
   playlistsAtom,
   selectedPlaylistIdAtom,
   currentPlaylistSongsAtom,
+  globalErrorAtom,
 } from './atoms';
 export type { FilterType, SongGenerationStatus } from './atoms';
 export { useInitializeHistory, useHistoryActions } from './useHistoryAtom';
