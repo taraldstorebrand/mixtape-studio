@@ -2,11 +2,12 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
-import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom, currentPlaylistSongsAtom } from '../../../store';
+import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom, currentPlaylistSongsAtom, selectedQueueEntryIdAtom } from '../../../store';
 import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {
   item: HistoryItemType;
+  entryId: string | null;
   isSelected: boolean;
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onSelect: (item: HistoryItemType) => void;
@@ -22,7 +23,7 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }: HistoryItemProps) {
+export function HistoryItem({ item, entryId, isSelected, onFeedback, onSelect, onDelete }: HistoryItemProps) {
   const displayTitle = item.title || item.prompt || t.messages.untitled;
   const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
@@ -34,8 +35,11 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
   const filteredHistory = useAtomValue(filteredHistoryAtom);
   const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
   const setPlaybackQueue = useSetAtom(playbackQueueAtom);
+  const selectedQueueEntryId = useAtomValue(selectedQueueEntryIdAtom);
 
   const isCurrentlyPlaying = nowPlaying?.id === item.id && isPlaying;
+  const isEntrySelected = entryId ? entryId === selectedQueueEntryId : isSelected;
+  const isThisEntryPlaying = entryId ? entryId === selectedQueueEntryId && isCurrentlyPlaying : isCurrentlyPlaying;
 
   const titleRef = useRef<HTMLElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -84,7 +88,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
     if (target.closest('button')) {
       return;
     }
-    if (isSelected) {
+    if (isEntrySelected) {
       return;
     }
     onSelect(item);
@@ -118,7 +122,7 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
 
   return (
     <div
-      className={`${styles.historyItem} ${isSelected ? styles.selected : ''} ${isCurrentlyPlaying ? styles.nowPlaying : ''}`}
+      className={`${styles.historyItem} ${isEntrySelected ? styles.selected : ''} ${isThisEntryPlaying ? styles.nowPlaying : ''}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"
@@ -136,12 +140,12 @@ export function HistoryItem({ item, isSelected, onFeedback, onSelect, onDelete }
             <button
               type="button"
               onClick={handlePlayPause}
-              className={`${styles.playButtonOverlay} ${isCurrentlyPlaying ? styles.playButtonOverlayActive : styles.playButtonOverlayPlay}`}
-              title={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
-              aria-label={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
-              aria-pressed={isCurrentlyPlaying}
+              className={`${styles.playButtonOverlay} ${isThisEntryPlaying ? styles.playButtonOverlayActive : styles.playButtonOverlayPlay}`}
+              title={isThisEntryPlaying ? t.tooltips.pause : t.tooltips.play}
+              aria-label={isThisEntryPlaying ? t.tooltips.pause : t.tooltips.play}
+              aria-pressed={isThisEntryPlaying}
             >
-              {isCurrentlyPlaying ? '⏸' : '▶'}
+              {isThisEntryPlaying ? '⏸' : '▶'}
             </button>
           )}
         </div>

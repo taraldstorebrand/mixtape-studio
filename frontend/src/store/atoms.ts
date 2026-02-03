@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { HistoryItem, Playlist } from '../types';
+import { HistoryItem, Playlist, PlaylistSongEntry } from '../types';
 
 export type SongGenerationStatus = 'idle' | 'pending' | 'completed' | 'failed';
 export type FilterType = 'default' | 'liked' | 'all';
@@ -65,6 +65,10 @@ export const playbackQueueAtom = atom<QueueEntry[]>([]);
 // Current position in playback queue (supports duplicate songs)
 export const currentQueueIndexAtom = atom<number>(0);
 
+// Selected queue entry ID - used to mark which instance is selected in playlist mode
+// In library mode, selectedItemIdAtom is used instead
+export const selectedQueueEntryIdAtom = atom<string | null>(null);
+
 // Editor overlay state - independent of selectedId (D-xxx)
 // true = show editor overlay, false = show detail view (or empty state if no selection)
 export const editorOpenAtom = atom<boolean>(false);
@@ -78,6 +82,10 @@ export const selectedPlaylistIdAtom = atom<string | null>(null);
 
 // Songs in the currently selected playlist (null = library mode)
 export const currentPlaylistSongsAtom = atom<HistoryItem[] | null>(null);
+
+// Playlist entries (with entry IDs) for the currently selected playlist (null = library mode)
+// Used to support duplicate songs with unique selection
+export const currentPlaylistEntriesAtom = atom<PlaylistSongEntry[] | null>(null);
 
 // Global error state for error banner
 export const globalErrorAtom = atom<string | null>(null);

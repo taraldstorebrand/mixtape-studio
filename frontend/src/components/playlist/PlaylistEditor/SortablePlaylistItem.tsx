@@ -3,7 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { t } from '../../../i18n';
 import type { HistoryItem } from '../../../types';
-import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, playbackQueueAtom } from '../../../store';
+import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, playbackQueueAtom, selectedQueueEntryIdAtom, currentQueueIndexAtom } from '../../../store';
 import styles from './PlaylistEditor.module.css';
 
 export interface PlaylistSongEntry {
@@ -31,8 +31,12 @@ export function SortablePlaylistItem({ entry, index, onRemove, disabled, allEntr
   const audioRef = useAtomValue(audioRefAtom);
   const isPlaying = useAtomValue(isPlayingAtom);
   const setPlaybackQueue = useSetAtom(playbackQueueAtom);
+  const setCurrentQueueIndex = useSetAtom(currentQueueIndexAtom);
+  const selectedQueueEntryId = useAtomValue(selectedQueueEntryIdAtom);
+  const setSelectedQueueEntryId = useSetAtom(selectedQueueEntryIdAtom);
 
   const isCurrentlyPlaying = nowPlaying?.id === song.id && isPlaying;
+  const isThisEntryPlaying = entryId === selectedQueueEntryId && isCurrentlyPlaying;
 
   const {
     attributes,
@@ -61,7 +65,9 @@ export function SortablePlaylistItem({ entry, index, onRemove, disabled, allEntr
         });
       }
       } else {
-        setPlaybackQueue(allEntries.map((e, index) => ({ entryId: `sortable-entry-${Date.now()}-${index}`, songId: e.song.id })));
+        setPlaybackQueue(allEntries.map((e) => ({ entryId: e.entryId, songId: e.song.id })));
+        setCurrentQueueIndex(index);
+        setSelectedQueueEntryId(entryId);
         setAudioSource({ id: song.id, url: audioUrl });
       }
   };
@@ -70,7 +76,7 @@ export function SortablePlaylistItem({ entry, index, onRemove, disabled, allEntr
     <div
       ref={setNodeRef}
       style={style}
-      className={`${styles.playlistItem} ${isDragging ? styles.dragging : ''} ${isCurrentlyPlaying ? styles.nowPlaying : ''}`}
+      className={`${styles.playlistItem} ${isDragging ? styles.dragging : ''} ${isThisEntryPlaying ? styles.nowPlaying : ''}`}
     >
       <span
         className={styles.dragHandle}
@@ -91,12 +97,12 @@ export function SortablePlaylistItem({ entry, index, onRemove, disabled, allEntr
           <button
             type="button"
             onClick={handlePlayPause}
-            className={`${styles.playButtonOverlay} ${isCurrentlyPlaying ? styles.playButtonOverlayActive : styles.playButtonOverlayPlay}`}
-            title={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
-            aria-label={isCurrentlyPlaying ? t.tooltips.pause : t.tooltips.play}
-            aria-pressed={isCurrentlyPlaying}
+            className={`${styles.playButtonOverlay} ${isThisEntryPlaying ? styles.playButtonOverlayActive : styles.playButtonOverlayPlay}`}
+            title={isThisEntryPlaying ? t.tooltips.pause : t.tooltips.play}
+            aria-label={isThisEntryPlaying ? t.tooltips.pause : t.tooltips.play}
+            aria-pressed={isThisEntryPlaying}
           >
-            {isCurrentlyPlaying ? '⏸' : '▶'}
+            {isThisEntryPlaying ? '⏸' : '▶'}
           </button>
         )}
       </div>

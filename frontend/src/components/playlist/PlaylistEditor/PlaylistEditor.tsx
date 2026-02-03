@@ -22,7 +22,7 @@ import { SortablePlaylistItem, type PlaylistSongEntry } from './SortablePlaylist
 import { fetchPlaylist, createPlaylist, updatePlaylist, addSongsToPlaylist, removeSongFromPlaylist, reorderPlaylistSongs } from '../../../services/playlists';
 import { t } from '../../../i18n';
 import { getErrorMessage } from '../../../utils/errors';
-import { audioSourceAtom, playbackQueueAtom } from '../../../store';
+import { audioSourceAtom, playbackQueueAtom, currentQueueIndexAtom, selectedQueueEntryIdAtom } from '../../../store';
 import styles from './PlaylistEditor.module.css';
 
 interface PlaylistEditorProps {
@@ -42,15 +42,26 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
 
   const audioSource = useAtomValue(audioSourceAtom);
   const setPlaybackQueue = useSetAtom(playbackQueueAtom);
+  const setCurrentQueueIndex = useSetAtom(currentQueueIndexAtom);
+  const selectedQueueEntryId = useAtomValue(selectedQueueEntryIdAtom);
 
   // Sync playback queue when editor entries change (if currently playing from editor)
   useEffect(() => {
     if (!audioSource) return;
     const isPlayingFromEditor = playlistEntries.some((e) => e.song.id === audioSource.id);
     if (isPlayingFromEditor) {
-      setPlaybackQueue(playlistEntries.map((e, index) => ({ entryId: `editor-entry-${Date.now()}-${index}`, songId: e.song.id })));
+      const newQueue = playlistEntries.map((e) => ({ entryId: e.entryId, songId: e.song.id }));
+      setPlaybackQueue(newQueue);
+
+      // Update currentQueueIndex to match the new position of the currently playing entry
+      if (selectedQueueEntryId) {
+        const newIndex = newQueue.findIndex((e) => e.entryId === selectedQueueEntryId);
+        if (newIndex >= 0) {
+          setCurrentQueueIndex(newIndex);
+        }
+      }
     }
-  }, [playlistEntries, audioSource, setPlaybackQueue]);
+  }, [playlistEntries, audioSource, setPlaybackQueue, selectedQueueEntryId, setCurrentQueueIndex]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -151,20 +162,22 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
         await updatePlaylist(finalPlaylistId, { name });
       }
 
-      const existingSongIds = new Set<string>();
+      const existingEntryIds = new Set<string>();
       if (isEdit && finalPlaylistId) {
         const existingPlaylist = await fetchPlaylist(finalPlaylistId);
         const existingEntries = existingPlaylist.songs;
 
-        const newSongIds = new Set(playlistEntries.map((entry) => entry.song.id));
+        const newEntryIds = new Set(playlistEntries.map((entry) => entry.entryId));
 
-        const toRemove = existingEntries.filter((entry) => !newSongIds.has(entry.song.id));
+        // Remove entries that are no longer in the playlist (by entryId)
+        const toRemove = existingEntries.filter((entry) => !newEntryIds.has(entry.entryId));
         await Promise.all(toRemove.map((entry) => removeSongFromPlaylist(finalPlaylistId, entry.entryId)));
 
-        existingEntries.forEach((entry) => existingSongIds.add(entry.song.id));
+        existingEntries.forEach((entry) => existingEntryIds.add(entry.entryId));
       }
 
-      const toAdd = playlistEntries.filter((entry) => !existingSongIds.has(entry.song.id));
+      // Add new entries (entries with temp- prefix are new, including duplicates)
+      const toAdd = playlistEntries.filter((entry) => entry.entryId.startsWith('temp-'));
       if (toAdd.length > 0) {
         const songIds = toAdd.map((entry) => entry.song.id);
         await addSongsToPlaylist(finalPlaylistId, songIds);
@@ -172,16 +185,23 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
 
       if (playlistEntries.length > 0) {
         const updatedPlaylist = await fetchPlaylist(finalPlaylistId);
-        const newEntriesMap = new Map(playlistEntries.map((entry, index) => [entry.song.id, index]));
-        const entryIds = updatedPlaylist.songs
-          .filter((entry) => newEntriesMap.has(entry.song.id))
-          .sort((a, b) => {
-            const aIndex = newEntriesMap.get(a.song.id) ?? 0;
-            const bIndex = newEntriesMap.get(b.song.id) ?? 0;
-            return aIndex - bIndex;
-          })
-          .map((entry) => entry.entryId);
-        await reorderPlaylistSongs(finalPlaylistId, entryIds);
+
+        // Build final order: existing entries keep their entryId, new entries get matched by position
+        const existingEntryIds = new Set(playlistEntries.filter((e) => !e.entryId.startsWith('temp-')).map((e) => e.entryId));
+        const newBackendEntries = updatedPlaylist.songs.filter((e) => !existingEntryIds.has(e.entryId));
+
+        // Map temp entries to their new backend entryIds (in order they were added)
+        let newEntryIndex = 0;
+        const finalEntryIds = playlistEntries.map((entry) => {
+          if (entry.entryId.startsWith('temp-')) {
+            // This is a new entry - get the next backend entry
+            return newBackendEntries[newEntryIndex++]?.entryId;
+          }
+          // Existing entry - use its entryId directly
+          return entry.entryId;
+        }).filter((id): id is string => id !== undefined);
+
+        await reorderPlaylistSongs(finalPlaylistId, finalEntryIds);
       }
 
       onPlaylistChanged(finalPlaylistId);

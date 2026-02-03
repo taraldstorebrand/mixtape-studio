@@ -8,10 +8,12 @@ import {
   currentTimeAtom,
   durationAtom,
   currentPlaylistSongsAtom,
+  currentPlaylistEntriesAtom,
   filteredHistoryAtom,
   playbackQueueAtom,
   currentQueueIndexAtom,
   historyAtom,
+  selectedQueueEntryIdAtom,
 } from '../../../../store';
 import { HistoryItem } from '../../../../types';
 
@@ -24,8 +26,10 @@ export function useAudioPlayback() {
   const [duration, setDuration] = useAtom(durationAtom);
   const filteredHistory = useAtomValue(filteredHistoryAtom);
   const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
+  const currentPlaylistEntries = useAtomValue(currentPlaylistEntriesAtom);
   const [playbackQueue, setPlaybackQueue] = useAtom(playbackQueueAtom);
   const [currentQueueIndex, setCurrentQueueIndex] = useAtom(currentQueueIndexAtom);
+  const [, setSelectedQueueEntryId] = useAtom(selectedQueueEntryIdAtom);
   const history = useAtomValue(historyAtom);
   const internalAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -55,9 +59,15 @@ export function useAudioPlayback() {
   // Update playback queue when context changes (playlist ↔ library) while a song is playing
   useEffect(() => {
     if (!audioSourceRef.current) return;
-    const songsForQueue = currentPlaylistSongs ?? filteredHistory;
-    setPlaybackQueue(songsToQueue.map((s, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: s.id })));
-  }, [currentPlaylistSongs, setPlaybackQueue]);
+
+    if (currentPlaylistEntries) {
+      // In playlist mode: use the actual entry IDs from the playlist
+      setPlaybackQueue(currentPlaylistEntries.map((entry) => ({ entryId: entry.entryId, songId: entry.song.id })));
+    } else {
+      // In library mode: generate new entry IDs
+      setPlaybackQueue(filteredHistory.map((s, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: s.id })));
+    }
+  }, [currentPlaylistEntries, filteredHistory, setPlaybackQueue]);
 
   useEffect(() => {
     audioSourceRef.current = audioSource;
@@ -228,17 +238,40 @@ export function useAudioPlayback() {
   const setNowPlaying = (item: HistoryItem | null, queueIndex?: number) => {
     if (!item) {
       setAudioSource(null);
+      setSelectedQueueEntryId(null);
       return;
     }
     const url = item.sunoLocalUrl || item.sunoAudioUrl;
     if (url) {
-      // Use playlist if in playlist mode, otherwise use filtered library
-      const songsToQueue = currentPlaylistSongs ?? filteredHistory;
-      setPlaybackQueue(songsToQueue.map((h, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: h.id })));
-      // Set queue index if provided, otherwise find first occurrence
-      const index = queueIndex ?? songsToQueue.findIndex((h) => h.id === item.id);
-      setCurrentQueueIndex(index >= 0 ? index : 0);
-      setAudioSource({ id: item.id, url });
+      // If queueIndex is provided and we have an existing queue, use it (for next/prev navigation)
+      if (queueIndex !== undefined && playbackQueue.length > 0 && queueIndex >= 0 && queueIndex < playbackQueue.length) {
+        setCurrentQueueIndex(queueIndex);
+        setSelectedQueueEntryId(playbackQueue[queueIndex].entryId);
+        setAudioSource({ id: item.id, url });
+        return;
+      }
+
+      // Otherwise, build a new queue (for initial play from a list)
+      let newQueue: { entryId: string; songId: string }[];
+      let index: number;
+
+      if (currentPlaylistEntries) {
+        // In playlist mode: use entry IDs from current playlist
+        newQueue = currentPlaylistEntries.map((entry) => ({ entryId: entry.entryId, songId: entry.song.id }));
+        index = queueIndex ?? newQueue.findIndex((q) => q.songId === item.id);
+      } else {
+        // In library mode: generate new entry IDs
+        const songsToQueue = filteredHistory;
+        newQueue = songsToQueue.map((h, i) => ({ entryId: `entry-${Date.now()}-${i}`, songId: h.id }));
+        index = queueIndex ?? songsToQueue.findIndex((h) => h.id === item.id);
+      }
+
+      if (index >= 0 && index < newQueue.length) {
+        setPlaybackQueue(newQueue);
+        setCurrentQueueIndex(index);
+        setSelectedQueueEntryId(newQueue[index].entryId);
+        setAudioSource({ id: item.id, url });
+      }
     }
   };
 

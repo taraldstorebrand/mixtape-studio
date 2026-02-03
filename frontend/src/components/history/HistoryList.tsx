@@ -6,7 +6,7 @@ import { MixtapeButton } from './MixtapeButton/MixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
 import { PlaylistDropdown } from './PlaylistDropdown/PlaylistDropdown';
 import { PlaylistActions } from './PlaylistActions/PlaylistActions';
-import { currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store';
+import { currentPlaylistEntriesAtom, currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store';
 import { t } from '../../i18n';
 import { fetchPlaylists, fetchPlaylist, deletePlaylist } from '../../services/playlists';
 import { Modal } from '../common/Modal/Modal';
@@ -31,7 +31,9 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const setPlaylists = useSetAtom(playlistsAtom);
     const setSelectedPlaylistId = useSetAtom(selectedPlaylistIdAtom);
     const setCurrentPlaylistSongs = useSetAtom(currentPlaylistSongsAtom);
+    const setCurrentPlaylistEntries = useSetAtom(currentPlaylistEntriesAtom);
     const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
+    const currentPlaylistEntries = useAtomValue(currentPlaylistEntriesAtom);
     const filteredItems = useAtomValue(filteredHistoryAtom);
 
     const completedSongs = (songs: HistoryItemType[]) => songs.filter(song => song.sunoLocalUrl || (song.sunoStatus === 'completed' && song.sunoAudioUrl));
@@ -58,6 +60,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             if (selectedPlaylistId === playlistId) {
                 setSelectedPlaylistId(null);
                 setCurrentPlaylistSongs(null);
+                setCurrentPlaylistEntries(null);
             }
         } catch (error) {
             console.error('Failed to delete playlist:', error);
@@ -67,6 +70,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const handleReturnToLibrary = () => {
         setSelectedPlaylistId(null);
         setCurrentPlaylistSongs(null);
+        setCurrentPlaylistEntries(null);
     };
 
     const handleFeedback = async (id: string, feedback: 'up' | 'down' | null) => {
@@ -78,6 +82,12 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             );
             setCurrentPlaylistSongs(updatedSongs);
         }
+        if (selectedPlaylistId !== null && currentPlaylistEntries) {
+            const updatedEntries = currentPlaylistEntries.map((entry) =>
+                entry.song.id === id ? { ...entry, song: { ...entry.song, feedback: feedback ?? undefined } } : entry
+            );
+            setCurrentPlaylistEntries(updatedEntries);
+        }
     };
 
     const handlePlaylistChanged = async (changedPlaylistId: string) => {
@@ -88,6 +98,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             const updatedPlaylist = await fetchPlaylist(changedPlaylistId);
             const songs = updatedPlaylist.songs.map((entry) => entry.song);
             setCurrentPlaylistSongs(songs);
+            setCurrentPlaylistEntries(updatedPlaylist.songs);
         }
     };
 
@@ -105,6 +116,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     useEffect(() => {
         if (selectedPlaylistId === null) {
             setCurrentPlaylistSongs(null);
+            setCurrentPlaylistEntries(null);
             return;
         }
 
@@ -112,9 +124,10 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             .then((playlistWithSongs) => {
                 const songs = playlistWithSongs.songs.map((entry) => entry.song);
                 setCurrentPlaylistSongs(songs);
+                setCurrentPlaylistEntries(playlistWithSongs.songs);
             })
             .catch(console.error);
-    }, [selectedPlaylistId, setCurrentPlaylistSongs]);
+    }, [selectedPlaylistId, setCurrentPlaylistSongs, setCurrentPlaylistEntries]);
 
     return (
         <div className={styles.historyList}>
@@ -174,16 +187,20 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
                 </div>
             ) : (
                 <>
-                    {displayItems.map((item) => (
-                        <HistoryItem
-                            key={item.id}
-                            item={item}
-                            isSelected={item.id === selectedItemId}
-                            onFeedback={handleFeedback}
-                            onSelect={onSelect}
-                            onDelete={() => onDeleteItem(item.id)}
-                        />
-                    ))}
+                    {displayItems.map((item, index) => {
+                        const entryId = currentPlaylistEntries?.[index]?.entryId ?? null;
+                        return (
+                            <HistoryItem
+                                key={entryId ?? `${item.id}-${index}`}
+                                item={item}
+                                entryId={entryId}
+                                isSelected={item.id === selectedItemId}
+                                onFeedback={handleFeedback}
+                                onSelect={onSelect}
+                                onDelete={() => onDeleteItem(item.id)}
+                            />
+                        );
+                    })}
                 </>
             )}
             {isPlaylistEditorOpen && (

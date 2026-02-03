@@ -15,10 +15,12 @@ export {
   filteredHistoryAtom,
   playbackQueueAtom,
   currentQueueIndexAtom,
+  selectedQueueEntryIdAtom,
   editorOpenAtom,
   playlistsAtom,
   selectedPlaylistIdAtom,
   currentPlaylistSongsAtom,
+  currentPlaylistEntriesAtom,
   globalErrorAtom,
 } from './atoms';
 export type { FilterType, SongGenerationStatus, QueueEntry } from './atoms';
