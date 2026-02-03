@@ -2,7 +2,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
-import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom, currentPlaylistSongsAtom, selectedQueueEntryIdAtom } from '../../../store';
+import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom, currentPlaylistEntriesAtom, selectedQueueEntryIdAtom, currentQueueIndexAtom } from '../../../store';
 import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {
@@ -33,9 +33,11 @@ export function HistoryItem({ item, entryId, isSelected, onFeedback, onSelect, o
   const audioRef = useAtomValue(audioRefAtom);
   const isPlaying = useAtomValue(isPlayingAtom);
   const filteredHistory = useAtomValue(filteredHistoryAtom);
-  const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
+  const currentPlaylistEntries = useAtomValue(currentPlaylistEntriesAtom);
   const setPlaybackQueue = useSetAtom(playbackQueueAtom);
+  const setCurrentQueueIndex = useSetAtom(currentQueueIndexAtom);
   const selectedQueueEntryId = useAtomValue(selectedQueueEntryIdAtom);
+  const setSelectedQueueEntryId = useSetAtom(selectedQueueEntryIdAtom);
 
   const isCurrentlyPlaying = nowPlaying?.id === item.id && isPlaying;
   const isEntrySelected = entryId ? entryId === selectedQueueEntryId : isSelected;
@@ -66,8 +68,18 @@ export function HistoryItem({ item, entryId, isSelected, onFeedback, onSelect, o
   const handlePlayPause = () => {
     if (!audioUrl) return;
 
-    if (nowPlaying?.id === item.id) {
-      // Same song - toggle play/pause
+    // Check if this specific entry is already playing (handles duplicates in playlists)
+    const isThisExactEntryPlaying = entryId
+      ? entryId === selectedQueueEntryId && isPlaying
+      : nowPlaying?.id === item.id && isPlaying;
+
+    if (isThisExactEntryPlaying) {
+      // Same entry - pause
+      if (audioRef) {
+        audioRef.pause();
+      }
+    } else if (nowPlaying?.id === item.id && !entryId) {
+      // Same song in library mode (no entryId) - toggle play/pause
       if (isPlaying && audioRef) {
         audioRef.pause();
       } else if (audioRef) {
@@ -76,9 +88,24 @@ export function HistoryItem({ item, entryId, isSelected, onFeedback, onSelect, o
         });
       }
     } else {
-      // Different song - switch to this one and update playback queue (D-052)
-      // Use playlist songs if in playlist mode, otherwise use filtered library
-      setPlaybackQueue((currentPlaylistSongs ?? filteredHistory).map((h, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: h.id })));
+      // Different song or different entry - switch to this one and update playback queue
+      if (currentPlaylistEntries) {
+        // Playlist mode: use actual entry IDs and find correct index
+        const newQueue = currentPlaylistEntries.map((e) => ({ entryId: e.entryId, songId: e.song.id }));
+        const index = entryId
+          ? newQueue.findIndex((q) => q.entryId === entryId)
+          : newQueue.findIndex((q) => q.songId === item.id);
+        setPlaybackQueue(newQueue);
+        setCurrentQueueIndex(index >= 0 ? index : 0);
+        setSelectedQueueEntryId(entryId ?? newQueue[index >= 0 ? index : 0]?.entryId ?? null);
+      } else {
+        // Library mode: generate entry IDs
+        const newQueue = filteredHistory.map((h, i) => ({ entryId: `entry-${Date.now()}-${i}`, songId: h.id }));
+        const index = newQueue.findIndex((q) => q.songId === item.id);
+        setPlaybackQueue(newQueue);
+        setCurrentQueueIndex(index >= 0 ? index : 0);
+        setSelectedQueueEntryId(newQueue[index >= 0 ? index : 0]?.entryId ?? null);
+      }
       setAudioSource({ id: item.id, url: audioUrl });
     }
   };

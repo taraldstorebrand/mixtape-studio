@@ -21,6 +21,8 @@ export const en = {
     createSong: '✨ Create song',
     backToDetails: '← Back',
     close: 'Close',
+    save: 'Save',
+    saving: 'Saving...',
     createPlaylist: 'Create playlist',
   },
 

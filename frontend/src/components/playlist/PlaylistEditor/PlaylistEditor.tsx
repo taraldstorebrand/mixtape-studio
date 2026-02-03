@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   DndContext,
@@ -32,13 +32,20 @@ interface PlaylistEditorProps {
   playlistId?: string;
 }
 
+interface Snapshot {
+  name: string;
+  entryIds: string[];
+}
+
 export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistId }: PlaylistEditorProps) {
   const [playlistName, setPlaylistName] = useState('');
   const [playlistEntries, setPlaylistEntries] = useState<PlaylistSongEntry[]>([]);
   const [createdPlaylistId, setCreatedPlaylistId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasChanges, setHasChanges] = useState(false);
+
+  const snapshotRef = useRef<Snapshot | null>(null);
 
   const audioSource = useAtomValue(audioSourceAtom);
   const setPlaybackQueue = useSetAtom(playbackQueueAtom);
@@ -53,7 +60,6 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
       const newQueue = playlistEntries.map((e) => ({ entryId: e.entryId, songId: e.song.id }));
       setPlaybackQueue(newQueue);
 
-      // Update currentQueueIndex to match the new position of the currently playing entry
       if (selectedQueueEntryId) {
         const newIndex = newQueue.findIndex((e) => e.entryId === selectedQueueEntryId);
         if (newIndex >= 0) {
@@ -83,6 +89,27 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
   const isEdit = createdPlaylistId !== null || playlistId !== undefined;
   const currentPlaylistId = createdPlaylistId || playlistId || null;
 
+  const computeHasChanges = (): boolean => {
+    if (!snapshotRef.current) {
+      return playlistName.trim() !== '' || playlistEntries.length > 0;
+    }
+
+    const snapshot = snapshotRef.current;
+    if (playlistName !== snapshot.name) return true;
+
+    const currentEntryIds = playlistEntries.map((e) => e.entryId);
+    if (currentEntryIds.length !== snapshot.entryIds.length) return true;
+
+    const hasTempEntries = playlistEntries.some((e) => e.entryId.startsWith('temp-'));
+    if (hasTempEntries) return true;
+
+    for (let i = 0; i < currentEntryIds.length; i++) {
+      if (currentEntryIds[i] !== snapshot.entryIds[i]) return true;
+    }
+
+    return false;
+  };
+
   // Load existing playlist data
   useEffect(() => {
     if (playlistId === undefined) {
@@ -95,7 +122,10 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
         setPlaylistName(data.name);
         setPlaylistEntries(data.songs);
         setCreatedPlaylistId(null);
-        setHasChanges(false);
+        snapshotRef.current = {
+          name: data.name,
+          entryIds: data.songs.map((s) => s.entryId),
+        };
       })
       .catch((err: unknown) => {
         setError(getErrorMessage(err) || t.errors.couldNotFetchPlaylists);
@@ -111,7 +141,6 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
       song,
     };
     setPlaylistEntries((prev) => [...prev, newEntry]);
-    setHasChanges(true);
   };
 
   const handleRemoveSong = (entryId: string) => {
@@ -119,7 +148,6 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
       const filtered = prev.filter((entry) => entry.entryId !== entryId);
       return filtered.map((entry, index) => ({ ...entry, position: index }));
     });
-    setHasChanges(true);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -133,73 +161,74 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
 
       const reorderedEntries = arrayMove(playlistEntries, oldIndex, newIndex).map((entry, index) => ({ ...entry, position: index }));
       setPlaylistEntries(reorderedEntries);
-      setHasChanges(true);
     }
   };
 
   const handleNameChange = (newName: string) => {
     setPlaylistName(newName);
-    setHasChanges(true);
   };
 
-  const handleClose = async () => {
-    if (!hasChanges && !playlistName.trim()) {
+  const handleSave = async () => {
+    const hasChanges = computeHasChanges();
+
+    if (!hasChanges) {
       onClose();
       return;
     }
 
-    setIsLoading(true);
+    setIsSaving(true);
     setError(null);
 
     try {
       let finalPlaylistId = currentPlaylistId;
       const name = playlistName.trim() || 'New Playlist';
 
+      // Step 1: Create or update playlist
       if (!finalPlaylistId) {
-        const newPlaylist = await createPlaylist(name);
-        finalPlaylistId = newPlaylist.id;
-      } else if (name) {
-        await updatePlaylist(finalPlaylistId, { name });
+        const result = await createPlaylist(name);
+        finalPlaylistId = result.id;
+        setCreatedPlaylistId(finalPlaylistId);
+      } else {
+        const snapshot = snapshotRef.current;
+        if (!snapshot || name !== snapshot.name) {
+          await updatePlaylist(finalPlaylistId, { name });
+        }
       }
 
-      const existingEntryIds = new Set<string>();
-      if (isEdit && finalPlaylistId) {
-        const existingPlaylist = await fetchPlaylist(finalPlaylistId);
-        const existingEntries = existingPlaylist.songs;
+      // Step 2: Compute diff using snapshot (no extra fetch needed)
+      const existingEntries = playlistEntries.filter((e) => !e.entryId.startsWith('temp-'));
+      const tempEntries = playlistEntries.filter((e) => e.entryId.startsWith('temp-'));
 
-        const newEntryIds = new Set(playlistEntries.map((entry) => entry.entryId));
+      const initialEntryIds = snapshotRef.current?.entryIds ?? [];
+      const currentExistingIds = new Set(existingEntries.map((e) => e.entryId));
+      const toRemove = initialEntryIds.filter((id) => !currentExistingIds.has(id));
 
-        // Remove entries that are no longer in the playlist (by entryId)
-        const toRemove = existingEntries.filter((entry) => !newEntryIds.has(entry.entryId));
-        await Promise.all(toRemove.map((entry) => removeSongFromPlaylist(finalPlaylistId, entry.entryId)));
-
-        existingEntries.forEach((entry) => existingEntryIds.add(entry.entryId));
+      // Step 3: Remove deleted entries
+      if (toRemove.length > 0) {
+        await Promise.all(toRemove.map((entryId) => removeSongFromPlaylist(finalPlaylistId, entryId)));
       }
 
-      // Add new entries (entries with temp- prefix are new, including duplicates)
-      const toAdd = playlistEntries.filter((entry) => entry.entryId.startsWith('temp-'));
-      if (toAdd.length > 0) {
-        const songIds = toAdd.map((entry) => entry.song.id);
-        await addSongsToPlaylist(finalPlaylistId, songIds);
+      // Step 4: Add new entries and get their entryIds
+      let newEntryIds: string[] = [];
+      if (tempEntries.length > 0) {
+        const songIds = tempEntries.map((entry) => entry.song.id);
+        const result = await addSongsToPlaylist(finalPlaylistId, songIds);
+        newEntryIds = result.entryIds;
       }
 
+      // Step 5: Build final order and reorder
       if (playlistEntries.length > 0) {
-        const updatedPlaylist = await fetchPlaylist(finalPlaylistId);
-
-        // Build final order: existing entries keep their entryId, new entries get matched by position
-        const existingEntryIds = new Set(playlistEntries.filter((e) => !e.entryId.startsWith('temp-')).map((e) => e.entryId));
-        const newBackendEntries = updatedPlaylist.songs.filter((e) => !existingEntryIds.has(e.entryId));
-
-        // Map temp entries to their new backend entryIds (in order they were added)
-        let newEntryIndex = 0;
+        let tempIndex = 0;
         const finalEntryIds = playlistEntries.map((entry) => {
           if (entry.entryId.startsWith('temp-')) {
-            // This is a new entry - get the next backend entry
-            return newBackendEntries[newEntryIndex++]?.entryId;
+            return newEntryIds[tempIndex++];
           }
-          // Existing entry - use its entryId directly
           return entry.entryId;
         }).filter((id): id is string => id !== undefined);
+
+        if (finalEntryIds.length !== playlistEntries.length) {
+          throw new Error('Entry ID count mismatch - some songs may not have been saved correctly');
+        }
 
         await reorderPlaylistSongs(finalPlaylistId, finalEntryIds);
       }
@@ -209,8 +238,12 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
     } catch (err: unknown) {
       setError(getErrorMessage(err) || t.errors.couldNotUpdatePlaylist);
       console.error(err);
-      setIsLoading(false);
+      setIsSaving(false);
     }
+  };
+
+  const handleCancel = () => {
+    onClose();
   };
 
   // Clear error after delay
@@ -222,11 +255,17 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
   }, [error]);
 
   if (isLoading) {
-    return <div className={styles.loading}>Loading...</div>;
+    return (
+      <div className={styles.loading} role="status" aria-busy="true">
+        Loading...
+      </div>
+    );
   }
 
+  const hasChanges = computeHasChanges();
+
   return (
-    <div className={styles.editor}>
+    <div className={styles.editor} aria-busy={isSaving}>
       <div className={styles.columns}>
         <div className={styles.column}>
           <h3 className={styles.columnTitle}>{t.headings.availableSongs}</h3>
@@ -237,7 +276,11 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
             <h3 className={styles.columnTitle}>
               {isEdit ? t.headings.editPlaylist : t.headings.newPlaylist}
             </h3>
+            <label htmlFor="playlistNameInput" className={styles.visuallyHidden}>
+              {t.placeholders.playlistName}
+            </label>
             <input
+              id="playlistNameInput"
               type="text"
               className={styles.nameInput}
               placeholder={t.placeholders.playlistName}
@@ -280,15 +323,27 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
           )}
         </div>
       </div>
-      {error && <div className={styles.error}>{error}</div>}
+      {error && (
+        <div className={styles.error} role="alert">
+          {error}
+        </div>
+      )}
       <div className={styles.footer}>
         <button
           type="button"
-          className={styles.closeButton}
-          onClick={handleClose}
-          disabled={isLoading}
+          className={styles.cancelButton}
+          onClick={handleCancel}
+          disabled={isSaving}
         >
-          {isLoading ? t.actions.creatingMixtape : t.actions.close}
+          {t.actions.cancel}
+        </button>
+        <button
+          type="button"
+          className={styles.saveButton}
+          onClick={handleSave}
+          disabled={isSaving || !hasChanges}
+        >
+          {isSaving ? t.actions.saving : t.actions.save}
         </button>
       </div>
     </div>

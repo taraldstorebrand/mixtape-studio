@@ -24,7 +24,7 @@ export async function fetchPlaylist(id: string): Promise<PlaylistWithSongs> {
   return response.json();
 }
 
-export async function createPlaylist(name: string): Promise<Playlist> {
+export async function createPlaylist(name: string): Promise<{ id: string }> {
   const response = await fetch(`${API_BASE_URL}/playlists`, {
     method: 'POST',
     headers: {
@@ -38,7 +38,8 @@ export async function createPlaylist(name: string): Promise<Playlist> {
     throw new Error(error.error || 'Could not create playlist');
   }
 
-  return response.json();
+  const data = await response.json();
+  return { id: data.id };
 }
 
 export async function updatePlaylist(id: string, updates: Partial<{ name: string }>): Promise<void> {
@@ -67,7 +68,7 @@ export async function deletePlaylist(id: string): Promise<void> {
   }
 }
 
-export async function addSongsToPlaylist(id: string, songIds: string[]): Promise<void> {
+export async function addSongsToPlaylist(id: string, songIds: string[]): Promise<{ entryIds: string[] }> {
   const response = await fetch(`${API_BASE_URL}/playlists/${id}/songs`, {
     method: 'POST',
     headers: {
@@ -80,6 +81,9 @@ export async function addSongsToPlaylist(id: string, songIds: string[]): Promise
     const error = await response.json();
     throw new Error(error.error || 'Could not add songs to playlist');
   }
+
+  const data = await response.json();
+  return { entryIds: data.entryIds };
 }
 
 export async function removeSongFromPlaylist(id: string, entryId: string): Promise<void> {
