@@ -2,28 +2,59 @@
 
 ## P0 – Kritiske
 
-### Task 1: selectedItem skal kun markere spilles sang, ikke dubletter
+### Task 1: HistoryItem mobilvisning er ødelagt
 
 **Status:** Completed
 
 **Problem:**
-Når samme sang finnes flere ganger i en playlist, markerer `selectedItemAtom` alle forekomstene av den sangen. Hvis sang A (ID: "123") står to ganger i køen og spilles, markeres begge forekomstene som valgt i stedet for bare den som faktisk spilles.
+På mobil vises sangtittelen som en liten, blinkende terning. Tittelen får ikke nok plass og kollapser. Marquee-animasjonen kjører på et element med null bredde.
 
 **Årsak:**
-`selectedItemAtom` lagrer kun sang-ID (`string`). Når duplikater finnes, kan ikke systemet skille mellom forekomstene - de har samme ID.
+- `historyMeta` bruker `flex: 1` og `min-width: 0`, men parent-containeren har ikke riktig flex-oppsett for mobil
+- `historyHeader` bruker `gap: var(--spacing-sm)` som tar for mye plass på små skjermer
+- `historyActions` med feedbackButtons og deleteButton tar for mye horisontal plass
+- Mangler dedikert `@media (max-width: 768px)` responsive styling
 
 **Løsning:**
-Endret seleksjonssystemet til å bruke unike entry-referanser i playlist-modus:
-- Lagt til `selectedQueueEntryIdAtom` som lagrer entry-ID fra `playbackQueueAtom`
-- Lagt til `currentPlaylistEntriesAtom` som lagrer full `PlaylistSongEntry[]` (med entry-IDs)
-- I playlist-modus: bruk entry-ID for å identifisere hvilken forekomst som spilles
-- I library-modus: behold eksisterende sang-ID-basert seleksjon
+Legg til mobil-responsive CSS i `HistoryItem.module.css`:
 
-**Filer endret:**
-- `frontend/src/store/atoms.ts` – lagt til `selectedQueueEntryIdAtom` og `currentPlaylistEntriesAtom`
-- `frontend/src/store/index.ts` – eksportert nye atomer
-- `frontend/src/components/nowplaying/NowPlayingBar/hooks/useAudioPlayback.ts` – oppdatert `setNowPlaying` for å sette `selectedQueueEntryIdAtom` og bruke entry-IDs fra `currentPlaylistEntriesAtom` i playlist-modus
-- `frontend/src/components/history/HistoryList.tsx` – oppdatert for å bruke `currentPlaylistEntriesAtom` og pass inn `entryId` til `HistoryItem`
-- `frontend/src/components/history/HistoryItem/HistoryItem.tsx` – lagt til `entryId` prop, bruker `selectedQueueEntryIdAtom` for å bestemme seleksjon og nowPlaying-markering i playlist-modus
-- `frontend/src/components/playlist/PlaylistEditor/SortablePlaylistItem.tsx` – bruker `selectedQueueEntryIdAtom` for nowPlaying-markering og oppdaterer den når sang spilles
-- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx` – bruker entry-IDs fra playlist-entries når playbackQueue oppdateres
+1. **Reduser thumbnail-størrelse** på mobil (48px → 40px)
+2. **Stack layout vertikalt** eller bruk kompakt horisontal layout:
+   - Tittel + varighet på én linje
+   - Flytt actions til egen rad eller gjør dem mindre
+3. **Skjul dato** på mobil (allerede gjort ved 900px, men kan flyttes til 768px)
+4. **Reduser padding og gap** for å spare plass
+5. **Sørg for at titleWithDuration får flex: 1** og ikke kollapser
+
+**Forslag til mobil-layout:**
+```
+[Thumbnail] [Title...] [👍👎🗑]
+            [Duration]
+```
+
+**Filer å endre:**
+- `frontend/src/components/history/HistoryItem/HistoryItem.module.css`
+- Eventuelt `HistoryItem.tsx` hvis markup må endres
+
+---
+
+## P1 – Viktige
+
+### Task 2: Gjennomgå mobil-layout for hele appen
+
+**Status:** Open
+
+**Problem:**
+Flere komponenter mangler konsistent mobil-styling. Breakpoints varierer (768px, 900px).
+
+**Oppgaver:**
+- [ ] Standardiser breakpoints (bruk 768px for mobil, 1024px for tablet)
+- [ ] Sjekk at NowPlayingBar fungerer på mobil
+- [ ] Sjekk at HistoryPanel/HistoryList har riktig scroll-oppførsel
+- [ ] Test at PlaylistEditor fungerer på mobil (allerede har styling)
+
+**Filer å sjekke:**
+- `frontend/src/components/history/HistoryItem/HistoryItem.module.css`
+- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
+- `frontend/src/components/panels/HistoryPanel.module.css`
+- `frontend/src/App.module.css`

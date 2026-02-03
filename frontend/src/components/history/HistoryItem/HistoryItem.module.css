@@ -346,3 +346,104 @@
     display: none;
   }
 }
+
+@media (max-width: 768px) {
+  .historyItem {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .historyHeader {
+    gap: var(--spacing-xs);
+  }
+
+  .thumbnailWrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .historyThumbnail {
+    width: 40px;
+    height: 40px;
+  }
+
+  .playButtonOverlay {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .playButtonOverlayPlay {
+    padding-left: 0.3rem;
+  }
+
+  .historyMeta {
+    flex: 1;
+    min-width: 0;
+    gap: var(--spacing-xs);
+  }
+
+  .titleWithDuration {
+    flex: 1;
+    min-width: 0;
+    gap: 0;
+  }
+
+  .historyTitle {
+    font-size: 0.875rem;
+    max-width: 100%;
+  }
+
+  .durationLabel {
+    font-size: 0.7rem;
+  }
+
+  .dateWrapper {
+    display: none;
+  }
+
+  .statusBadge {
+    font-size: 0.65rem;
+    padding: 0.1rem var(--spacing-xs);
+  }
+
+  .historyActions {
+    gap: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  .feedbackButtons {
+    gap: 0.0625rem;
+  }
+
+  .thumbButton {
+    padding: var(--spacing-xs) 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .deleteButton {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.7rem;
+  }
+
+  /* Skeleton mobile */
+  .skeletonHistoryItem {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .skeletonThumbnail {
+    width: 40px;
+    height: 40px;
+  }
+
+  .skeletonTitle {
+    height: 0.875rem;
+  }
+
+  .skeletonBadge {
+    height: 0.65rem;
+    width: 3rem;
+  }
+}
