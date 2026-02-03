@@ -7,6 +7,7 @@
   border-top: 1px solid var(--color-border-strong);
   z-index: 1000;
   animation: slideUp 0.3s ease-out;
+  overflow: hidden;
 }
 
 @keyframes slideUp {
@@ -362,6 +363,8 @@
     padding: var(--spacing-md) var(--spacing-sm);
     padding-right: var(--spacing-sm);
     gap: var(--spacing-xs);
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .leftSection {
@@ -372,6 +375,7 @@
   .centerSection {
     gap: 2px;
     flex: 1;
+    min-width: 0;
   }
 
   .rightSection {

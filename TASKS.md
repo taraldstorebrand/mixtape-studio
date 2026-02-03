@@ -2,59 +2,23 @@
 
 ## P0 – Kritiske
 
-### Task 1: HistoryItem mobilvisning er ødelagt
+### Task 1: NowPlayingBar går utenfor skjermen på mobil
 
 **Status:** Completed
 
 **Problem:**
-På mobil vises sangtittelen som en liten, blinkende terning. Tittelen får ikke nok plass og kollapser. Marquee-animasjonen kjører på et element med null bredde.
+NowPlayingBar strekker seg langt utenfor høyre side av skjermen på mobil. Dette gjør at brukeren må scrolle horisontalt.
 
 **Årsak:**
-- `historyMeta` bruker `flex: 1` og `min-width: 0`, men parent-containeren har ikke riktig flex-oppsett for mobil
-- `historyHeader` bruker `gap: var(--spacing-sm)` som tar for mye plass på små skjermer
-- `historyActions` med feedbackButtons og deleteButton tar for mye horisontal plass
-- Mangler dedikert `@media (max-width: 768px)` responsive styling
+- `centerSection` har `min-width: 400px` (linje 44) som ikke overstyres i mobil media query
+- `content` har `max-width: 1400px` men ingen `width: 100%` eller `overflow: hidden`
+- `.nowPlayingBar` mangler `overflow: hidden` for å hindre horisontal overflow
 
 **Løsning:**
-Legg til mobil-responsive CSS i `HistoryItem.module.css`:
-
-1. **Reduser thumbnail-størrelse** på mobil (48px → 40px)
-2. **Stack layout vertikalt** eller bruk kompakt horisontal layout:
-   - Tittel + varighet på én linje
-   - Flytt actions til egen rad eller gjør dem mindre
-3. **Skjul dato** på mobil (allerede gjort ved 900px, men kan flyttes til 768px)
-4. **Reduser padding og gap** for å spare plass
-5. **Sørg for at titleWithDuration får flex: 1** og ikke kollapser
-
-**Forslag til mobil-layout:**
-```
-[Thumbnail] [Title...] [👍👎🗑]
-            [Duration]
-```
+1. Legg til `min-width: 0` på `.centerSection` i mobil media query
+2. Legg til `overflow: hidden` på `.nowPlayingBar`
+3. Legg til `width: 100%` og `box-sizing: border-box` på `.content` i mobil
+4. Vurder å endre layout til vertikal stacking på svært små skjermer
 
 **Filer å endre:**
-- `frontend/src/components/history/HistoryItem/HistoryItem.module.css`
-- Eventuelt `HistoryItem.tsx` hvis markup må endres
-
----
-
-## P1 – Viktige
-
-### Task 2: Gjennomgå mobil-layout for hele appen
-
-**Status:** Open
-
-**Problem:**
-Flere komponenter mangler konsistent mobil-styling. Breakpoints varierer (768px, 900px).
-
-**Oppgaver:**
-- [ ] Standardiser breakpoints (bruk 768px for mobil, 1024px for tablet)
-- [ ] Sjekk at NowPlayingBar fungerer på mobil
-- [ ] Sjekk at HistoryPanel/HistoryList har riktig scroll-oppførsel
-- [ ] Test at PlaylistEditor fungerer på mobil (allerede har styling)
-
-**Filer å sjekke:**
-- `frontend/src/components/history/HistoryItem/HistoryItem.module.css`
 - `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
-- `frontend/src/components/panels/HistoryPanel.module.css`
-- `frontend/src/App.module.css`
