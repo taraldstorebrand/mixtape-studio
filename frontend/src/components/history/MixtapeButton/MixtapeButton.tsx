@@ -46,7 +46,7 @@ export function MixtapeButton({ likedItems, playlistId }: MixtapeButtonProps) {
 
         if (data.downloadId) {
           try {
-            await downloadMixtape(data.downloadId);
+            await downloadMixtape(data.downloadId, data.fileName);
           } catch (downloadErr: any) {
             setError(downloadErr.message || t.errors.couldNotDownloadMixtape);
           }
