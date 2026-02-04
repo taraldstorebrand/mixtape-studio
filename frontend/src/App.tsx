@@ -5,7 +5,7 @@ import { HistoryPanel } from './components/panels/HistoryPanel';
 import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
 import { ErrorBoundary } from './components/common/ErrorBoundary/ErrorBoundary';
 import { ErrorBanner } from './components/common/ErrorBanner/ErrorBanner';
-import { useInitializeHistory, useHistoryActions, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom } from './store';
+import { useInitializeHistory, useHistoryActions, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom, detailPanelOpenAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
@@ -20,6 +20,7 @@ function App() {
   const setSongGenerationStatus = useSetAtom(songGenerationStatusAtom);
   const nowPlaying = useAtomValue(nowPlayingAtom);
   const setEditorOpen = useSetAtom(editorOpenAtom);
+  const [detailPanelOpen, setDetailPanelOpen] = useAtom(detailPanelOpenAtom);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<DetailPanelHandle>(null);
 
@@ -127,7 +128,18 @@ function App() {
 
       <ErrorBoundary>
         <main className={styles.main} ref={containerRef}>
-          <div className={styles.panelLeft} style={{ width: `${panelWidth}%` }}>
+          <div className={`${styles.panelLeft} ${detailPanelOpen ? styles.panelLeftOpen : ''}`} style={{ width: `${panelWidth}%` }}>
+            <button
+              type="button"
+              className={styles.closePanelButton}
+              onClick={() => setDetailPanelOpen(false)}
+              aria-label={t.tooltips.hideDetails}
+            >
+              <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
             <DetailPanel
               ref={detailPanelRef}
               selectedItem={selectedItem ?? null}
@@ -152,6 +164,19 @@ function App() {
           />
 
           <div className={styles.panelRight}>
+            <button
+              type="button"
+              className={styles.showDetailsButton}
+              onClick={() => setDetailPanelOpen(true)}
+              aria-label={t.tooltips.showDetails}
+            >
+              <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              {t.tooltips.showDetails}
+            </button>
             <HistoryPanel
               items={history}
               selectedItemId={selectedItemId}

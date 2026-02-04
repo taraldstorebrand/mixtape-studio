@@ -56,6 +56,8 @@ export const en = {
   },
 
   tooltips: {
+    showDetails: 'Show details',
+    hideDetails: 'Hide details',
     previous: 'Previous',
     play: 'Play',
     pause: 'Pause',

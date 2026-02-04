@@ -1,24 +1,28 @@
 # TASKS.md
 
-## P0 – Kritiske
+## P1 – Viktige
 
-### Task 1: NowPlayingBar går utenfor skjermen på mobil
+### Task 1: Skjul DetailPanel på mobil med toggle-knapp
 
-**Status:** Completed
+**Status:** ✅ Done
 
-**Problem:**
-NowPlayingBar strekker seg langt utenfor høyre side av skjermen på mobil. Dette gjør at brukeren må scrolle horisontalt.
+**Implementert løsning:**
+- Hele DetailPanel (panelLeft) skjules på mobil (`max-width: 900px`)
+- En "Show details"-knapp vises øverst i HistoryPanel (panelRight)
+- Klikk på knappen viser DetailPanel
+- En X-knapp øverst til høyre i DetailPanel lukker det igjen
 
-**Årsak:**
-- `centerSection` har `min-width: 400px` (linje 44) som ikke overstyres i mobil media query
-- `content` har `max-width: 1400px` men ingen `width: 100%` eller `overflow: hidden`
-- `.nowPlayingBar` mangler `overflow: hidden` for å hindre horisontal overflow
+**Endrede filer:**
+- `frontend/src/App.tsx` - Lagt til toggle-knapper og state
+- `frontend/src/App.module.css` - CSS for mobil-toggle
+- `frontend/src/store/atoms.ts` - Ny atom `detailPanelOpenAtom`
+- `frontend/src/store/index.ts` - Eksporterer ny atom
+- `frontend/src/i18n/en.ts` - Nye tekster for knappene
 
-**Løsning:**
-1. Legg til `min-width: 0` på `.centerSection` i mobil media query
-2. Legg til `overflow: hidden` på `.nowPlayingBar`
-3. Legg til `width: 100%` og `box-sizing: border-box` på `.content` i mobil
-4. Vurder å endre layout til vertikal stacking på svært små skjermer
-
-**Filer å endre:**
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.module.css`
+**Testing:**
+1. Åpne appen i mobilvisning (DevTools, ≤900px bredde)
+2. Verifiser at DetailPanel er skjult
+3. Verifiser at "Show details"-knappen vises øverst
+4. Klikk på knappen - DetailPanel skal vises
+5. Klikk X-knappen - DetailPanel skal skjules igjen
+6. Verifiser at desktop-visning er uendret

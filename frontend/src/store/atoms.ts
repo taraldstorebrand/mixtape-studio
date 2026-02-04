@@ -89,3 +89,6 @@ export const currentPlaylistEntriesAtom = atom<PlaylistSongEntry[] | null>(null)
 
 // Global error state for error banner
 export const globalErrorAtom = atom<string | null>(null);
+
+// Mobile detail panel visibility (hidden by default on mobile)
+export const detailPanelOpenAtom = atom<boolean>(false);
