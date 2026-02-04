@@ -22,6 +22,7 @@ import { SortablePlaylistItem, type PlaylistSongEntry } from './SortablePlaylist
 import { fetchPlaylist, createPlaylist, updatePlaylist, addSongsToPlaylist, removeSongFromPlaylist, reorderPlaylistSongs } from '../../../services/playlists';
 import { t } from '../../../i18n';
 import { getErrorMessage } from '../../../utils/errors';
+import { formatDuration } from '../../../utils/formatDuration';
 import { audioSourceAtom, playbackQueueAtom, currentQueueIndexAtom, selectedQueueEntryIdAtom } from '../../../store';
 import styles from './PlaylistEditor.module.css';
 
@@ -318,7 +319,12 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
           )}
           {playlistEntries.length > 0 && (
             <div className={styles.playlistSummary}>
-              {t.messages.songCount(playlistEntries.length)}
+              {playlistEntries.length} {t.messages.songCount(playlistEntries.length)}
+              {(() => {
+                const totalSeconds = playlistEntries.reduce((sum, e) => sum + (e.song.duration ?? 0), 0);
+                const formatted = formatDuration(totalSeconds);
+                return formatted ? ` · ${formatted}` : '';
+              })()}
             </div>
           )}
         </div>
