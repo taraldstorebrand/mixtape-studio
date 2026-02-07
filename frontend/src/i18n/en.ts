@@ -86,6 +86,8 @@ export const en = {
     clickToAddSongs: 'Click + to add songs',
     uploaded: 'Uploaded',
     failed: 'Failed',
+    unknownArtist: 'Unknown Artist',
+    defaultAlbum: 'Suno AI',
     songCount: (count: number) => (count === 1 ? 'song' : 'songs'),
     nowPlaying: (title: string) => `▶ Now playing: ${title}`,
     uploadToStart: '📤 Upload songs to start',

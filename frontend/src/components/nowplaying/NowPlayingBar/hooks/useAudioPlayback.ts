@@ -16,6 +16,7 @@ import {
   selectedQueueEntryIdAtom,
 } from '../../../../store';
 import { HistoryItem } from '../../../../types';
+import { t } from '../../../../i18n';
 
 export function useAudioPlayback() {
   const [audioSource, setAudioSource] = useAtom(audioSourceAtom);
@@ -39,6 +40,7 @@ export function useAudioPlayback() {
   const historyRef = useRef(history);
   const currentPlaylistSongsRef = useRef(currentPlaylistSongs);
   const audioSourceRef = useRef(audioSource);
+  const currentTimeRef = useRef(currentTime);
 
   useEffect(() => {
     playbackQueueRef.current = playbackQueue;
@@ -56,6 +58,14 @@ export function useAudioPlayback() {
     currentPlaylistSongsRef.current = currentPlaylistSongs;
   }, [currentPlaylistSongs]);
 
+  useEffect(() => {
+    audioSourceRef.current = audioSource;
+  }, [audioSource]);
+
+  useEffect(() => {
+    currentTimeRef.current = currentTime;
+  }, [currentTime]);
+
   // Update playback queue when context changes (playlist ↔ library) while a song is playing
   useEffect(() => {
     if (!audioSourceRef.current) return;
@@ -68,10 +78,6 @@ export function useAudioPlayback() {
       setPlaybackQueue(filteredHistory.map((s, index) => ({ entryId: `entry-${Date.now()}-${index}`, songId: s.id })));
     }
   }, [currentPlaylistEntries, filteredHistory, setPlaybackQueue]);
-
-  useEffect(() => {
-    audioSourceRef.current = audioSource;
-  }, [audioSource]);
 
   // Initialize audio ref atom
   useEffect(() => {
@@ -281,6 +287,216 @@ export function useAudioPlayback() {
     return history;
   };
 
+  // Create stable refs for next/previous handlers to avoid stale closures in Media Session
+  const handlePreviousRef = useRef<(() => void) | null>(null);
+  const handleNextRef = useRef<(() => void) | null>(null);
+
+  const handlePrevious = () => {
+    // Standard behavior: if >3s into song, restart; otherwise go to previous
+    const time = Number.isFinite(currentTimeRef.current) ? currentTimeRef.current : 0;
+    if (time > 3) {
+      seek(0);
+      return;
+    }
+
+    const queue = playbackQueueRef.current;
+    if (queue.length === 0) return;
+
+    const songsToSearch = getSongsToSearch();
+
+    // Find previous valid song (skip deleted songs)
+    for (let i = currentQueueIndexRef.current - 1; i >= 0; i--) {
+      const prevEntry = queue[i];
+      const prevSong = songsToSearch.find((s) => s.id === prevEntry.songId);
+      const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
+      if (prevSong && prevUrl) {
+        setCurrentQueueIndex(i);
+        setNowPlaying(prevSong, i);
+        return;
+      }
+    }
+
+    // Wrap to end of queue, find last valid song
+    for (let i = queue.length - 1; i > currentQueueIndexRef.current; i--) {
+      const prevEntry = queue[i];
+      const prevSong = songsToSearch.find((s) => s.id === prevEntry.songId);
+      const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
+      if (prevSong && prevUrl) {
+        setCurrentQueueIndex(i);
+        setNowPlaying(prevSong, i);
+        return;
+      }
+    }
+
+    // No valid songs found - stay on current or stop
+  };
+
+  const handleNext = () => {
+    const queue = playbackQueueRef.current;
+    if (queue.length === 0) return;
+
+    const songsToSearch = getSongsToSearch();
+
+    // Find next valid song (skip deleted songs)
+    for (let i = currentQueueIndexRef.current + 1; i < queue.length; i++) {
+      const nextEntry = queue[i];
+      const nextSong = songsToSearch.find((s) => s.id === nextEntry.songId);
+      const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
+      if (nextSong && nextUrl) {
+        setCurrentQueueIndex(i);
+        setNowPlaying(nextSong, i);
+        return;
+      }
+    }
+
+    // Wrap to start of queue, find first valid song
+    for (let i = 0; i < currentQueueIndexRef.current; i++) {
+      const nextEntry = queue[i];
+      const nextSong = songsToSearch.find((s) => s.id === nextEntry.songId);
+      const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
+      if (nextSong && nextUrl) {
+        setCurrentQueueIndex(i);
+        setNowPlaying(nextSong, i);
+        return;
+      }
+    }
+
+    // No valid songs found - stay on current or stop
+  };
+
+  // Update refs whenever the handlers change
+  useEffect(() => {
+    handlePreviousRef.current = handlePrevious;
+  }, [handlePrevious]);
+
+  useEffect(() => {
+    handleNextRef.current = handleNext;
+  }, [handleNext]);
+
+  // Media Session API for lock screen and platform media controls
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) {
+      return;
+    }
+
+    // Update metadata when nowPlaying changes
+    if (nowPlaying) {
+      const displayTitle = nowPlaying.title || nowPlaying.prompt || t.messages.untitled;
+      const variationLabel = nowPlaying.variationIndex !== undefined ? ` #${nowPlaying.variationIndex + 1}` : '';
+
+      const artwork = nowPlaying.sunoImageUrl ? [
+        { src: nowPlaying.sunoImageUrl, sizes: '96x96', type: 'image/jpeg' },
+        { src: nowPlaying.sunoImageUrl, sizes: '128x128', type: 'image/jpeg' },
+        { src: nowPlaying.sunoImageUrl, sizes: '192x192', type: 'image/jpeg' },
+        { src: nowPlaying.sunoImageUrl, sizes: '256x256', type: 'image/jpeg' },
+        { src: nowPlaying.sunoImageUrl, sizes: '384x384', type: 'image/jpeg' },
+        { src: nowPlaying.sunoImageUrl, sizes: '512x512', type: 'image/jpeg' },
+      ] : [];
+
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: displayTitle + variationLabel,
+          artist: nowPlaying.artist || t.messages.unknownArtist,
+          album: nowPlaying.album || t.messages.defaultAlbum,
+          artwork,
+        });
+      } catch (error) {
+        console.error('Failed to set media session metadata:', error);
+      }
+    } else {
+      try {
+        navigator.mediaSession.metadata = null;
+      } catch (error) {
+        console.error('Failed to clear media session metadata:', error);
+      }
+    }
+  }, [nowPlaying]);
+
+  // Setup action handlers (only run once on mount)
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) {
+      return;
+    }
+
+    try {
+      navigator.mediaSession.setActionHandler('play', () => {
+        internalAudioRef.current?.play().catch(() => setIsPlaying(false));
+      });
+
+      navigator.mediaSession.setActionHandler('pause', () => {
+        internalAudioRef.current?.pause();
+      });
+
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        handlePreviousRef.current?.();
+      });
+
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        handleNextRef.current?.();
+      });
+    } catch (error) {
+      console.error('Failed to set media session action handlers:', error);
+    }
+
+    return () => {
+      try {
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+        navigator.mediaSession.setActionHandler('previoustrack', null);
+        navigator.mediaSession.setActionHandler('nexttrack', null);
+      } catch (error) {
+        console.error('Failed to clear media session action handlers:', error);
+      }
+    };
+  }, []);
+
+  // Update playback state
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) {
+      return;
+    }
+
+    try {
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    } catch (error) {
+      console.error('Failed to update media session playback state:', error);
+    }
+  }, [isPlaying]);
+
+  // Update position state for progress bar (throttled for Chrome compatibility)
+  const lastPositionUpdateRef = useRef(0);
+  const lastReportedPositionRef = useRef(0);
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) {
+      return;
+    }
+
+    if (duration > 0 && currentTime >= 0) {
+      const now = Date.now();
+      const timeSinceLastUpdate = now - lastPositionUpdateRef.current;
+      const positionChange = Math.abs(currentTime - lastReportedPositionRef.current);
+
+      // Only update if:
+      // 1. At least 1 second has passed since last update, OR
+      // 2. Position has changed by at least 0.5 seconds
+      // This prevents excessive updates that cause Chrome to hang
+      if (timeSinceLastUpdate >= 1000 || positionChange >= 0.5) {
+        try {
+          navigator.mediaSession.setPositionState({
+            duration,
+            playbackRate: 1,
+            position: currentTime,
+          });
+          lastPositionUpdateRef.current = now;
+          lastReportedPositionRef.current = currentTime;
+        } catch (error) {
+          console.error('Failed to update media session position state:', error);
+        }
+      }
+    }
+  }, [currentTime, duration]);
+
   return {
     audioRef: internalAudioRef,
     nowPlaying,
@@ -295,5 +511,7 @@ export function useAudioPlayback() {
     getSongsToSearch,
     currentQueueIndex,
     setCurrentQueueIndex,
+    handlePrevious,
+    handleNext,
   };
 }
