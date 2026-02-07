@@ -27,6 +27,11 @@ function App() {
   const history = useInitializeHistory();
   const { addHistoryItem, updateHistoryItem, removeHistoryItem, handleFeedback } = useHistoryActions();
 
+  const historyRef = useRef(history);
+  useEffect(() => {
+    historyRef.current = history;
+  }, [history]);
+
   useEffect(() => {
     if (history.length > 0 && selectedItemId === null) {
       setSelectedItemId(history[0].id);
@@ -47,12 +52,10 @@ function App() {
       console.log('Received Suno update:', data);
     }
 
-    // Find all history items with matching jobId (one per variation)
-    const matchingItems = history.filter(item => item.sunoJobId === data.jobId);
+    const matchingItems = historyRef.current.filter(item => item.sunoJobId === data.jobId);
     if (matchingItems.length === 0) return;
 
     if (data.status === 'completed') {
-      // Update each variation with its corresponding URL
       matchingItems.forEach(item => {
         const index = item.variationIndex ?? 0;
         updateHistoryItem(item.id, {
@@ -66,12 +69,10 @@ function App() {
       setSongGenerationStatus('completed');
       detailPanelRef.current?.notifySongGenerationComplete();
     } else if (data.status === 'failed') {
-      // Remove all variations for this job
       matchingItems.forEach(item => removeHistoryItem(item.id));
       setSongGenerationStatus('failed');
       detailPanelRef.current?.notifySongGenerationComplete();
     } else if (data.status === 'pending') {
-      // Update with partial data as it becomes available (e.g. FIRST_SUCCESS)
       matchingItems.forEach(item => {
         const index = item.variationIndex ?? 0;
         const updates: Partial<HistoryItem> = {};

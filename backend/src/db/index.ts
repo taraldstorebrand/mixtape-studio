@@ -193,6 +193,10 @@ const updateHistoryStmt = db.prepare(`
   WHERE id = @id
 `);
 
+const getHistoryByJobIdStmt = db.prepare(`
+  SELECT * FROM history_items WHERE suno_job_id = ? ORDER BY variation_index ASC
+`);
+
 const deleteHistoryStmt = db.prepare(`
   DELETE FROM history_items WHERE id = ?
 `);
@@ -240,12 +244,17 @@ export function getHistoryItemById(id: string): HistoryItem | null {
   return row ? rowToHistoryItem(row) : null;
 }
 
+export function getHistoryItemsByJobId(jobId: string): HistoryItem[] {
+  const rows = getHistoryByJobIdStmt.all(jobId) as HistoryItemRow[];
+  return rows.map(rowToHistoryItem);
+}
+
 export function createHistoryItem(item: HistoryItem): void {
   insertHistoryStmt.run({
     id: item.id,
-    prompt: item.prompt,
+    prompt: item.prompt || '',
     title: item.title,
-    lyrics: item.lyrics,
+    lyrics: item.lyrics || '',
     genre: item.genre ?? null,
     artist: item.artist ?? null,
     album: item.album ?? null,

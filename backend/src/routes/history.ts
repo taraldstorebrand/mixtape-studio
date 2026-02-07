@@ -36,9 +36,9 @@ router.post('/', (req: Request, res: Response) => {
   try {
     const item: HistoryItem = req.body;
 
-    if (!item.id || !item.prompt || !item.title || !item.lyrics || !item.createdAt) {
+    if (!item.id || !item.title || !item.createdAt) {
       return res.status(400).json({
-        error: 'Missing required fields: id, prompt, title, lyrics, createdAt',
+        error: 'Missing required fields: id, title, createdAt',
       });
     }
 

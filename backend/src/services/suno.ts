@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { io } from '../server';
+import { getHistoryItemsByJobId, updateHistoryItem } from '../db';
 import {
   SunoGenerateRequest,
   SunoApiEnvelope,
@@ -148,6 +149,23 @@ async function pollAndUpdate(jobId: string, attempt: number = 0) {
         }
 
         jobTitles.delete(jobId);
+
+        // Persist completed songs to DB so they survive restarts
+        try {
+          const items = getHistoryItemsByJobId(jobId);
+          for (const item of items) {
+            const idx = item.variationIndex ?? 0;
+            updateHistoryItem(item.id, {
+              sunoStatus: 'completed',
+              sunoAudioUrl: status.audio_urls![idx],
+              sunoLocalUrl: localUrls[idx],
+              sunoImageUrl: status.image_urls?.[idx],
+              duration: status.durations?.[idx],
+            });
+          }
+        } catch (dbError) {
+          console.error('Error updating DB after download:', dbError);
+        }
       } catch (downloadError) {
         console.error('Error downloading MP3s:', downloadError);
       }

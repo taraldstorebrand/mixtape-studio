@@ -124,7 +124,7 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
       return res.status(400).json({ error: 'Title count must match file count' });
     }
 
-    const items: { id: string; localUrl: string; duration?: number; imageUrl: string }[] = [];
+    const items: { id: string; localUrl: string; duration?: number; imageUrl: string; artist?: string; genre?: string }[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -161,7 +161,7 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
       };
 
       createHistoryItem(historyItem);
-      items.push({ id, localUrl, duration, imageUrl: metadata.imageUrl, artist: metadata.artist, genre: metadata.genre });
+      items.push({ id, localUrl, duration, imageUrl: metadata.imageUrl, artist: metadata.artist ?? undefined, genre: metadata.genre ?? undefined });
     }
 
     res.status(201).json({ success: true, items });

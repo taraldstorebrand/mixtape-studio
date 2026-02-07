@@ -282,7 +282,7 @@ export async function downloadMixtape(downloadId: string, fileName?: string): Pr
 export async function uploadMp3Files(
   files: File[],
   titles: string[]
-): Promise<{ id: string; localUrl: string; duration?: number; imageUrl: string }[]> {
+): Promise<{ id: string; localUrl: string; duration?: number; imageUrl: string; artist?: string; genre?: string }[]> {
   const formData = new FormData();
   files.forEach((file) => formData.append('files', file));
   formData.append('titles', JSON.stringify(titles));

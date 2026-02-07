@@ -34,7 +34,7 @@ export const DetailPanel = forwardRef<DetailPanelHandle, DetailPanelProps>(funct
   onAddHistoryItem,
   onAddGenre,
   onRemoveGenre,
-  onClearSelection,
+  onClearSelection: _onClearSelection,
   nowPlayingItem,
   onSelectItem,
   hasHistory = false,
