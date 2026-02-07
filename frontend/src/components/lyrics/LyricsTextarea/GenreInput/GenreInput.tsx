@@ -17,6 +17,7 @@ export function GenreInput({
 }: GenreInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -37,6 +38,13 @@ export function GenreInput({
   useEffect(() => {
     setHighlightedIndex(-1);
   }, [value]);
+
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setDropdownPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    }
+  }, [isOpen]);
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     onChange(e.target.value);
@@ -114,8 +122,11 @@ export function GenreInput({
           </button>
         )}
       </div>
-      {isOpen && filteredOptions.length > 0 && (
-        <ul className={styles.dropdown}>
+      {isOpen && filteredOptions.length > 0 && dropdownPos && (
+        <ul
+          className={styles.dropdown}
+          style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
+        >
           {filteredOptions.map((genre, index) => (
             <li
               key={genre}

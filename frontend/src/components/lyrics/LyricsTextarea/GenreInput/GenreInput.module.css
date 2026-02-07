@@ -48,20 +48,16 @@
 }
 
 .dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  position: fixed;
   margin: 0;
   padding: 0;
   list-style: none;
   background-color: var(--color-bg-surface);
   border: 2px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  margin-top: 4px;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 100;
+  z-index: 9999;
 }
 
 .option {
