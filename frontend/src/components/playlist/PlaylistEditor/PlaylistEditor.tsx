@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import type { HistoryItem } from '../../../types';
-import { SongPicker } from '../../mixtape/SongPicker';
+import { SongPicker } from '../../mixtape/SongPicker/SongPicker';
 import { SortablePlaylistItem, type PlaylistSongEntry } from './SortablePlaylistItem';
 import { fetchPlaylist, createPlaylist, updatePlaylist, addSongsToPlaylist, removeSongFromPlaylist, reorderPlaylistSongs } from '../../../services/playlists';
 import { t } from '../../../i18n';
@@ -36,6 +36,12 @@ interface PlaylistEditorProps {
 interface Snapshot {
   name: string;
   entryIds: string[];
+}
+
+function getPlaylistDurationText(playlistEntries: PlaylistSongEntry[]): string {
+  const totalSeconds = playlistEntries.reduce((sum, e) => sum + (e.song.duration ?? 0), 0);
+  const formatted = formatDuration(totalSeconds);
+  return formatted ? ` · ${formatted}` : '';
 }
 
 export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistId }: PlaylistEditorProps) {
@@ -320,11 +326,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
           {playlistEntries.length > 0 && (
             <div className={styles.playlistSummary}>
               {playlistEntries.length} {t.messages.songCount(playlistEntries.length)}
-              {(() => {
-                const totalSeconds = playlistEntries.reduce((sum, e) => sum + (e.song.duration ?? 0), 0);
-                const formatted = formatDuration(totalSeconds);
-                return formatted ? ` · ${formatted}` : '';
-              })()}
+              {getPlaylistDurationText(playlistEntries)}
             </div>
           )}
         </div>

@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DetailPanel, DetailPanelHandle } from './components/panels/DetailPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
-import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
+import { NowPlayingBar } from './components/nowplaying/NowPlayingBar/NowPlayingBar';
 import { ErrorBoundary } from './components/common/ErrorBoundary/ErrorBoundary';
 import { ErrorBanner } from './components/common/ErrorBanner/ErrorBanner';
 import { selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom, detailPanelOpenAtom, scrollToItemIdAtom, filteredHistoryAtom, currentPlaylistSongsAtom } from './store/atoms';
@@ -176,7 +176,7 @@ function App() {
             className={`${styles.resizeHandle} ${isDragging ? styles.resizeHandleDragging : ''}`}
             onMouseDown={handleMouseDown}
             onKeyDown={handleKeyDown}
-            aria-label="Resize panels"
+            aria-label={t.tooltips.resizePanels}
           />
 
           <div className={styles.panelRight}>

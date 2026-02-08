@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useVolumeAtom } from '../../../../store/useVolumeAtom';
+import { t } from '../../../../i18n';
 import styles from '../NowPlayingBar.module.css';
 
 interface VolumeControlProps {
@@ -83,8 +84,8 @@ export function VolumeControl({ audioRef }: VolumeControlProps) {
       <button
         className={styles.muteButton}
         onClick={handleMuteToggle}
-        title={isMuted ? 'Unmute' : 'Mute'}
-        aria-label={isMuted ? 'Unmute' : 'Mute'}
+        title={isMuted ? t.tooltips.unmute : t.tooltips.mute}
+        aria-label={isMuted ? t.tooltips.unmute : t.tooltips.mute}
         aria-pressed={isMuted}
       >
         {isMuted || volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}

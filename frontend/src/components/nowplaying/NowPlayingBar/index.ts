@@ -1,1 +1,0 @@
-export { NowPlayingBar } from './NowPlayingBar';

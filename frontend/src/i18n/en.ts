@@ -24,6 +24,8 @@ export const en = {
     save: 'Save',
     saving: 'Saving...',
     createPlaylist: 'Create playlist',
+    dismissError: 'Dismiss error',
+    reloadApplication: 'Reload application',
   },
 
   labels: {
@@ -43,6 +45,7 @@ export const en = {
     promptForLyrics: "Write a prompt for the lyrics (e.g. 'A song about summer')",
     searchForSongs: 'Search for songs...',
     playlistName: 'Playlist name',
+    titlePlaceholder: 'Title',
   },
 
   headings: {
@@ -76,6 +79,9 @@ export const en = {
     editPlaylist: 'Edit playlist',
     deletePlaylist: 'Delete playlist',
     returnToLibrary: 'Return to library',
+    resizePanels: 'Resize panels',
+    mute: 'Mute',
+    unmute: 'Unmute',
   },
 
   messages: {

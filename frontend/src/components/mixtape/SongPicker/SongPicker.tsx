@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { HistoryItem } from '../../../types';
-import { SongPickerItem } from './SongPickerItem';
+import { SongPickerItem } from './SongPickerItem/SongPickerItem';
 import styles from './SongPicker.module.css';
 import { t } from '../../../i18n';
 
@@ -54,7 +54,7 @@ export function SongPicker({ songs, onAddSong }: SongPickerProps) {
               onClick={() => setSearchQuery('')}
               aria-label={t.tooltips.clear}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">
                 <path d="M11 3L3 11M3 3L11 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </button>

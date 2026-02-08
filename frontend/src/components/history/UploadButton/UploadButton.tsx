@@ -129,7 +129,7 @@ export function UploadButton({ onUploadFormChange }: UploadButtonProps) {
                 <input
                   type="text"
                   className={styles.titleInput}
-                  placeholder="Tittel"
+                  placeholder={t.placeholders.titlePlaceholder}
                   value={item.title}
                   onChange={(e) => handleTitleChange(index, e.target.value)}
                   disabled={isUploading}
