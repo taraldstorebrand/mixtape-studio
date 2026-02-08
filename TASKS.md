@@ -1,95 +1,122 @@
 # TASKS.md
 
-## P1 – Toolbar-redesign for HistoryList
+## P1 – Scroll til og highlight "Now playing"-sang
 
-### Task 1: Vis antall i dropdown-knappen og fjern redundant h2-tittel
+### Task 1: Legg til atom for scroll-til-item-funksjonalitet
 
-**Status:** Ferdig
+**Status:** Ikke startet
 
 **Beskrivelse:**
-Dropdown-knappen viser kun kontekstnavn ("Songs" eller playlistnavn), mens antallet vises separat i en h2 til hoyre. Fjern h2-tittelen og inkluder antallet direkte i dropdown-knappen.
+Opprett et nytt atom som holder styr på hvilket item som skal scrolles til når bruker klikker "Now playing"-knappen i DetailPanel.
 
-**Forventet oppforsel:**
-- Library-modus: `[Songs (61) ▼]` i stedet for `[Songs ▼]` ... `Songs (61)`
-- Playlist-modus: `[Venter bare pa deg (14) ▼]` i stedet for `[Venter bare pa deg ▼]` ... `Venter bare pa deg (14)`
-- h2-elementet fjernes fra headerBar
+**Forventet oppførsel:**
+- Atomet skal lagre item-ID som skal scrolles til
+- Atomet skal kunne nullstilles
 
 **Filer som skal endres:**
-- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.tsx`
-  - Legg til `itemCount` prop
-  - Vis antall i parentes etter navnet i dropdown-knappen
-- `frontend/src/components/history/HistoryList.tsx`
-  - Fjern h2-elementene (linje 152 og 179)
-  - Send `itemCount` til PlaylistDropdown
-- `frontend/src/components/history/HistoryList.module.css`
-  - Fjern `.historyList h2`-stilen
+- `frontend/src/store/atoms.ts`
+  - Legg til `scrollToItemIdAtom` av typen `string | null`
 
 ---
 
-### Task 2: Omorganiser toolbar-layout til venstre/hoyre-gruppering
+### Task 2: Eksporter det nye atomet
 
-**Status:** Ferdig
+**Status:** Ikke startet
 
 **Beskrivelse:**
-Organiser toolbaren slik at navigasjon er til venstre og handlinger er til hoyre. Bruk en tydelig visuell separasjon.
-
-**Forventet layout:**
-- Library-modus: `[Songs (61) ▼] [Songs|Liked|All]` ............ `[+ Create playlist]`
-- Playlist-modus: `[← Library] [Venter bare pa deg (14) ▼]` ............ `[✏] [🗑]`
+Eksporter det nye atomet slik at det kan brukes i andre komponenter.
 
 **Filer som skal endres:**
-- `frontend/src/components/history/HistoryList.tsx`
-  - Wrap dropdown + filterknapper i en venstre-gruppe
-  - Wrap handlingsknapper i en hoyre-gruppe
-- `frontend/src/components/history/HistoryList.module.css`
-  - Legg til `.headerBarLeft` og `.headerBarRight` med flex-layout
-  - Behold `justify-content: space-between` pa `.headerBar`
+- `frontend/src/store/index.ts`
+  - Legg til `scrollToItemIdAtom` i eksportlisten
 
 ---
 
-### Task 3: Flytt "← Library"-knappen ut av dropdown og PlaylistActions
+### Task 3: Oppdater App.tsx for å sette scroll-mål ved "Now playing"-klikk
 
-**Status:** Ferdig
+**Status:** Ikke startet
 
 **Beskrivelse:**
-"Tilbake til library" finnes pa to steder: som menypunkt i dropdown-menyen OG som ikonknapp i PlaylistActions. Erstatt begge med en tydelig tekstknapp `← Library` som vises til venstre for dropdownen kun i playlist-modus.
+Når bruker klikker "Now playing"-knappen i DetailPanel (via onSelectItem), skal App.tsx sette scroll-målet i det nye atomet. Dette skal kun skje når item faktisk finnes i den nåværende listen (library eller playlist).
 
-**Forventet oppforsel:**
-- I playlist-modus: `[← Library]` vises som en synlig knapp til venstre for dropdown
-- Fjernes fra dropdown-menyen ("`← Library`"-menypunktet)
-- Fjernes fra PlaylistActions (pil-ikonknappen)
-- I library-modus: knappen vises ikke
+**Forventet oppførsel:**
+- I library-modus: Sjekk om item finnes i `filteredHistoryAtom` (respekter filtre)
+- I playlist-modus: Sjekk om item finnes i `currentPlaylistSongsAtom` (valgte playlist)
+- Hvis item ikke finnes i den nåværende listen, skal INGEN scroll eller highlight skje
+- Hvis item finnes, sett `scrollToItemIdAtom` til item-ID
+- Scroll-målet skal settes regardless av om item er valgt fra før
+- Nullstill scroll-målet etter kort tid (f.eks. 2 sekunder)
 
 **Filer som skal endres:**
-- `frontend/src/components/history/HistoryList.tsx`
-  - Legg til en `← Library`-knapp i headerBar, betinget pa `selectedPlaylistId !== null`
-- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.tsx`
-  - Fjern "`← Library`"-menypunktet fra dropdown-menyen
-- `frontend/src/components/history/PlaylistActions/PlaylistActions.tsx`
-  - Fjern tilbake-knappen (pilikonet) fra playlist-modus
-  - Fjern `onReturnToLibrary` prop
-- `frontend/src/components/history/HistoryList.module.css`
-  - Stil for den nye tilbake-knappen
+- `frontend/src/App.tsx`
+  - Importer `scrollToItemIdAtom`, `useSetAtom`, `useAtomValue`
+  - Importer `filteredHistoryAtom` og `currentPlaylistSongsAtom`
+  - Oppdater `handleSelectItemById` for å sjekke om item finnes i nåværende liste
+  - Kun sett scroll-mål hvis item finnes
+  - Nullstill scroll-målet etter kort tid (f.eks. 2 sekunder)
 
 ---
 
-### Task 4: Flytt "+ Create playlist" til dropdown-menyen i playlist-modus
+### Task 4: Implementer scroll og highlight i HistoryList
 
-**Status:** Ferdig
+**Status:** Ikke startet
 
 **Beskrivelse:**
-Nar man er inne i en playlist, er "opprett ny playlist" (+) sjelden brukt. Flytt den inn i dropdown-menyen som et menypunkt nederst. Behold den som en synlig knapp kun i library-modus.
+HistoryList skal overvåke `scrollToItemIdAtom` og når den endres, skal komponenten:
+1. Finne elementet som matcher item-ID
+2. Sjekke om elementet finnes i nåværende liste (library eller playlist)
+3. Sjekke om elementet er synlig i viewport
+4. Hvis elementet finnes men ikke er synlig, scroll til elementet
+5. Vise en subtil highlight-effekt på elementet
 
-**Forventet oppforsel:**
-- Library-modus: `[+ Create playlist]`-knappen vises i headerBar til hoyre (som for)
-- Playlist-modus: `+ New playlist` vises som siste menypunkt i dropdown-menyen
-- Ikonknappen (+) fjernes fra PlaylistActions i playlist-modus
+**Forventet oppførsel:**
+- Hvis elementet ikke finnes i listen, gjør ingenting (returner tidlig)
+- Elementet skal scrolles til sentrert i viewport hvis det ikke er synlig
+- En subtil highlight-animasjon skal vises på elementet
+- Funksjonen skal håndtere både library-modus og playlist-modus
+- Funksjonen skal håndtere filtrerte views (kun scrolle til items som er synlige i det filtrerte viewet)
 
 **Filer som skal endres:**
-- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.tsx`
-  - Legg til `onCreatePlaylist` prop
-  - Legg til "+ New playlist" som menypunkt nederst i dropdown (med separator)
-- `frontend/src/components/history/PlaylistActions/PlaylistActions.tsx`
-  - Fjern (+)-knappen fra playlist-modus (behold kun ✏ og 🗑)
-- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.module.css`
-  - Stil for separator og create-menypunktet
+- `frontend/src/components/history/HistoryList.tsx`
+  - Importer `scrollToItemIdAtom` og `useAtomValue`
+  - Legg til `useEffect` som overvåker endringer i `scrollToItemIdAtom`
+  - Implementer sjekk for om element er synlig i viewport (bruk Intersection Observer)
+  - Implementer scroll til element med `scrollIntoView({ behavior: 'smooth', block: 'center' })`
+  - Gi HistoryItem en `highlight`-prop når det skal highlightes
+
+---
+
+### Task 5: Legg til highlight-prop i HistoryItem
+
+**Status:** Ikke startet
+
+**Beskrivelse:**
+HistoryItem skal akseptere en `highlight`-prop som styrer om en subtil highlight-effekt skal vises.
+
+**Forventet oppførsel:**
+- Når `highlight` er `true`, skal en CSS-animasjon klasse legges til
+- Effekten skal være subtil og ikke forstyrrende
+
+**Filer som skal endres:**
+- `frontend/src/components/history/HistoryItem/HistoryItem.tsx`
+  - Legg til `highlight?: boolean` i interface
+  - Bruk `highlight` til å legge til en CSS-klasse på root-elementet
+
+---
+
+### Task 6: Implementer CSS-animasjon for highlight-effekt
+
+**Status:** Ikke startet
+
+**Beskrivelse:**
+Legg til en subtil CSS-animasjon som highlighter elementet når det blir scrollet til.
+
+**Forventet oppførsel:**
+- En subtil bakgrunnsfarge-animasjon som fader inn og ut
+- Effekten bør vare ca. 1-2 sekunder
+- Bruk eksisterende CSS-variabler for farger
+
+**Filer som skal endres:**
+- `frontend/src/components/history/HistoryItem/HistoryItem.module.css`
+  - Legg til `.highlight`-klasse med CSS-animasjon
+  - Bruk `@keyframes` for å lage en subtil farge-animasjon
