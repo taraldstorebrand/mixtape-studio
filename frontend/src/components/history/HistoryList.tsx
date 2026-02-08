@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { HistoryItem as HistoryItemType } from '../../types';
 import { HistoryItem } from './HistoryItem/HistoryItem';
@@ -6,7 +6,8 @@ import { MixtapeButton } from './MixtapeButton/MixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
 import { PlaylistDropdown } from './PlaylistDropdown/PlaylistDropdown';
 import { PlaylistActions } from './PlaylistActions/PlaylistActions';
-import { currentPlaylistEntriesAtom, currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom, scrollToItemIdAtom } from '../../store';
+import { currentPlaylistEntriesAtom, currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store';
+import { useScrollToItem } from '../../hooks/useScrollToItem';
 import { t } from '../../i18n';
 import { fetchPlaylists, fetchPlaylist, deletePlaylist } from '../../services/playlists';
 import { Modal } from '../common/Modal/Modal';
@@ -26,7 +27,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const [isUploadFormActive, setIsUploadFormActive] = useState(false);
     const [isPlaylistEditorOpen, setIsPlaylistEditorOpen] = useState(false);
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | undefined>(undefined);
-    const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
     const playlists = useAtomValue(playlistsAtom);
     const selectedPlaylistId = useAtomValue(selectedPlaylistIdAtom);
     const setPlaylists = useSetAtom(playlistsAtom);
@@ -36,8 +36,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
     const currentPlaylistEntries = useAtomValue(currentPlaylistEntriesAtom);
     const filteredItems = useAtomValue(filteredHistoryAtom);
-    const scrollToItemId = useAtomValue(scrollToItemIdAtom);
-    const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
+    const { highlightedItemId, setItemRef } = useScrollToItem();
 
     const completedSongs = (songs: HistoryItemType[]) => songs.filter(song => song.sunoLocalUrl || (song.sunoStatus === 'completed' && song.sunoAudioUrl));
     const likedItems = completedSongs(items.filter(item => item.feedback === 'up'));
@@ -129,54 +128,6 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             })
             .catch(console.error);
     }, [selectedPlaylistId, setCurrentPlaylistSongs, setCurrentPlaylistEntries]);
-
-    useEffect(() => {
-        if (scrollToItemId === null) return;
-
-        let highlightTimeoutId: ReturnType<typeof setTimeout>;
-
-        const scrollTimeoutId = setTimeout(() => {
-            const targetElement = itemRefs.current.get(scrollToItemId);
-
-            if (!targetElement) {
-                return;
-            }
-
-            const isElementVisible = () => {
-                const rect = targetElement.getBoundingClientRect();
-                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                return (
-                    rect.top >= 0 &&
-                    rect.left >= 0 &&
-                    rect.bottom <= windowHeight &&
-                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-                );
-            };
-
-            if (!isElementVisible()) {
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            setHighlightedItemId(scrollToItemId);
-
-            highlightTimeoutId = setTimeout(() => {
-                setHighlightedItemId(null);
-            }, 1500);
-        }, 100);
-
-        return () => {
-            clearTimeout(scrollTimeoutId);
-            clearTimeout(highlightTimeoutId);
-        };
-    }, [scrollToItemId]);
-
-    const setItemRef = (itemId: string, element: HTMLElement | null) => {
-        if (element) {
-            itemRefs.current.set(itemId, element);
-        } else {
-            itemRefs.current.delete(itemId);
-        }
-    };
 
     return (
         <div className={styles.historyList}>
