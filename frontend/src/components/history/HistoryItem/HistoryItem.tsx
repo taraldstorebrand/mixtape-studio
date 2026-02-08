@@ -2,7 +2,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { HistoryItem as HistoryItemType } from '../../../types';
 import { t } from '../../../i18n';
-import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom, currentPlaylistEntriesAtom, selectedQueueEntryIdAtom, currentQueueIndexAtom } from '../../../store';
+import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, filteredHistoryAtom, playbackQueueAtom, currentPlaylistEntriesAtom, selectedQueueEntryIdAtom, currentQueueIndexAtom } from '../../../store/atoms';
 import styles from './HistoryItem.module.css';
 
 interface HistoryItemProps {

@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { selectedPlaylistIdAtom, playlistsAtom } from '../../../store';
+import { selectedPlaylistIdAtom, playlistsAtom } from '../../../store/atoms';
 import type { Playlist } from '../../../types';
 import { t } from '../../../i18n';
 import styles from './PlaylistActions.module.css';

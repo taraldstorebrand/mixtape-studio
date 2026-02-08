@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useVolumeAtom } from '../../../../store';
+import { useVolumeAtom } from '../../../../store/useVolumeAtom';
 import styles from '../NowPlayingBar.module.css';
 
 interface VolumeControlProps {

@@ -3,7 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { t } from '../../../i18n';
 import type { HistoryItem } from '../../../types';
-import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, playbackQueueAtom, selectedQueueEntryIdAtom, currentQueueIndexAtom } from '../../../store';
+import { nowPlayingAtom, audioSourceAtom, audioRefAtom, isPlayingAtom, playbackQueueAtom, selectedQueueEntryIdAtom, currentQueueIndexAtom } from '../../../store/atoms';
 import styles from './PlaylistEditor.module.css';
 
 export interface PlaylistSongEntry {

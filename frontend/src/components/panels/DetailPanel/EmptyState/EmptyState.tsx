@@ -1,5 +1,5 @@
 import { useSetAtom } from 'jotai';
-import { editorOpenAtom } from '../../../../store';
+import { editorOpenAtom } from '../../../../store/atoms';
 import { t } from '../../../../i18n';
 import styles from '../../DetailPanel.module.css';
 

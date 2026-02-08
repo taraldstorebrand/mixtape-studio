@@ -27,6 +27,8 @@ If there is a conflict, STOP and ask for clarification.
 - Do NOT define render functions inside components (functions that return JSX). Extract them as separate components instead. This improves readability, testability, and avoids re-creating functions on every render.
 - Helper components used by only one parent component MUST be placed in a subfolder named after the parent component, inside its own folder matching the component name. Example: `StatusBadge` used only by `HistoryItem` goes in `history/HistoryItem/StatusBadge/StatusBadge.tsx`.
 - File names MUST match the primary component they export. Avoid generic names like `index.tsx`. Example: a file exporting `HistoryItem` must be named `HistoryItem.tsx`, not `index.tsx`.
+- Do NOT use barrel exports (`index.ts` files that re-export from other modules). Always import directly from the source file. Example: `import { myAtom } from '../store/atoms'` NOT `import { myAtom } from '../store'`.
+- No unused code. Remove dead variables, functions, imports, and unreachable code blocks. Do not leave commented-out code.
 
 ## Accessibility (WCAG 2.1 AA)
 

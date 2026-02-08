@@ -14,7 +14,7 @@ import {
   currentQueueIndexAtom,
   historyAtom,
   selectedQueueEntryIdAtom,
-} from '../../../../store';
+} from '../../../../store/atoms';
 import { HistoryItem } from '../../../../types';
 import { t } from '../../../../i18n';
 

@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
-import { playbackQueueAtom, useHistoryActions } from '../../../store';
+import { playbackQueueAtom } from '../../../store/atoms';
+import { useHistoryActions } from '../../../store/useHistoryAtom';
 import { useAudioPlayback } from './hooks/useAudioPlayback';
 import { ProgressBar } from './ProgressBar/ProgressBar';
 import { VolumeControl } from './VolumeControl/VolumeControl';

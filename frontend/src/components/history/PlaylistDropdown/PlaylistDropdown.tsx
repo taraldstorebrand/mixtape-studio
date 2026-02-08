@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSetAtom } from 'jotai';
 import type { Playlist } from '../../../types';
-import { selectedPlaylistIdAtom } from '../../../store';
+import { selectedPlaylistIdAtom } from '../../../store/atoms';
 import { t } from '../../../i18n';
 import styles from './PlaylistDropdown.module.css';
 
@@ -34,11 +34,6 @@ export function PlaylistDropdown({ playlists, selectedPlaylistId, itemCount, onC
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-
-  const handleSelectLibrary = () => {
-    setSelectedPlaylistId(null);
-    setIsOpen(false);
-  };
 
   const handleSelectPlaylist = (playlistId: string) => {
     setSelectedPlaylistId(playlistId);

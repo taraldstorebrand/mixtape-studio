@@ -6,7 +6,7 @@ import { MixtapeButton } from './MixtapeButton/MixtapeButton';
 import { UploadButton } from './UploadButton/UploadButton';
 import { PlaylistDropdown } from './PlaylistDropdown/PlaylistDropdown';
 import { PlaylistActions } from './PlaylistActions/PlaylistActions';
-import { currentPlaylistEntriesAtom, currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store';
+import { currentPlaylistEntriesAtom, currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store/atoms';
 import { useScrollToItem } from '../../hooks/useScrollToItem';
 import { t } from '../../i18n';
 import { fetchPlaylists, fetchPlaylist, deletePlaylist } from '../../services/playlists';

@@ -23,7 +23,7 @@ import { fetchPlaylist, createPlaylist, updatePlaylist, addSongsToPlaylist, remo
 import { t } from '../../../i18n';
 import { getErrorMessage } from '../../../utils/errors';
 import { formatDuration } from '../../../utils/formatDuration';
-import { audioSourceAtom, playbackQueueAtom, currentQueueIndexAtom, selectedQueueEntryIdAtom } from '../../../store';
+import { audioSourceAtom, playbackQueueAtom, currentQueueIndexAtom, selectedQueueEntryIdAtom } from '../../../store/atoms';
 import styles from './PlaylistEditor.module.css';
 
 interface PlaylistEditorProps {

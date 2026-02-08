@@ -6,7 +6,7 @@ import { ReadonlyView } from './DetailPanel/ReadonlyView/ReadonlyView';
 import { CollapsibleSection } from './DetailPanel/CollapsibleSection/CollapsibleSection';
 import { EmptyState } from './DetailPanel/EmptyState/EmptyState';
 import { generateLyrics, generateSong, checkConfigStatus } from '../../services/api';
-import { songGenerationStatusAtom, editorOpenAtom } from '../../store';
+import { songGenerationStatusAtom, editorOpenAtom } from '../../store/atoms';
 import { HistoryItem } from '../../types';
 import { t } from '../../i18n';
 import { getErrorMessage } from '../../utils/errors';

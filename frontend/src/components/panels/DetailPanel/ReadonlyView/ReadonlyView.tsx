@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import type { HistoryItem } from '../../../../types';
 import { t } from '../../../../i18n';
-import { isPlayingAtom, editorOpenAtom } from '../../../../store';
+import { isPlayingAtom, editorOpenAtom } from '../../../../store/atoms';
 import { CollapsibleSection } from '../CollapsibleSection/CollapsibleSection';
 import { formatDuration } from '../../../../utils/formatDuration';
 import styles from '../../DetailPanel.module.css';

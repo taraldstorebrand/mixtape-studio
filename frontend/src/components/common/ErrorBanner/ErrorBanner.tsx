@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { globalErrorAtom } from '../../../store';
+import { globalErrorAtom } from '../../../store/atoms';
 import styles from './ErrorBanner.module.css';
 
 export function ErrorBanner() {

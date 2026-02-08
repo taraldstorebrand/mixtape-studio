@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAtomValue } from 'jotai';
-import { scrollToItemIdAtom } from '../store';
+import { scrollToItemIdAtom } from '../store/atoms';
 
 export function useScrollToItem() {
   const scrollToItemId = useAtomValue(scrollToItemIdAtom);
