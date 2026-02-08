@@ -9,9 +9,11 @@ interface HistoryItemProps {
   item: HistoryItemType;
   entryId: string | null;
   isSelected: boolean;
+  highlight?: boolean;
   onFeedback: (id: string, feedback: 'up' | 'down' | null) => void;
   onSelect: (item: HistoryItemType) => void;
   onDelete: () => void;
+  itemRef?: (element: HTMLDivElement | null) => void;
 }
 
 function formatDuration(seconds: number): string {
@@ -23,7 +25,7 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function HistoryItem({ item, entryId, isSelected, onFeedback, onSelect, onDelete }: HistoryItemProps) {
+export function HistoryItem({ item, entryId, isSelected, highlight, onFeedback, onSelect, onDelete, itemRef }: HistoryItemProps) {
   const displayTitle = item.title || item.prompt || t.messages.untitled;
   const variationLabel = item.variationIndex !== undefined ? ` #${item.variationIndex + 1}` : '';
   const audioUrl = item.sunoLocalUrl || item.sunoAudioUrl;
@@ -149,7 +151,8 @@ export function HistoryItem({ item, entryId, isSelected, onFeedback, onSelect, o
 
   return (
     <div
-      className={`${styles.historyItem} ${isEntrySelected ? styles.selected : ''} ${isThisEntryPlaying ? styles.nowPlaying : ''}`}
+      ref={itemRef}
+      className={`${styles.historyItem} ${isEntrySelected ? styles.selected : ''} ${isThisEntryPlaying ? styles.nowPlaying : ''} ${highlight ? styles.highlight : ''}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"

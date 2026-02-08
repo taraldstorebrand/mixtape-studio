@@ -45,7 +45,7 @@ Når bruker klikker "Now playing"-knappen i DetailPanel (via onSelectItem), skal
 - Hvis item ikke finnes i den nåværende listen, skal INGEN scroll eller highlight skje
 - Hvis item finnes, sett `scrollToItemIdAtom` til item-ID
 - Scroll-målet skal settes regardless av om item er valgt fra før
-- Nullstill scroll-målet etter kort tid (f.eks. 2 sekunder)
+- Nullstill scroll-målet etter kort tid (1600ms)
 
 **Filer som skal endres:**
 - `frontend/src/App.tsx`
@@ -53,7 +53,7 @@ Når bruker klikker "Now playing"-knappen i DetailPanel (via onSelectItem), skal
   - Importer `filteredHistoryAtom` og `currentPlaylistSongsAtom`
   - Oppdater `handleSelectItemById` for å sjekke om item finnes i nåværende liste
   - Kun sett scroll-mål hvis item finnes
-  - Nullstill scroll-målet etter kort tid (f.eks. 2 sekunder)
+  - Nullstill scroll-målet etter kort tid (1600ms)
 
 ---
 

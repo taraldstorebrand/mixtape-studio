@@ -92,3 +92,6 @@ export const globalErrorAtom = atom<string | null>(null);
 
 // Mobile detail panel visibility (hidden by default on mobile)
 export const detailPanelOpenAtom = atom<boolean>(false);
+
+// Scroll to item ID - used to scroll to and highlight specific items in HistoryList
+export const scrollToItemIdAtom = atom<string | null>(null);

@@ -5,7 +5,7 @@ import { HistoryPanel } from './components/panels/HistoryPanel';
 import { NowPlayingBar } from './components/nowplaying/NowPlayingBar';
 import { ErrorBoundary } from './components/common/ErrorBoundary/ErrorBoundary';
 import { ErrorBanner } from './components/common/ErrorBanner/ErrorBanner';
-import { useInitializeHistory, useHistoryActions, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom, detailPanelOpenAtom } from './store';
+import { useInitializeHistory, useHistoryActions, useGenreHistoryAtom, selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlayingAtom, editorOpenAtom, detailPanelOpenAtom, scrollToItemIdAtom, filteredHistoryAtom, currentPlaylistSongsAtom } from './store';
 import { useResizable } from './hooks/useResizable';
 import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
 import { HistoryItem } from './types';
@@ -21,6 +21,9 @@ function App() {
   const nowPlaying = useAtomValue(nowPlayingAtom);
   const setEditorOpen = useSetAtom(editorOpenAtom);
   const [detailPanelOpen, setDetailPanelOpen] = useAtom(detailPanelOpenAtom);
+  const setScrollToItemId = useSetAtom(scrollToItemIdAtom);
+  const filteredHistory = useAtomValue(filteredHistoryAtom);
+  const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<DetailPanelHandle>(null);
 
@@ -115,6 +118,16 @@ function App() {
     const item = history.find(h => h.id === itemId);
     if (item) {
       setSelectedItemId(itemId);
+
+      const currentList = currentPlaylistSongs ?? filteredHistory;
+      const itemInList = currentList.find(h => h.id === itemId);
+
+      if (itemInList) {
+        setScrollToItemId(itemId);
+        setTimeout(() => {
+          setScrollToItemId(null);
+        }, 1600);
+      }
     }
   };
 

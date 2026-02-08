@@ -23,6 +23,7 @@ export {
   currentPlaylistEntriesAtom,
   globalErrorAtom,
   detailPanelOpenAtom,
+  scrollToItemIdAtom,
 } from './atoms';
 export type { FilterType, SongGenerationStatus, QueueEntry } from './atoms';
 export { useInitializeHistory, useHistoryActions } from './useHistoryAtom';
