@@ -9,6 +9,7 @@
 .columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
   gap: var(--spacing-xl);
   flex: 1;
   min-height: 0;
@@ -23,7 +24,6 @@
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
   min-height: 0;
-  max-height: 100%;
   overflow: hidden;
 }
 
