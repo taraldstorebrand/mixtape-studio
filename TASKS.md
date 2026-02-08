@@ -1,48 +1,95 @@
 # TASKS.md
 
-## P1 – Viktige
+## P1 – Toolbar-redesign for HistoryList
 
-### Task 1: Implementer Media Session API for iOS lock screen-kontroller
+### Task 1: Vis antall i dropdown-knappen og fjern redundant h2-tittel
 
-**Status:** ✅ Completed
+**Status:** Ferdig
 
 **Beskrivelse:**
-Legg til Media Session API-integrasjon for å vise playback-kontroller på iOS lock screen og andre plattform-mediekontroller.
+Dropdown-knappen viser kun kontekstnavn ("Songs" eller playlistnavn), mens antallet vises separat i en h2 til hoyre. Fjern h2-tittelen og inkluder antallet direkte i dropdown-knappen.
 
-**Forventet oppførsel:**
-- Next/previous-knapper skal vises på iOS lock screen
-- Play/pause-knapp skal fungere fra lock screen
-- Song metadata (tittel, artist, album, artwork) skal vises
-- Fremdriftsbar skal vise avspillingsposisjon
+**Forventet oppforsel:**
+- Library-modus: `[Songs (61) ▼]` i stedet for `[Songs ▼]` ... `Songs (61)`
+- Playlist-modus: `[Venter bare pa deg (14) ▼]` i stedet for `[Venter bare pa deg ▼]` ... `Venter bare pa deg (14)`
+- h2-elementet fjernes fra headerBar
 
 **Filer som skal endres:**
-- `frontend/src/components/nowplaying/NowPlayingBar/hooks/useAudioPlayback.ts`
-  - Flytt handlePrevious og handleNext fra NowPlayingBar.tsx
-  - Legg til Media Session setup med metadata
-  - Konfigurer action handlers (play, pause, nexttrack, previoustrack)
-  - Oppdater playbackState og positionState
-  
-- `frontend/src/components/nowplaying/NowPlayingBar/NowPlayingBar.tsx`
-  - Fjern handlePrevious og handleNext (flyttet til hook)
-  - Bruk funksjonene fra useAudioPlayback hook
+- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.tsx`
+  - Legg til `itemCount` prop
+  - Vis antall i parentes etter navnet i dropdown-knappen
+- `frontend/src/components/history/HistoryList.tsx`
+  - Fjern h2-elementene (linje 152 og 179)
+  - Send `itemCount` til PlaylistDropdown
+- `frontend/src/components/history/HistoryList.module.css`
+  - Fjern `.historyList h2`-stilen
 
-**Implementeringssteg:**
-1. Flytt handlePrevious og handleNext fra NowPlayingBar.tsx til useAudioPlayback.ts og eksporter dem
-2. Oppdater useAudioPlayback return-verdi for å inkludere handlePrevious og handleNext
-3. Oppdater NowPlayingBar.tsx for å bruke de flyttede funksjonene fra hook
-4. Legg til useEffect i useAudioPlayback for å sette opp Media Session API
-5. Implementer metadata-oppdatering når nowPlaying endres
-6. Implementer action handlers for play, pause, nexttrack, previoustrack
-7. Implementer playbackState og positionState oppdateringer
-8. Sjekk for støtte med `'mediaSession' in navigator`
-9. Håndter artwork i flere størrelser for optimal iOS-visning
-10. Legg til feilhåndtering for nettlesere uten støtte
+---
 
-**Tester å utføre:**
-- Start avspilling av en sang
-- Lås iOS-enhet (eller bruk simulator)
-- Verifiser at lock screen viser riktig metadata
-- Test at next/previous fungerer fra lock screen
-- Test at play/pause fungerer fra lock screen
-- Verifiser at fremdriftsbar oppdateres
-- Test på Chrome/Edge (desktop) for å verifisere cross-platform
+### Task 2: Omorganiser toolbar-layout til venstre/hoyre-gruppering
+
+**Status:** Ferdig
+
+**Beskrivelse:**
+Organiser toolbaren slik at navigasjon er til venstre og handlinger er til hoyre. Bruk en tydelig visuell separasjon.
+
+**Forventet layout:**
+- Library-modus: `[Songs (61) ▼] [Songs|Liked|All]` ............ `[+ Create playlist]`
+- Playlist-modus: `[← Library] [Venter bare pa deg (14) ▼]` ............ `[✏] [🗑]`
+
+**Filer som skal endres:**
+- `frontend/src/components/history/HistoryList.tsx`
+  - Wrap dropdown + filterknapper i en venstre-gruppe
+  - Wrap handlingsknapper i en hoyre-gruppe
+- `frontend/src/components/history/HistoryList.module.css`
+  - Legg til `.headerBarLeft` og `.headerBarRight` med flex-layout
+  - Behold `justify-content: space-between` pa `.headerBar`
+
+---
+
+### Task 3: Flytt "← Library"-knappen ut av dropdown og PlaylistActions
+
+**Status:** Ferdig
+
+**Beskrivelse:**
+"Tilbake til library" finnes pa to steder: som menypunkt i dropdown-menyen OG som ikonknapp i PlaylistActions. Erstatt begge med en tydelig tekstknapp `← Library` som vises til venstre for dropdownen kun i playlist-modus.
+
+**Forventet oppforsel:**
+- I playlist-modus: `[← Library]` vises som en synlig knapp til venstre for dropdown
+- Fjernes fra dropdown-menyen ("`← Library`"-menypunktet)
+- Fjernes fra PlaylistActions (pil-ikonknappen)
+- I library-modus: knappen vises ikke
+
+**Filer som skal endres:**
+- `frontend/src/components/history/HistoryList.tsx`
+  - Legg til en `← Library`-knapp i headerBar, betinget pa `selectedPlaylistId !== null`
+- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.tsx`
+  - Fjern "`← Library`"-menypunktet fra dropdown-menyen
+- `frontend/src/components/history/PlaylistActions/PlaylistActions.tsx`
+  - Fjern tilbake-knappen (pilikonet) fra playlist-modus
+  - Fjern `onReturnToLibrary` prop
+- `frontend/src/components/history/HistoryList.module.css`
+  - Stil for den nye tilbake-knappen
+
+---
+
+### Task 4: Flytt "+ Create playlist" til dropdown-menyen i playlist-modus
+
+**Status:** Ferdig
+
+**Beskrivelse:**
+Nar man er inne i en playlist, er "opprett ny playlist" (+) sjelden brukt. Flytt den inn i dropdown-menyen som et menypunkt nederst. Behold den som en synlig knapp kun i library-modus.
+
+**Forventet oppforsel:**
+- Library-modus: `[+ Create playlist]`-knappen vises i headerBar til hoyre (som for)
+- Playlist-modus: `+ New playlist` vises som siste menypunkt i dropdown-menyen
+- Ikonknappen (+) fjernes fra PlaylistActions i playlist-modus
+
+**Filer som skal endres:**
+- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.tsx`
+  - Legg til `onCreatePlaylist` prop
+  - Legg til "+ New playlist" som menypunkt nederst i dropdown (med separator)
+- `frontend/src/components/history/PlaylistActions/PlaylistActions.tsx`
+  - Fjern (+)-knappen fra playlist-modus (behold kun ✏ og 🗑)
+- `frontend/src/components/history/PlaylistDropdown/PlaylistDropdown.module.css`
+  - Stil for separator og create-menypunktet

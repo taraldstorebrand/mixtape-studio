@@ -140,16 +140,23 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
                 </div>
                 {!isUploadFormActive && (
                     <div className={styles.headerBar}>
-                        <PlaylistDropdown playlists={playlists} selectedPlaylistId={selectedPlaylistId} />
-                        <PlaylistActions
-                            onCreatePlaylist={handleCreatePlaylist}
-                            onEditPlaylist={handleEditPlaylist}
-                            onDeletePlaylist={handleDeletePlaylist}
-                            onReturnToLibrary={handleReturnToLibrary}
-                        />
-                        {selectedPlaylistId === null && (
-                            <>
-                                <h2>{t.filters.songs} ({filteredItems.length})</h2>
+                        <div className={styles.headerBarLeft}>
+                            {selectedPlaylistId !== null && (
+                                <button
+                                    type="button"
+                                    className={styles.backButton}
+                                    onClick={handleReturnToLibrary}
+                                    title={t.tooltips.returnToLibrary}
+                                    aria-label={t.tooltips.returnToLibrary}
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                                        <path d="M3 8H13M3 8L6 5M3 8L6 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                    {t.filters.library}
+                                </button>
+                            )}
+                            <PlaylistDropdown playlists={playlists} selectedPlaylistId={selectedPlaylistId} itemCount={displayItems.length} onCreatePlaylist={selectedPlaylistId ? handleCreatePlaylist : undefined} />
+                            {selectedPlaylistId === null && (
                                 <div className={styles.filterButtons}>
                                     <button
                                         type="button"
@@ -173,11 +180,15 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
                                         {t.filters.all}
                                     </button>
                                 </div>
-                            </>
-                        )}
-                        {selectedPlaylistId !== null && selectedPlaylist && (
-                            <h2>{selectedPlaylist.name} ({displayItems.length})</h2>
-                        )}
+                            )}
+                        </div>
+                        <div className={styles.headerBarRight}>
+                            <PlaylistActions
+                                onCreatePlaylist={handleCreatePlaylist}
+                                onEditPlaylist={handleEditPlaylist}
+                                onDeletePlaylist={handleDeletePlaylist}
+                            />
+                        </div>
                     </div>
                 )}
             </div>

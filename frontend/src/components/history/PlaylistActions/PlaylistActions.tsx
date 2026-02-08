@@ -8,10 +8,9 @@ interface PlaylistActionsProps {
   onCreatePlaylist: () => void;
   onEditPlaylist: (playlistId: string) => void;
   onDeletePlaylist: (playlistId: string) => void;
-  onReturnToLibrary: () => void;
 }
 
-export function PlaylistActions({ onCreatePlaylist, onEditPlaylist, onDeletePlaylist, onReturnToLibrary }: PlaylistActionsProps) {
+export function PlaylistActions({ onCreatePlaylist, onEditPlaylist, onDeletePlaylist }: PlaylistActionsProps) {
   const selectedPlaylistId = useAtomValue(selectedPlaylistIdAtom);
   const playlists = useAtomValue(playlistsAtom);
   const selectedPlaylist: Playlist | undefined = playlists.find((p) => p.id === selectedPlaylistId);
@@ -24,25 +23,10 @@ export function PlaylistActions({ onCreatePlaylist, onEditPlaylist, onDeletePlay
     }
   };
 
-  const handleReturnToLibrary = () => {
-    onReturnToLibrary();
-  };
-
   return (
     <div className={styles.playlistActions}>
       {isInPlaylistMode ? (
         <>
-          <button
-            type="button"
-            className={styles.actionButton}
-            onClick={onCreatePlaylist}
-            title={t.tooltips.createPlaylist}
-            aria-label={t.tooltips.createPlaylist}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
-              <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
           <button
             type="button"
             className={styles.actionButton}
@@ -64,17 +48,6 @@ export function PlaylistActions({ onCreatePlaylist, onEditPlaylist, onDeletePlay
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
               <path d="M2 4H14M4 4V13.5C4 14.0523 4.44772 14.5 5 14.5H11C11.5523 14.5 12 14.0523 12 13.5V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </button>
-          <button
-            type="button"
-            className={styles.actionButton}
-            onClick={handleReturnToLibrary}
-            title={t.tooltips.returnToLibrary}
-            aria-label={t.tooltips.returnToLibrary}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
-              <path d="M3 8H13M3 8L6 5M3 8L6 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         </>

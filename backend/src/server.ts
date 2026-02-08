@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { config } from './config';
@@ -14,6 +15,30 @@ import configStatusRoutes from './routes/configStatus';
 import playlistsRoutes from './routes/playlists';
 import { errorHandler } from './middleware/errorHandler';
 import './db';
+
+const crashLogPath = path.join(__dirname, '../data/crash.log');
+
+function logCrash(type: string, error: unknown) {
+  const timestamp = new Date().toISOString();
+  const message = error instanceof Error
+    ? `${error.message}\n${error.stack}`
+    : String(error);
+  const entry = `[${timestamp}] ${type}: ${message}\n\n`;
+  try {
+    fs.appendFileSync(crashLogPath, entry);
+  } catch {
+    // If we can't write the log, at least print to stderr
+  }
+  console.error(`[${timestamp}] ${type}:`, error);
+}
+
+process.on('uncaughtException', (error) => {
+  logCrash('uncaughtException', error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logCrash('unhandledRejection', reason);
+});
 
 cleanupOldTempFiles();
 setInterval(cleanupOldTempFiles, 5 * 60 * 1000);

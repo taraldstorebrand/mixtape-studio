@@ -123,6 +123,16 @@
   outline-offset: 2px;
 }
 
+.menuSeparator {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--spacing-xs) 0;
+}
+
+.createMenuItem {
+  color: var(--color-text-dim);
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .menu {
