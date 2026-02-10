@@ -9,7 +9,7 @@ import { selectedItemIdAtom, selectedItemAtom, songGenerationStatusAtom, nowPlay
 import { useInitializeHistory, useHistoryActions } from './store/useHistoryAtom';
 import { useGenreHistoryAtom } from './store/useGenreHistoryAtom';
 import { useResizable } from './hooks/useResizable';
-import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket';
+import { useSunoUpdates, SunoUpdateData } from './hooks/useSse';
 import { HistoryItem } from './types';
 import { t } from './i18n';
 import styles from './App.module.css';
@@ -97,7 +97,7 @@ function App() {
     }
   };
 
-  useSunoSocket(handleSunoUpdate);
+  useSunoUpdates(handleSunoUpdate);
 
   const handleSelect = (item: HistoryItem) => {
     if (selectedItemId === item.id) {
