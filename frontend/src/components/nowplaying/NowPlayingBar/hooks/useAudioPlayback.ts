@@ -33,6 +33,7 @@ export function useAudioPlayback() {
   const [, setSelectedQueueEntryId] = useAtom(selectedQueueEntryIdAtom);
   const history = useAtomValue(historyAtom);
   const internalAudioRef = useRef<HTMLAudioElement>(null);
+  const skipNextLoadRef = useRef(false);
 
   // Refs to avoid stale closures in event handlers
   const playbackQueueRef = useRef(playbackQueue);
@@ -101,6 +102,9 @@ export function useAudioPlayback() {
 
     const handleEnded = () => {
       // Autoplay next song in queue (D-052)
+      // Play directly on the audio element to preserve autoplay permission
+      // on mobile lockscreens. Going through React state loses the browser's
+      // "autoplay after ended" context.
       const queue = playbackQueueRef.current;
       const queueIndex = currentQueueIndexRef.current;
       const allSongs = historyRef.current;
@@ -113,23 +117,27 @@ export function useAudioPlayback() {
         return;
       }
 
-      // Always use full history to find songs - the queue defines playback order
       const songsToSearch = allSongs;
 
-      // Find next valid song (skip deleted songs)
+      const playNext = (song: HistoryItem, url: string, index: number) => {
+        audio.src = url;
+        audio.play().catch(() => setIsPlaying(false));
+        skipNextLoadRef.current = true;
+        setCurrentQueueIndex(index);
+        setAudioSource({ id: song.id, url });
+      };
+
       for (let i = queueIndex + 1; i < queue.length; i++) {
         const nextEntry = queue[i];
         const nextSong = songsToSearch.find((s) => s.id === nextEntry.songId);
         const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
 
         if (nextSong && nextUrl) {
-          setCurrentQueueIndex(i);
-          setAudioSource({ id: nextSong.id, url: nextUrl });
+          playNext(nextSong, nextUrl, i);
           return;
         }
       }
 
-      // If in playlist mode, wrap to start
       if (playlistSongs) {
         for (let i = 0; i < queueIndex; i++) {
           const nextEntry = queue[i];
@@ -137,14 +145,12 @@ export function useAudioPlayback() {
           const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
 
           if (nextSong && nextUrl) {
-            setCurrentQueueIndex(i);
-            setAudioSource({ id: nextSong.id, url: nextUrl });
+            playNext(nextSong, nextUrl, i);
             return;
           }
         }
       }
 
-      // End of queue or no valid songs found - stop playback
       setIsPlaying(false);
       setAudioSource(null);
       setCurrentTime(0);
@@ -186,6 +192,11 @@ export function useAudioPlayback() {
   useEffect(() => {
     const audio = internalAudioRef.current;
     if (!audio) return;
+
+    if (skipNextLoadRef.current) {
+      skipNextLoadRef.current = false;
+      return;
+    }
 
     if (!audioSource) {
       audio.pause();
@@ -291,8 +302,17 @@ export function useAudioPlayback() {
   const handlePreviousRef = useRef<(() => void) | null>(null);
   const handleNextRef = useRef<(() => void) | null>(null);
 
+  const playDirectly = (song: HistoryItem, url: string, queueIndex: number) => {
+    const audio = internalAudioRef.current;
+    if (!audio) return;
+    audio.src = url;
+    audio.play().catch(() => setIsPlaying(false));
+    skipNextLoadRef.current = true;
+    setCurrentQueueIndex(queueIndex);
+    setNowPlaying(song, queueIndex);
+  };
+
   const handlePrevious = () => {
-    // Standard behavior: if >3s into song, restart; otherwise go to previous
     const time = Number.isFinite(currentTimeRef.current) ? currentTimeRef.current : 0;
     if (time > 3) {
       seek(0);
@@ -304,31 +324,25 @@ export function useAudioPlayback() {
 
     const songsToSearch = getSongsToSearch();
 
-    // Find previous valid song (skip deleted songs)
     for (let i = currentQueueIndexRef.current - 1; i >= 0; i--) {
       const prevEntry = queue[i];
       const prevSong = songsToSearch.find((s) => s.id === prevEntry.songId);
       const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
       if (prevSong && prevUrl) {
-        setCurrentQueueIndex(i);
-        setNowPlaying(prevSong, i);
+        playDirectly(prevSong, prevUrl, i);
         return;
       }
     }
 
-    // Wrap to end of queue, find last valid song
     for (let i = queue.length - 1; i > currentQueueIndexRef.current; i--) {
       const prevEntry = queue[i];
       const prevSong = songsToSearch.find((s) => s.id === prevEntry.songId);
       const prevUrl = prevSong?.sunoLocalUrl || prevSong?.sunoAudioUrl;
       if (prevSong && prevUrl) {
-        setCurrentQueueIndex(i);
-        setNowPlaying(prevSong, i);
+        playDirectly(prevSong, prevUrl, i);
         return;
       }
     }
-
-    // No valid songs found - stay on current or stop
   };
 
   const handleNext = () => {
@@ -337,31 +351,25 @@ export function useAudioPlayback() {
 
     const songsToSearch = getSongsToSearch();
 
-    // Find next valid song (skip deleted songs)
     for (let i = currentQueueIndexRef.current + 1; i < queue.length; i++) {
       const nextEntry = queue[i];
       const nextSong = songsToSearch.find((s) => s.id === nextEntry.songId);
       const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
       if (nextSong && nextUrl) {
-        setCurrentQueueIndex(i);
-        setNowPlaying(nextSong, i);
+        playDirectly(nextSong, nextUrl, i);
         return;
       }
     }
 
-    // Wrap to start of queue, find first valid song
     for (let i = 0; i < currentQueueIndexRef.current; i++) {
       const nextEntry = queue[i];
       const nextSong = songsToSearch.find((s) => s.id === nextEntry.songId);
       const nextUrl = nextSong?.sunoLocalUrl || nextSong?.sunoAudioUrl;
       if (nextSong && nextUrl) {
-        setCurrentQueueIndex(i);
-        setNowPlaying(nextSong, i);
+        playDirectly(nextSong, nextUrl, i);
         return;
       }
     }
-
-    // No valid songs found - stay on current or stop
   };
 
   // Update refs whenever the handlers change
