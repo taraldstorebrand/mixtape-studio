@@ -3,7 +3,6 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
 import { config } from './config';
 import chatgptRoutes from './routes/chatgpt';
 import sunoRoutes from './routes/suno';
@@ -14,6 +13,7 @@ import uploadRoutes from './routes/upload';
 import configStatusRoutes from './routes/configStatus';
 import playlistsRoutes from './routes/playlists';
 import { errorHandler } from './middleware/errorHandler';
+import { handleSseConnection } from './services/sse';
 import './db';
 
 const crashLogPath = path.join(__dirname, '../data/crash.log');
@@ -45,12 +45,6 @@ setInterval(cleanupOldTempFiles, 5 * 60 * 1000);
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: config.corsOrigin,
-    methods: ["GET", "POST"]
-  }
-});
 
 // Middleware
 app.use(cors({
@@ -83,20 +77,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
+// SSE endpoint for real-time updates
+app.get('/api/events', handleSseConnection);
 
 // Error handler (must be after routes)
 app.use(errorHandler);
-
-// Export io for use in other modules
-export { io };
 
 // Start server
 server.listen(config.port, () => {

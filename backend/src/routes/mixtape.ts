@@ -4,7 +4,7 @@ import fs from 'fs';
 import { spawn } from 'child_process';
 import ffmpegPath from 'ffmpeg-static';
 import { getAllHistoryItems, getPlaylistById } from '../db';
-import { io } from '../server';
+import { broadcastSseEvent } from '../services/sse';
 import { getAudioDurationMs } from '../utils/ffmpeg';
 
 const router = Router();
@@ -171,7 +171,7 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
     }
 
     if (selectedItems.length === 0) {
-      io.emit('mixtape-ready', { taskId, error: 'No songs found' });
+      broadcastSseEvent('mixtape-ready', { taskId, error: 'No songs found' });
       return;
     }
 
@@ -208,10 +208,10 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
       imagePath: hasImage ? PLACEHOLDER_IMAGE : undefined,
     });
 
-    io.emit('mixtape-ready', { taskId, downloadId, fileName });
+    broadcastSseEvent('mixtape-ready', { taskId, downloadId, fileName });
   } catch (error: any) {
     console.error('Error creating mixtape:', error);
-    io.emit('mixtape-ready', { taskId, error: 'Failed to create mixtape' });
+    broadcastSseEvent('mixtape-ready', { taskId, error: 'Failed to create mixtape' });
   }
 }
 

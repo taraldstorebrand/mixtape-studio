@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import { io } from '../server';
+import { broadcastSseEvent } from './sse';
 import { getHistoryItemsByJobId, updateHistoryItem } from '../db';
 import {
   SunoGenerateRequest,
@@ -94,9 +94,9 @@ async function downloadFile(
   return filename;
 }
 
-// Function to send WebSocket updates
+// Function to send SSE updates
 function sendSunoUpdate(jobId: string, status: SunoStatusResponse) {
-  io.emit('suno-update', { jobId, ...status });
+  broadcastSseEvent('suno-update', { jobId, ...status });
 }
 
 // Function to stop polling for a job
