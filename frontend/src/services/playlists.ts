@@ -111,3 +111,20 @@ export async function reorderPlaylistSongs(id: string, entryIds: string[]): Prom
     throw new Error(error.error || 'Could not reorder playlist songs');
   }
 }
+
+export async function uploadPlaylistCover(id: string, file: File): Promise<{ coverImageUrl: string }> {
+  const formData = new FormData();
+  formData.append('cover', file);
+
+  const response = await fetch(`${API_BASE_URL}/playlists/${id}/cover`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Could not upload playlist cover');
+  }
+
+  return response.json();
+}

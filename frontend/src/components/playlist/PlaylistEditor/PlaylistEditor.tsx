@@ -20,10 +20,11 @@ import type { HistoryItem } from '../../../types';
 import { SongPicker } from '../../mixtape/SongPicker/SongPicker';
 import { SortablePlaylistItem, type PlaylistSongEntry } from './SortablePlaylistItem';
 import { fetchPlaylist, createPlaylist, updatePlaylist, addSongsToPlaylist, removeSongFromPlaylist, reorderPlaylistSongs } from '../../../services/playlists';
+import { PlaylistCoverUpload } from './PlaylistCoverUpload/PlaylistCoverUpload';
 import { t } from '../../../i18n';
 import { getErrorMessage } from '../../../utils/errors';
 import { formatDuration } from '../../../utils/formatDuration';
-import { audioSourceAtom, playbackQueueAtom, currentQueueIndexAtom, selectedQueueEntryIdAtom } from '../../../store/atoms';
+import { audioSourceAtom, playbackQueueAtom, currentQueueIndexAtom, selectedQueueEntryIdAtom, playlistsAtom } from '../../../store/atoms';
 import styles from './PlaylistEditor.module.css';
 
 interface PlaylistEditorProps {
@@ -48,6 +49,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
   const [playlistName, setPlaylistName] = useState('');
   const [playlistEntries, setPlaylistEntries] = useState<PlaylistSongEntry[]>([]);
   const [createdPlaylistId, setCreatedPlaylistId] = useState<string | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
   const setPlaybackQueue = useSetAtom(playbackQueueAtom);
   const setCurrentQueueIndex = useSetAtom(currentQueueIndexAtom);
   const selectedQueueEntryId = useAtomValue(selectedQueueEntryIdAtom);
+  const setPlaylists = useSetAtom(playlistsAtom);
 
   // Sync playback queue when editor entries change (if currently playing from editor)
   useEffect(() => {
@@ -120,6 +123,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
   // Load existing playlist data
   useEffect(() => {
     if (playlistId === undefined) {
+      setCoverImageUrl(null);
       return;
     }
 
@@ -128,6 +132,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
       .then((data) => {
         setPlaylistName(data.name);
         setPlaylistEntries(data.songs);
+        setCoverImageUrl(data.coverImageUrl ?? null);
         setCreatedPlaylistId(null);
         snapshotRef.current = {
           name: data.name,
@@ -168,6 +173,15 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
 
       const reorderedEntries = arrayMove(playlistEntries, oldIndex, newIndex).map((entry, index) => ({ ...entry, position: index }));
       setPlaylistEntries(reorderedEntries);
+    }
+  };
+
+  const handleCoverUploaded = (url: string) => {
+    setCoverImageUrl(url);
+    if (currentPlaylistId) {
+      setPlaylists((prev) =>
+        prev.map((p) => (p.id === currentPlaylistId ? { ...p, coverImageUrl: url } : p))
+      );
     }
   };
 
@@ -279,6 +293,14 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
           <SongPicker songs={allSongs} onAddSong={handleAddSong} />
         </div>
         <div className={styles.column}>
+          {currentPlaylistId && (
+            <PlaylistCoverUpload
+              playlistId={currentPlaylistId}
+              coverImageUrl={coverImageUrl}
+              onCoverUploaded={handleCoverUploaded}
+              onError={setError}
+            />
+          )}
           <div className={styles.playlistHeader}>
             <h3 className={styles.columnTitle}>
               {isEdit ? t.headings.editPlaylist : t.headings.newPlaylist}

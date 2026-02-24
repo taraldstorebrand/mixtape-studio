@@ -14,7 +14,7 @@ Legg til støtte for å laste opp og redigere et forsidebilde (cover) for en pla
 
 ### Task 1.1: Opprett endepunkt for opplasting av playlist-cover
 
-**Status:** Pending
+**Status:** Ferdig
 
 **Beskrivelse:**
 Opprett et nytt endepunkt som tar imot en bildefil og lagrer den som cover for en playlist. Bruk eksisterende `multer`-oppsett fra `upload.ts` som referanse.
@@ -42,7 +42,7 @@ Opprett et nytt endepunkt som tar imot en bildefil og lagrer den som cover for e
 
 ### Task 1.2: Bruk playlist-cover som cover art i mixtape-generering
 
-**Status:** Pending
+**Status:** Ferdig
 
 **Beskrivelse:**
 Oppdater mixtape-genereringen slik at den bruker playlistens `coverImageUrl` som cover art i den genererte lydfilen, i stedet for alltid å bruke placeholder-bildet.
@@ -66,7 +66,7 @@ Oppdater mixtape-genereringen slik at den bruker playlistens `coverImageUrl` som
 
 ### Task 2.1: Legg til cover-editor i PlaylistEditor
 
-**Status:** Pending
+**Status:** Ferdig
 
 **Beskrivelse:**
 Legg til en klikk-for-å-laste-opp cover-seksjon øverst i `PlaylistEditor`-komponenten. Bruker skal kunne klikke på et bilde (eller placeholder) for å velge en bildefil fra disk. Bildet lastes opp umiddelbart og forhåndsvisning vises.
@@ -93,7 +93,7 @@ Legg til en klikk-for-å-laste-opp cover-seksjon øverst i `PlaylistEditor`-komp
 
 ### Task 2.2: Legg til `uploadPlaylistCover` i api.ts
 
-**Status:** Pending
+**Status:** Ferdig
 
 **Beskrivelse:**
 Legg til en funksjon i `frontend/src/services/api.ts` for å laste opp et cover-bilde til en playlist.
@@ -111,7 +111,7 @@ Legg til en funksjon i `frontend/src/services/api.ts` for å laste opp et cover-
 
 ### Task 2.3: Oppdater `updatePlaylist` / Playlist-state til å inkludere coverImageUrl
 
-**Status:** Pending
+**Status:** Ferdig
 
 **Beskrivelse:**
 Sørg for at `coverImageUrl` returneres fra backend når en playlist hentes, og at frontend-tilstanden oppdateres korrekt etter cover-opplasting.

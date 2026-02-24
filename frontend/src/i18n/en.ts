@@ -82,6 +82,7 @@ export const en = {
     resizePanels: 'Resize panels',
     mute: 'Mute',
     unmute: 'Unmute',
+    uploadCover: 'Upload cover image',
   },
 
   messages: {
@@ -129,6 +130,9 @@ export const en = {
     couldNotAddSongsToPlaylist: 'Could not add songs to playlist',
     couldNotRemoveSongFromPlaylist: 'Could not remove song from playlist',
     couldNotReorderPlaylistSongs: 'Could not reorder playlist songs',
+    couldNotUploadCover: 'Could not upload cover image',
+    coverImageInvalidType: 'Only JPEG and PNG images are allowed',
+    coverImageTooLarge: 'Image must be smaller than 5 MB',
   },
 
   filters: {
