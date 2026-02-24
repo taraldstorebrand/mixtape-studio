@@ -26,14 +26,14 @@ export function UploadButton({ onUploadFormChange }: UploadButtonProps) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    if (files.length > 10) {
+    if (files.length > 20) {
       setError(t.errors.maxFilesPerUpload);
       return;
     }
 
     const filesWithTitles = files.map((file) => ({
       file,
-      title: file.name.replace(/\.mp3$/i, ''),
+      title: file.name.replace(/\.(mp3|flac|wav|ogg|m4a|aac|aiff|aif|opus)$/i, ''),
     }));
 
     setSelectedFiles(filesWithTitles);
@@ -107,11 +107,11 @@ export function UploadButton({ onUploadFormChange }: UploadButtonProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="audio/mpeg,audio/mp3,.mp3"
+        accept="audio/mpeg,audio/mp3,audio/flac,audio/x-flac,audio/wav,audio/x-wav,audio/wave,audio/ogg,audio/mp4,audio/x-m4a,audio/aac,audio/aiff,audio/x-aiff,audio/opus,.mp3,.flac,.wav,.ogg,.m4a,.aac,.aiff,.aif,.opus"
         multiple
         onChange={handleFileSelect}
         style={{ display: 'none' }}
-        aria-label={t.actions.uploadMp3}
+        aria-label={t.actions.uploadAudio}
       />
       {!showForm ? (
         <button
@@ -119,7 +119,7 @@ export function UploadButton({ onUploadFormChange }: UploadButtonProps) {
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
         >
-          {t.actions.uploadMp3}
+          {t.actions.uploadAudio}
         </button>
       ) : (
         <div className={styles.form}>

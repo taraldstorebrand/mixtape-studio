@@ -703,8 +703,8 @@ Upload endpoint saves files to `backend/mp3s/` and creates a history item.
 Uploaded items have Suno fields set to null and are marked with `isUploaded: true`.
 
 Constraints:
-- Files must be MP3 format
-- Maximum file size: 50 MB
+- Accepted formats: MP3, FLAC, WAV, OGG, M4A, AAC, AIFF, Opus
+- Maximum file size: 100 MB
 - User must provide a title for the uploaded song
 - Uploaded songs appear in history and can be liked/disliked like generated songs
 
@@ -753,8 +753,8 @@ Filename examples:
 - "Min Sang" (duplicate) → `Min_Sang_1.mp3`, `Min_Sang_2.mp3`
 
 Constraints:
-- Maximum 10 files per upload
-- Maximum 10 MB per file
+- Maximum 20 files per upload
+- Maximum 100 MB per file
 - Titles are sanitized (special characters replaced with `_`)
 
 Rationale:

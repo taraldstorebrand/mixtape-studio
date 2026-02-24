@@ -501,7 +501,7 @@ Upload one or more MP3 files and create history items.
 
 **Request Body (multipart/form-data)**
 
-- `files`: MP3 file(s) (max 10 files, max 10 MB each)
+- `files`: Audio file(s) — MP3, FLAC, WAV, OGG, M4A, AAC, AIFF, Opus (max 20 files, max 100 MB each)
 - `titles`: JSON array of titles (must match number of files)
 
 **Success Response (201)**
@@ -527,7 +527,7 @@ Upload one or more MP3 files and create history items.
 ```
 
 ```json
-{ "error": "Maximum 10 files per upload" }
+{ "error": "Maximum 20 files per upload" }
 ```
 
 **Filename behavior**:

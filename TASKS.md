@@ -1,142 +1,146 @@
 # TASKS.md
 
-## Playlist Cover – Redigering og inkludering i mixtape
+## Støtte for flere lydfilformater ved opplasting
 
-Legg til støtte for å laste opp og redigere et forsidebilde (cover) for en playlist, og sørg for at dette bildet brukes som cover art når en mixtape genereres fra playlisten.
+Utvid opplastingsfunksjonen til å akseptere de vanligste lydfilformatene i tillegg til MP3: FLAC, WAV, OGG, M4A, AAC, AIFF og Opus.
 
 **Bakgrunn:**
-- `coverImageUrl`-feltet finnes allerede i `Playlist`-typen (`shared/types/index.ts`) og i databaseskjemaet (`cover_image_url`-kolonne i `playlists`-tabellen), men er ikke implementert i UI eller backend-endepunkter.
-- Mixtape-generering i `backend/src/routes/mixtape.ts` bruker alltid `/assets/placeholder.png` som cover art i FFmpeg-kommandoen, uavhengig av om playlisten har et eget bilde.
+- Backend-validering i `backend/src/routes/upload.ts` avviser alle filer som ikke er `audio/mpeg` eller `audio/mp3`.
+- `getUniqueFilename` hardkoder `.mp3`-endelsen (linje 73).
+- Frontend-filinputtet aksepterer bare `audio/mpeg,audio/mp3,.mp3` (linje 110 i `UploadButton.tsx`).
+- Tittel-strippingen i `UploadButton.tsx` fjerner kun `.mp3`-endelsen (linje 36).
+- FFmpeg og `music-metadata` støtter allerede alle disse formatene – ingen nye avhengigheter trengs.
+- Det eksisterende `/mp3s`-endepunktet og `backend/mp3s/`-mappen brukes som de er (nye filtyper lagres der).
+
+**Støttede MIME-typer som skal aksepteres:**
+
+| Format | MIME-typer |
+|--------|-----------|
+| MP3 | `audio/mpeg`, `audio/mp3` |
+| FLAC | `audio/flac`, `audio/x-flac` |
+| WAV | `audio/wav`, `audio/x-wav`, `audio/wave` |
+| OGG | `audio/ogg` |
+| M4A | `audio/mp4`, `audio/x-m4a` |
+| AAC | `audio/aac` |
+| AIFF | `audio/aiff`, `audio/x-aiff` |
+| Opus | `audio/opus` |
 
 ---
 
-## Fase 1: Backend
+## Task 1.1: Backend – Utvid aksepterte lydformater i upload.ts
 
-### Task 1.1: Opprett endepunkt for opplasting av playlist-cover
+**Status:** Ikke påbegynt
 
-**Status:** Ferdig
+**Fil:** `backend/src/routes/upload.ts`
 
-**Beskrivelse:**
-Opprett et nytt endepunkt som tar imot en bildefil og lagrer den som cover for en playlist. Bruk eksisterende `multer`-oppsett fra `upload.ts` som referanse.
+**Endringer:**
 
-**Forventet oppførsel:**
-- Rute: `POST /api/playlists/:id/cover`
-- Aksepter én bildefil (JPEG eller PNG), maks 5 MB
-- Lagre bildet i `backend/images/playlists/` (opprett mappen hvis den ikke finnes)
-- Filnavn: `{playlistId}.{ext}` (overskriv hvis cover allerede finnes)
-- Oppdater `cover_image_url`-kolonnen i `playlists`-tabellen for den aktuelle playlisten
-- Svar med `{ coverImageUrl: '/images/playlists/{playlistId}.{ext}' }`
-- Returner 404 hvis playlisten ikke finnes
-- Returner 400 hvis ingen fil er lastet opp eller filtypen er ugyldig
+1. **Oppdater multer `fileFilter`** (linje 95–101): Erstatt den eksisterende sjekken med en liste over alle aksepterte MIME-typer:
+   ```typescript
+   const ALLOWED_AUDIO_MIMETYPES = new Set([
+     'audio/mpeg',
+     'audio/mp3',
+     'audio/flac',
+     'audio/x-flac',
+     'audio/wav',
+     'audio/x-wav',
+     'audio/wave',
+     'audio/ogg',
+     'audio/mp4',
+     'audio/x-m4a',
+     'audio/aac',
+     'audio/aiff',
+     'audio/x-aiff',
+     'audio/opus',
+   ]);
+   ```
+   Sjekk: `if (ALLOWED_AUDIO_MIMETYPES.has(file.mimetype))`.
+   Feilmelding ved avvisning: `'Only audio files are allowed (MP3, FLAC, WAV, OGG, M4A, AAC, AIFF, Opus)'`.
 
-**Filer som skal endres:**
-- `backend/src/routes/playlists.ts`
-  - Legg til multer-instans konfigurert for bildeopplasting (kun `image/jpeg` og `image/png`, maks 5 MB)
-  - Legg til route: `router.post('/:id/cover', upload.single('cover'), handleCoverUpload)`
-  - Implementer `handleCoverUpload`-handler
+2. **Oppdater `getUniqueFilename`** (linje 72–85): Legg til parameter `ext: string` og erstatt den hardkodede `'.mp3'` med `ext`:
+   ```typescript
+   function getUniqueFilename(baseFilename: string, ext: string): string {
+     let filename = `${baseFilename}${ext}`;
+     let filePath = path.join(mp3Dir, filename);
+     let counter = 1;
+     while (fs.existsSync(filePath)) {
+       filename = `${baseFilename}_${counter}${ext}`;
+       filePath = path.join(mp3Dir, filename);
+       counter++;
+     }
+     return filename;
+   }
+   ```
 
-- `backend/src/server.ts` (hvis nødvendig)
-  - Sørg for at `/images/playlists` serveres statisk (det finnes allerede `app.use('/images', express.static(...))`, så undermapper dekkes automatisk)
-
----
-
-### Task 1.2: Bruk playlist-cover som cover art i mixtape-generering
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Oppdater mixtape-genereringen slik at den bruker playlistens `coverImageUrl` som cover art i den genererte lydfilen, i stedet for alltid å bruke placeholder-bildet.
-
-**Forventet oppførsel:**
-- Hent `cover_image_url` fra databasen for playlisten når mixtape genereres via `POST /api/mixtape/playlist/:playlistId`
-- Hvis `cover_image_url` er satt: bruk dette bildet som cover i FFmpeg-kommandoen
-- Hvis `cover_image_url` er `null`: fall tilbake til eksisterende placeholder (`/assets/placeholder.png`)
-- Liked-mixtape (`POST /api/mixtape/liked`) påvirkes ikke av denne endringen
-
-**Filer som skal endres:**
-- `backend/src/routes/mixtape.ts`
-  - I playlist-mixtape-handleren: hent playlist-raden fra databasen og les `cover_image_url`
-  - Bygg opp riktig absolutt filsti til bildet basert på URL-en (f.eks. `/images/playlists/abc.jpg` → `backend/images/playlists/abc.jpg`)
-  - Send filstien til den eksisterende FFmpeg-logikken som allerede håndterer cover art-innsetting
-  - Legg til sjekk: verifiser at bildefilen faktisk eksisterer på disk før bruk, ellers fall tilbake til placeholder
-
----
-
-## Fase 2: Frontend
-
-### Task 2.1: Legg til cover-editor i PlaylistEditor
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Legg til en klikk-for-å-laste-opp cover-seksjon øverst i `PlaylistEditor`-komponenten. Bruker skal kunne klikke på et bilde (eller placeholder) for å velge en bildefil fra disk. Bildet lastes opp umiddelbart og forhåndsvisning vises.
-
-**Forventet oppførsel:**
-- Vis et kvadratisk bilde øverst i editoren (f.eks. 120×120 px)
-  - Hvis playlisten har `coverImageUrl`: vis dette bildet
-  - Ellers: vis et nøytralt placeholder-bilde eller et ikon med teksten «Legg til cover»
-- Ved klikk: åpne en skjult `<input type="file" accept="image/jpeg,image/png">` via `ref`
-- Når bruker velger fil:
-  1. Valider at filen er JPEG eller PNG og maks 5 MB – vis feilmelding ellers
-  2. Kall `uploadPlaylistCover(playlistId, file)` fra api.ts
-  3. Oppdater lokal state med den returnerte `coverImageUrl` slik at bildet vises umiddelbart
-  4. Vis en lastespinner over bildet mens opplasting pågår
-- Dersom det allerede finnes et cover: erstatt det (samme klikk-for-å-endre-oppførsel)
-
-**Filer som skal endres:**
-- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx`
-  - Legg til cover-bilde-seksjon med `<input type="file" ref={...} hidden>`
-  - Legg til `handleCoverChange`-handler
-  - Vis opplastingsstatus (spinner/feil)
+3. **Oppdater route-handleren** (linje 129–165): I løkken, hent filendelsen fra det originale filnavnet og pass den til `getUniqueFilename`:
+   ```typescript
+   const ext = path.extname(file.originalname).toLowerCase() || '.mp3';
+   const filename = getUniqueFilename(sanitized, ext);
+   ```
 
 ---
 
-### Task 2.2: Legg til `uploadPlaylistCover` i api.ts
+## Task 1.2: Frontend – Oppdater UploadButton til å akseptere alle lydformater
 
-**Status:** Ferdig
+**Status:** Ikke påbegynt
 
-**Beskrivelse:**
-Legg til en funksjon i `frontend/src/services/api.ts` for å laste opp et cover-bilde til en playlist.
+**Fil:** `frontend/src/components/history/UploadButton/UploadButton.tsx`
 
-**Forventet oppførsel:**
-- Funksjonssignatur: `uploadPlaylistCover(playlistId: string, file: File): Promise<{ coverImageUrl: string }>`
-- Send `multipart/form-data` POST-request til `/api/playlists/{playlistId}/cover` med feltet `cover`
-- Kast feil med beskrivende melding ved HTTP-feil
+**Endringer:**
 
-**Filer som skal endres:**
-- `frontend/src/services/api.ts`
-  - Legg til `uploadPlaylistCover`-funksjon
+1. **Oppdater `accept`-attributtet** på `<input type="file">` (linje 110):
+   ```
+   accept="audio/mpeg,audio/mp3,audio/flac,audio/x-flac,audio/wav,audio/x-wav,audio/wave,audio/ogg,audio/mp4,audio/x-m4a,audio/aac,audio/aiff,audio/x-aiff,audio/opus,.mp3,.flac,.wav,.ogg,.m4a,.aac,.aiff,.aif,.opus"
+   ```
+
+2. **Oppdater tittel-strippingen** i `handleFileSelect` (linje 36): Erstatt `.replace(/\.mp3$/i, '')` med regex som fjerner alle støttede endelser:
+   ```typescript
+   title: file.name.replace(/\.(mp3|flac|wav|ogg|m4a|aac|aiff|aif|opus)$/i, ''),
+   ```
+
+3. **Bytt `t.actions.uploadMp3` med `t.actions.uploadAudio`** begge steder det brukes (linje 114 og 122).
 
 ---
 
-### Task 2.3: Oppdater `updatePlaylist` / Playlist-state til å inkludere coverImageUrl
+## Task 1.3: Frontend – Oppdater i18n-strenger i en.ts
 
-**Status:** Ferdig
+**Status:** Ikke påbegynt
 
-**Beskrivelse:**
-Sørg for at `coverImageUrl` returneres fra backend når en playlist hentes, og at frontend-tilstanden oppdateres korrekt etter cover-opplasting.
+**Fil:** `frontend/src/i18n/en.ts`
 
-**Forventet oppførsel:**
-- Verifiser at `GET /api/playlists/:id` og `GET /api/playlists` returnerer `coverImageUrl` i responsen (sjekk eksisterende backend-kode – feltet mappes muligens allerede fra `cover_image_url`)
-- Hvis feltet ikke mappes: oppdater db-spørringer i `backend/src/routes/playlists.ts` til å inkludere det
-- Etter vellykket `uploadPlaylistCover`-kall i `PlaylistEditor`: oppdater den relevante Jotai-atomen / lokale state slik at den nye `coverImageUrl` reflekteres uten side-refresh
+**Endringer:**
 
-**Filer som skal endres:**
-- `backend/src/routes/playlists.ts` (ved behov – legg til `cover_image_url` i SELECT-spørringer)
-- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx` (state-oppdatering)
-- Eventuelle Jotai-atomer eller hooks som holder playlist-data
+1. I `actions`-objektet: gi nytt navn fra `uploadMp3: 'Upload MP3'` til `uploadAudio: 'Upload music'`.
+
+---
+
+## Task 1.4: Oppdater SPEC.md
+
+**Status:** Ikke påbegynt
+
+**Fil:** `SPEC.md`
+
+**Endringer:**
+
+1. I seksjon **11. Upload MP3 Files**, oppdater:
+   - Overskriften fra `### 11. Upload MP3 Files` til `### 11. Upload Audio Files`
+   - Punkt 2 fra `"File picker opens, user can select one or multiple MP3 files"` til `"File picker opens, user can select one or multiple audio files"`
+   - Kravet `"Only MP3 format accepted"` til `"Accepted formats: MP3, FLAC, WAV, OGG, M4A, AAC, AIFF, Opus"`
+   - Punkt 7 i **Filename rules**: fjern `.mp3` fra eksemplene (`_1.mp3, _2.mp3` → `_1, _2` med korrekt endelse)
+   - Flytt/oppdater `"Uploaded songs appear in history and can be liked/disliked"` – beholder seg uendret
 
 ---
 
 ## Testplan (etter gjennomføring)
 
-### Verifisering
-
-1. Åpne en eksisterende playlist i PlaylistEditor
-2. Klikk på cover-området – velg en JPEG/PNG-fil
-3. Verifiser at bildet vises umiddelbart i editoren
-4. Generer en mixtape fra playlisten
-5. Åpne den nedlastede filen i en mediespiller – verifiser at playlistens cover vises som album art
-6. Test at liked-mixtape fortsatt bruker placeholder
-7. Test at en playlist uten cover bruker placeholder i mixtapen
-8. Test avvisning av ugyldig filtype og for stor fil
+1. Last opp en `.flac`-fil – verifiser at den vises i historikken og kan spilles av
+2. Last opp en `.wav`-fil – verifiser det samme
+3. Last opp en `.ogg`-fil – verifiser det samme
+4. Last opp en `.m4a`-fil – verifiser det samme
+5. Last opp en `.aac`-fil – verifiser det samme
+6. Last opp en `.aiff`-fil – verifiser det samme
+7. Last opp en `.opus`-fil – verifiser det samme
+8. Verifiser at tittelfeltet forhåndsfylles uten filendelsen (f.eks. `song.flac` → `song`)
+9. Verifiser at en fil med ugyldig type (f.eks. `.pdf`) avvises med feilmelding
+10. Verifiser at en likt FLAC-sang inkluderes korrekt i mixtape-generering
+11. Verifiser at eksisterende MP3-opplasting fortsatt fungerer

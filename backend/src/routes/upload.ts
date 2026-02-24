@@ -1,5 +1,5 @@
-import { Router, Request, Response } from 'express';
-import multer from 'multer';
+import { Router, Request, Response, NextFunction } from 'express';
+import multer, { MulterError } from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { createHistoryItem } from '../db';
@@ -69,8 +69,7 @@ function sanitizeFilename(title: string): string {
   return title.replace(/[^a-zA-Z0-9æøåÆØÅ\-_\s]/g, '_').trim();
 }
 
-function getUniqueFilename(baseFilename: string): string {
-  const ext = '.mp3';
+function getUniqueFilename(baseFilename: string, ext: string): string {
   let filename = `${baseFilename}${ext}`;
   let filePath = path.join(mp3Dir, filename);
   let counter = 1;
@@ -84,24 +83,41 @@ function getUniqueFilename(baseFilename: string): string {
   return filename;
 }
 
+const ALLOWED_AUDIO_MIMETYPES = new Set([
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/flac',
+  'audio/x-flac',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/wave',
+  'audio/ogg',
+  'audio/mp4',
+  'audio/x-m4a',
+  'audio/aac',
+  'audio/aiff',
+  'audio/x-aiff',
+  'audio/opus',
+]);
+
 const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
   limits: {
-    fileSize: 50 * 1024 * 1024,
-    files: 10,
+    fileSize: 100 * 1024 * 1024,
+    files: 20,
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'audio/mpeg' || file.mimetype === 'audio/mp3') {
+    if (ALLOWED_AUDIO_MIMETYPES.has(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only MP3 files allowed'));
+      cb(new Error('Only audio files are allowed (MP3, FLAC, WAV, OGG, M4A, AAC, AIFF, Opus)'));
     }
   },
 });
 
-router.post('/', upload.array('files', 10), async (req: Request, res: Response) => {
+router.post('/', upload.array('files', 20), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
     
@@ -109,8 +125,8 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    if (files.length > 10) {
-      return res.status(400).json({ error: 'Maximum 10 files per upload' });
+    if (files.length > 20) {
+      return res.status(400).json({ error: 'Maximum 20 files per upload' });
     }
 
     let titles: string[];
@@ -135,7 +151,8 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
       }
 
       const sanitized = sanitizeFilename(title);
-      const filename = getUniqueFilename(sanitized);
+      const ext = path.extname(file.originalname).toLowerCase() || '.mp3';
+      const filename = getUniqueFilename(sanitized, ext);
       const filePath = path.join(mp3Dir, filename);
 
       fs.writeFileSync(filePath, file.buffer);
@@ -169,6 +186,16 @@ router.post('/', upload.array('files', 10), async (req: Request, res: Response) 
     console.error('Error uploading files:', error);
     res.status(500).json({ error: 'Failed to upload files' });
   }
+});
+
+router.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof MulterError) {
+    return res.status(400).json({ error: err.message });
+  }
+  if (err) {
+    return res.status(400).json({ error: err.message });
+  }
+  next();
 });
 
 export default router;

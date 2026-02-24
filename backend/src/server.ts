@@ -45,6 +45,7 @@ setInterval(cleanupOldTempFiles, 5 * 60 * 1000);
 
 const app = express();
 const server = createServer(app);
+server.setTimeout(300000);
 
 // Middleware
 app.use(cors({

@@ -8,7 +8,7 @@ import ffmpegPath from 'ffmpeg-static';
 export function getMp3DurationSync(filePath: string): number | undefined {
   const result = spawnSync(ffmpegPath!, ['-i', filePath, '-f', 'null', '-'], {
     encoding: 'utf-8',
-    timeout: 10000,
+    timeout: 30000,
   });
 
   const output = result.stderr || result.stdout || '';

@@ -10,6 +10,8 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
+        proxyTimeout: 300000,
+        timeout: 300000,
       },
       '/mp3s': {
         target: 'http://localhost:3001',

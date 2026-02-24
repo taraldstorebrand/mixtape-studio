@@ -11,7 +11,7 @@ export const en = {
       duration
         ? `Create mixtape (${count} songs · ${duration})`
         : `Create mixtape (${count} songs)`,
-    uploadMp3: 'Upload MP3',
+    uploadAudio: 'Upload music',
     uploading: 'Uploading...',
     uploadFiles: (count: number) =>
       `Upload ${count} file${count > 1 ? 's' : ''}`,
@@ -117,7 +117,7 @@ export const en = {
     couldNotStartMixtapeGeneration: 'Could not start mixtape generation',
     couldNotUploadFiles: 'Could not upload files',
     couldNotFetchStatus: 'Could not fetch status',
-    maxFilesPerUpload: 'Maximum 10 files per upload',
+    maxFilesPerUpload: 'Maximum 20 files per upload',
     allFilesMustHaveTitle: 'All files must have a title',
     sunoApiKeyMissing:
       'Suno API key missing. Add SUNO_API_KEY in backend .env and restart the server.',

@@ -165,7 +165,7 @@ npm run dev -w frontend
 - **Play:** Finished tracks can be played directly from the history list
 - **Feedback:** Use thumbs up/down on history items
 - **Filter:** Filter tracks by Standard, Liked, or All
-- **Upload MP3:** Upload your own songs (max 10 files, 10 MB per file)
+- **Upload music:** Upload your own songs (max 20 files, 100 MB per file, supports MP3/FLAC/WAV/OGG/M4A/AAC/AIFF/Opus)
 - **Create playlists:** Organize tracks into custom playlists with drag-and-drop ordering
 - **Create mixtape:** Download all selected tracks as a single M4B file with chapters (from liked songs or playlists)
 
