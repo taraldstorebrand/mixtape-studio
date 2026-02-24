@@ -283,8 +283,6 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
     );
   }
 
-  const hasChanges = computeHasChanges();
-
   return (
     <div className={styles.editor} aria-busy={isSaving}>
       <div className={styles.columns}>
@@ -371,7 +369,7 @@ export function PlaylistEditor({ allSongs, onClose, onPlaylistChanged, playlistI
           type="button"
           className={styles.saveButton}
           onClick={handleSave}
-          disabled={isSaving || !hasChanges}
+          disabled={isSaving}
         >
           {isSaving ? t.actions.saving : t.actions.save}
         </button>
