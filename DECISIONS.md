@@ -704,7 +704,7 @@ Uploaded items have Suno fields set to null and are marked with `isUploaded: tru
 
 Constraints:
 - Files must be MP3 format
-- Maximum file size: 10 MB
+- Maximum file size: 50 MB
 - User must provide a title for the uploaded song
 - Uploaded songs appear in history and can be liked/disliked like generated songs
 

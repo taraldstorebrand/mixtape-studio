@@ -18,7 +18,7 @@ test-cursor/
 │   │   │   ├── nowplaying/  # Now playing bar and audio controls (NowPlayingBar, ProgressBar, VolumeControl)
 │   │   │   ├── panels/      # Layout panels (DetailPanel, HistoryPanel)
 │   │   │   └── playlist/    # Playlist editor (PlaylistEditor, SortablePlaylistItem)
-│   │   ├── hooks/        # Custom React hooks (useResizable, useSunoSocket, useGenreHistory)
+│   │   ├── hooks/        # Custom React hooks (useResizable, useSse, useGenreHistory)
 │   │   ├── i18n/         # Internationalization strings
 │   │   ├── services/     # API client (api.ts, playlists.ts)
 │   │   ├── store/        # Jotai atoms and hooks (atoms.ts, useHistoryAtom.ts, etc.)
@@ -34,7 +34,7 @@ test-cursor/
 │   │   ├── middleware/   # Express middleware (errorHandler.ts)
 │   │   ├── utils/        # Utility functions (logger.ts)
 │   │   ├── config.ts     # Environment configuration
-│   │   └── server.ts     # Express + Socket.IO server entry
+│   │   └── server.ts     # Express + SSE server entry
 │   ├── data/             # SQLite database file (sangtekst.db, gitignored)
 │   ├── mp3s/             # Downloaded Suno audio files ({title}_{index}.mp3, gitignored)
 │   ├── images/           # Downloaded Suno cover images ({title}_{index}.jpg, gitignored)
@@ -77,7 +77,7 @@ test-cursor/
 - **Technology**: Express 5, TypeScript, Node.js
 - **Port**: http://localhost:3001
 - **HTTP Server**: Express with CORS enabled
-- **WebSocket**: Socket.IO for real-time Suno status updates
+- **SSE (Server-Sent Events)**: SSE for real-time Suno status updates
 - **Database**: SQLite via better-sqlite3 (file: `backend/data/sangtekst.db`)
 - **Static Files**: `/mp3s/*` serves downloaded audio from `backend/mp3s/`, `/images/*` serves cover images from `backend/images/`
 
@@ -88,10 +88,10 @@ test-cursor/
 - Frontend communicates with backend via REST endpoints under `/api/*`
 - All requests use JSON content type
 
-### WebSocket (Socket.IO)
+### SSE (Server-Sent Events)
 
 - Backend pushes Suno job status updates to frontend via `suno-update` event
-- Frontend connects to same origin as backend
+- Frontend connects to `/api/events` endpoint via EventSource API
 - Used for real-time polling updates instead of client-side polling
 
 ### External API Integration
@@ -118,7 +118,7 @@ Environment variables (`.env` in backend/):
 
 ## Notes
 
-1. **Suno integration**: The backend uses polling to check Suno job status (every 5 seconds, up to 10 minutes). Status updates are pushed to clients via Socket.IO `suno-update` events.
+1. **Suno integration**: The backend uses polling to check Suno job status (every 5 seconds, up to 10 minutes). Status updates are pushed to clients via SSE `suno-update` events.
 
 2. **Shared types usage**: Both frontend and backend import types from `shared/types/index.ts`. The `HistoryItem` interface is the primary shared type.
 

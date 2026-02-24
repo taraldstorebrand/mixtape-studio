@@ -1,332 +1,130 @@
 # TASKS.md
 
-## SSE Migrering – Socket.IO til Server-Sent Events
+## Playlist Cover – Redigering og inkludering i mixtape
 
-Migrer fra Socket.IO til native Server-Sent Events (SSE) for sanntidsoppdateringer av Suno-status og mixtape-ferdigstillelse.
+Legg til støtte for å laste opp og redigere et forsidebilde (cover) for en playlist, og sørg for at dette bildet brukes som cover art når en mixtape genereres fra playlisten.
+
+**Bakgrunn:**
+- `coverImageUrl`-feltet finnes allerede i `Playlist`-typen (`shared/types/index.ts`) og i databaseskjemaet (`cover_image_url`-kolonne i `playlists`-tabellen), men er ikke implementert i UI eller backend-endepunkter.
+- Mixtape-generering i `backend/src/routes/mixtape.ts` bruker alltid `/assets/placeholder.png` som cover art i FFmpeg-kommandoen, uavhengig av om playlisten har et eget bilde.
 
 ---
 
-## Fase 1: Backend SSE-infrastruktur
+## Fase 1: Backend
 
-### Task 1.1: Opprett SSE-tilkoblingsbehandler
+### Task 1.1: Opprett endepunkt for opplasting av playlist-cover
 
-**Status:** Ferdig
+**Status:** Pending
 
 **Beskrivelse:**
-Opprett en ny tjeneste for å administrere aktive SSE-tilkoblinger og kringkaste hendelser til alle tilkoblede klienter. Bruk Node.js EventEmitter for hendelsesstyring.
+Opprett et nytt endepunkt som tar imot en bildefil og lagrer den som cover for en playlist. Bruk eksisterende `multer`-oppsett fra `upload.ts` som referanse.
 
 **Forventet oppførsel:**
-- Behandle en liste over aktive SSE-svarobjekter (Response-objekter med aktiv tilkobling)
-- Eksporter `broadcastSseEvent(eventType, data)` for å sende hendelser til alle klienter
-- Rydde opp i tilkoblinger når klienter kobler fra
-- Legg til feilhåndtering for ødelagte tilkoblinger
+- Rute: `POST /api/playlists/:id/cover`
+- Aksepter én bildefil (JPEG eller PNG), maks 5 MB
+- Lagre bildet i `backend/images/playlists/` (opprett mappen hvis den ikke finnes)
+- Filnavn: `{playlistId}.{ext}` (overskriv hvis cover allerede finnes)
+- Oppdater `cover_image_url`-kolonnen i `playlists`-tabellen for den aktuelle playlisten
+- Svar med `{ coverImageUrl: '/images/playlists/{playlistId}.{ext}' }`
+- Returner 404 hvis playlisten ikke finnes
+- Returner 400 hvis ingen fil er lastet opp eller filtypen er ugyldig
 
 **Filer som skal endres:**
-- `backend/src/services/sse.ts` (NY fil)
-  ```typescript
-  // Implementer:
-  // - clients: Map<string, Response> for aktive tilkoblinger
-  // - broadcastSseEvent(eventType: string, data: any): void
-  // - addClient(id: string, response: Response): void
-  // - removeClient(id: string): void
-  // - cleanup(): void for å rydde opp i døde tilkoblinger
-  ```
+- `backend/src/routes/playlists.ts`
+  - Legg til multer-instans konfigurert for bildeopplasting (kun `image/jpeg` og `image/png`, maks 5 MB)
+  - Legg til route: `router.post('/:id/cover', upload.single('cover'), handleCoverUpload)`
+  - Implementer `handleCoverUpload`-handler
+
+- `backend/src/server.ts` (hvis nødvendig)
+  - Sørg for at `/images/playlists` serveres statisk (det finnes allerede `app.use('/images', express.static(...))`, så undermapper dekkes automatisk)
 
 ---
 
-### Task 1.2: Opprett SSE-endepunkt
+### Task 1.2: Bruk playlist-cover som cover art i mixtape-generering
 
-**Status:** Ferdig
-
-**Beskrivelse:**
-Opprett et SSE-endepunkt som kunder kobler til for å motta sanntidshendelser. Endepunktet skal holde tilkoblingen åpen og streame hendelser når de skjer.
-
-**Forventet oppførsel:**
-- Svar med `Content-Type: text/event-stream`
-- Sett `Cache-Control: no-cache` og `Connection: keep-alive`
-- Generer unik klient-ID for hver tilkobling
-- Send keepalive-meldinger hvert 30. sekund for å forhinde timeout
-- Rydde opp klient-ID fra sse.ts når forespørselen lukkes
-
-**Filer som skal endres:**
-- `backend/src/server.ts`
-  - Fjern `import { Server } from 'socket.io'`
-  - Fjern Socket.IO-serverinitialisering (`new Server(server, ...)`)
-  - Fjern `io.on('connection', ...)` handler
-  - Legg til ny route: `app.get('/api/events', handleSseConnection)`
-  - Eksporter `io` ikke lenger (bruk `sse` i stedet)
-
-- `backend/src/services/sse.ts` (fra Task 1.1)
-  - Implementer `handleSseConnection(req: Request, res: Response): void`
-
----
-
-### Task 1.3: Oppdater Suno-tjenesten til å bruke SSE
-
-**Status:** Ferdig
+**Status:** Pending
 
 **Beskrivelse:**
-Endre Suno-statusoppdateringene fra Socket.IO-emitting til SSE-broadcasting. Oppdateringen skjer når Suno API-polling oppdager endringer.
+Oppdater mixtape-genereringen slik at den bruker playlistens `coverImageUrl` som cover art i den genererte lydfilen, i stedet for alltid å bruke placeholder-bildet.
 
 **Forventet oppførsel:**
-- Importer `broadcastSseEvent` fra `services/sse` i stedet for `io`
-- Erstatt alle `io.emit('suno-update', ...)` kall med `broadcastSseEvent('suno-update', ...)`
-- Sørg for at dataformatet forblir det samme for frontend-kompatibilitet
-
-**Filer som skal endres:**
-- `backend/src/services/suno.ts`
-  - Linje 4: Endre `import { io } from '../server'` til `import { broadcastSseEvent } from './sse'`
-  - Linje 99: Endre `io.emit('suno-update', { jobId, ...status })` til `broadcastSseEvent('suno-update', { jobId, ...status })`
-
----
-
-### Task 1.4: Oppdater mixtape-ruten til å bruke SSE
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Endre mixtape-ferdigstillelsevarsler fra Socket.IO til SSE-broadcasting. Dette inkluderer både suksess- og feilmeldinger.
-
-**Forventet oppførsel:**
-- Importer `broadcastSseEvent` fra `services/sse` i stedet for `io`
-- Erstatt alle `io.emit('mixtape-ready', ...)` kall med `broadcastSseEvent('mixtape-ready', ...)`
-- Sørg for at dataformatet forblir det samme
+- Hent `cover_image_url` fra databasen for playlisten når mixtape genereres via `POST /api/mixtape/playlist/:playlistId`
+- Hvis `cover_image_url` er satt: bruk dette bildet som cover i FFmpeg-kommandoen
+- Hvis `cover_image_url` er `null`: fall tilbake til eksisterende placeholder (`/assets/placeholder.png`)
+- Liked-mixtape (`POST /api/mixtape/liked`) påvirkes ikke av denne endringen
 
 **Filer som skal endres:**
 - `backend/src/routes/mixtape.ts`
-  - Linje 7: Endre `import { io } from '../server'` til `import { broadcastSseEvent } from '../services/sse'`
-  - Linje 174: Endre `io.emit('mixtape-ready', { taskId, error: 'No songs found' })`
-  - Linje 211: Endre `io.emit('mixtape-ready', { taskId, downloadId, fileName })`
-  - Linje 214: Endre `io.emit('mixtape-ready', { taskId, error: 'Failed to create mixtape' })`
+  - I playlist-mixtape-handleren: hent playlist-raden fra databasen og les `cover_image_url`
+  - Bygg opp riktig absolutt filsti til bildet basert på URL-en (f.eks. `/images/playlists/abc.jpg` → `backend/images/playlists/abc.jpg`)
+  - Send filstien til den eksisterende FFmpeg-logikken som allerede håndterer cover art-innsetting
+  - Legg til sjekk: verifiser at bildefilen faktisk eksisterer på disk før bruk, ellers fall tilbake til placeholder
 
 ---
 
-## Fase 2: Frontend SSE-klient
+## Fase 2: Frontend
 
-### Task 2.1: Opprett SSE-tilkoblingshook
+### Task 2.1: Legg til cover-editor i PlaylistEditor
 
-**Status:** Ferdig
+**Status:** Pending
 
 **Beskrivelse:**
-Opprett en React hook som håndterer SSE-tilkobling med automatisk gjenoppretting. Erstatt `socket.io-client` med native `EventSource` API.
+Legg til en klikk-for-å-laste-opp cover-seksjon øverst i `PlaylistEditor`-komponenten. Bruker skal kunne klikke på et bilde (eller placeholder) for å velge en bildefil fra disk. Bildet lastes opp umiddelbart og forhåndsvisning vises.
 
 **Forventet oppførsel:**
-- Opprett EventSource-tilkobling til `/api/events`
-- Implementer automatisk gjenoppretting (innebygd i EventSource)
-- Legg til reconnection-konfigurasjon (EventSource håndterer dette automatisk)
-- Logge tilkoblingsstatus for debugging (kun i dev-modus)
+- Vis et kvadratisk bilde øverst i editoren (f.eks. 120×120 px)
+  - Hvis playlisten har `coverImageUrl`: vis dette bildet
+  - Ellers: vis et nøytralt placeholder-bilde eller et ikon med teksten «Legg til cover»
+- Ved klikk: åpne en skjult `<input type="file" accept="image/jpeg,image/png">` via `ref`
+- Når bruker velger fil:
+  1. Valider at filen er JPEG eller PNG og maks 5 MB – vis feilmelding ellers
+  2. Kall `uploadPlaylistCover(playlistId, file)` fra api.ts
+  3. Oppdater lokal state med den returnerte `coverImageUrl` slik at bildet vises umiddelbart
+  4. Vis en lastespinner over bildet mens opplasting pågår
+- Dersom det allerede finnes et cover: erstatt det (samme klikk-for-å-endre-oppførsel)
 
 **Filer som skal endres:**
-- `frontend/src/hooks/useSse.ts` (NY fil, erstatter `useSunoSocket.ts`)
-  ```typescript
-  // Implementer:
-  // - connectSse(): EventSource
-  // - disconnectSse(): void
-  // - addEventListener(event: string, handler: (data: any) => void): void
-  // - removeEventListener(event: string, handler: (data: any) => void): void
-  ```
+- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx`
+  - Legg til cover-bilde-seksjon med `<input type="file" ref={...} hidden>`
+  - Legg til `handleCoverChange`-handler
+  - Vis opplastingsstatus (spinner/feil)
 
 ---
 
-### Task 2.2: Opprett hendelseslytter-hooks
+### Task 2.2: Legg til `uploadPlaylistCover` i api.ts
 
-**Status:** Ferdig
-
-**Beskrivelse:**
-Opprett spesifikke hooks for å lytte på `suno-update` og `mixtape-ready` hendelser, som erstatter de gamle Socket.IO-hendelsene.
-
-**Forventet oppførsel:**
-- `useSunoUpdates(onUpdate)`: Lytter på `suno-update` hendelser
-- `useMixtapeReady(taskId, callback)`: Lytter på `mixtape-ready` for spesifikk taskId
-- Begge skal rydde opp lyttere når komponenten avmonteres
-- Dataformat skal være kompatibelt med eksisterende kode
-
-**Filer som skal endres:**
-- `frontend/src/hooks/useSse.ts`
-  - Eksporter `SunoUpdateData` interface (samme som før)
-  - Implementer `export function useSunoUpdates(onUpdate: (data: SunoUpdateData) => void)`
-  - Implementer `export function useMixtapeReady(taskId: string, callback: (data: { downloadId?: string; fileName?: string; error?: string }) => void)`
-
----
-
-### Task 2.3: Oppdater api.ts
-
-**Status:** Ferdig
+**Status:** Pending
 
 **Beskrivelse:**
-Fjern all Socket.IO-relatert kode fra API-klienten og erstatte med SSE-eksport fra `useSse.ts`.
+Legg til en funksjon i `frontend/src/services/api.ts` for å laste opp et cover-bilde til en playlist.
 
 **Forventet oppførsel:**
-- Fjern `import { io, Socket } from 'socket.io-client'`
-- Fjern alle socket-variabler og funksjoner
-- Eksporter ikke lenger socket-relaterte funksjoner (de håndteres nå av hooks)
+- Funksjonssignatur: `uploadPlaylistCover(playlistId: string, file: File): Promise<{ coverImageUrl: string }>`
+- Send `multipart/form-data` POST-request til `/api/playlists/{playlistId}/cover` med feltet `cover`
+- Kast feil med beskrivende melding ved HTTP-feil
 
 **Filer som skal endres:**
 - `frontend/src/services/api.ts`
-  - Fjern linje 1: `import { io, Socket } from 'socket.io-client'`
-  - Fjern linje 8: `let socket: Socket | null = null;`
-  - Fjern alle funksjoner: `connectSocket()`, `disconnectSocket()`, `onSunoUpdate()`, `offSunoUpdate()`, `onceMixtapeReady()`
-  - Fjern logikk relatert til socket-tilkobling (linje 10-84)
+  - Legg til `uploadPlaylistCover`-funksjon
 
 ---
 
-### Task 2.4: Oppdater App.tsx
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Erstatt `useSunoSocket` hook med den nye `useSunoUpdates` hook fra SSE-implementasjonen.
-
-**Forventet oppførsel:**
-- Importere `useSunoUpdates` fra `hooks/useSse` i stedet for `useSunoSocket`
-- `handleSunoUpdate` skal fungere likt som før (samme dataformat)
-- Ingen endringer i logikk, bare bytte av hook
-
-**Filer som skal endres:**
-- `frontend/src/App.tsx`
-  - Linje 12: Endre `import { useSunoSocket, SunoUpdateData } from './hooks/useSunoSocket'` til `import { useSunoUpdates, SunoUpdateData } from './hooks/useSse'`
-  - Linje 100: Endre `useSunoSocket(handleSunoUpdate)` til `useSunoUpdates(handleSunoUpdate)`
-
----
-
-### Task 2.5: Oppdater MixtapeButton til å bruke SSE
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Oppdater MixtapeButton-komponenten til å bruke den nye `useMixtapeReady` hook i stedet for `onceMixtapeReady` fra api.ts.
-
-**Filer som skal endres:**
-- Finn fil som inneholder MixtapeButton (sannsynligvis `frontend/src/components/history/MixtapeButton/MixtapeButton.tsx`)
-  - Fjern import av `onceMixtapeReady` fra `services/api`
-  - Importer `useMixtapeReady` fra `hooks/useSse`
-  - Erstatt `onceMixtapeReady(taskId, callback)` med `useMixtapeReady(taskId, callback)`
-
----
-
-## Fase 3: Konfigurasjon og avhengigheter
-
-### Task 3.1: Oppdater Vite proxy
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Fjern Socket.IO proxy-konfigurasjon fra Vite. SSE bruker standard HTTP-kommunikasjon og trenger ingen spesiell proxy-konfigurasjon.
-
-**Forventet oppførsel:**
-- Fjern `/socket.io` proxy-seksjon
-- `/api` proxy vil håndtere SSE-kommunikasjon automatisk
-
-**Filer som skal endres:**
-- `frontend/vite.config.ts`
-  - Fjern linje 26-30 (Socket.IO proxy-konfigurasjon)
-
----
-
-### Task 3.2: Fjern Socket.IO-avhengigheter
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Fjern socket.io-pakker fra både backend og frontend package.json.
-
-**Forventet oppførsel:**
-- Ingen socket.io-pakker i avhengigheter
-- Renere dependencies
-
-**Filer som skal endres:**
-- `backend/package.json`
-  - Fjern `"socket.io": "^4.8.3"` fra dependencies
-
-- `frontend/package.json`
-  - Fjern `"socket.io-client": "^4.8.3"` fra dependencies
-
-Kjør etterpå:
-- `cd backend && npm uninstall socket.io`
-- `cd frontend && npm uninstall socket.io-client`
-
----
-
-### Task 3.3: Rydd opp i gamle filer
-
-**Status:** Ferdig
-
-**Beskrivelse:**
-Slett den gamle useSunoSocket.ts filen som er erstattet av useSse.ts.
-
-**Filer som skal slettes:**
-- `frontend/src/hooks/useSunoSocket.ts`
-
----
-
-## Fase 4: Dokumentasjon
-
-### Task 4.1: Oppdater ARCHITECTURE.md
+### Task 2.3: Oppdater `updatePlaylist` / Playlist-state til å inkludere coverImageUrl
 
 **Status:** Pending
 
 **Beskrivelse:**
-Oppdater arkitektdokumentasjonen for å reflektere endringen fra Socket.IO til SSE.
+Sørg for at `coverImageUrl` returneres fra backend når en playlist hentes, og at frontend-tilstanden oppdateres korrekt etter cover-opplasting.
 
 **Forventet oppførsel:**
-- Linje 37: Endre "Express + Socket.IO server entry" til "Express + SSE server entry"
-- Linje 80: Endre "WebSocket: Socket.IO for real-time Suno status updates" til "SSE (Server-Sent Events) for real-time Suno status updates"
-- Linje 91-95: Endre WebSocket-seksjonen til SSE
-- Linje 121: Oppdater notatet om Suno-integrasjon til å nevne SSE
+- Verifiser at `GET /api/playlists/:id` og `GET /api/playlists` returnerer `coverImageUrl` i responsen (sjekk eksisterende backend-kode – feltet mappes muligens allerede fra `cover_image_url`)
+- Hvis feltet ikke mappes: oppdater db-spørringer i `backend/src/routes/playlists.ts` til å inkludere det
+- Etter vellykket `uploadPlaylistCover`-kall i `PlaylistEditor`: oppdater den relevante Jotai-atomen / lokale state slik at den nye `coverImageUrl` reflekteres uten side-refresh
 
 **Filer som skal endres:**
-- `ARCHITECTURE.md`
-
----
-
-### Task 4.2: Oppdater API.md
-
-**Status:** Pending
-
-**Beskrivelse:**
-Erstatt WebSocket-events-dokumentasjon med SSE-events-dokumentasjon.
-
-**Forventet oppførsel:**
-- Erstatt hele "WebSocket Events (Socket.IO)" seksjon med "Server-Sent Events"
-- Dokumenter `/api/events` endepunkt
-- Dokumenter hendelsesformater: `suno-update`, `mixtape-ready`
-- Oppdater alle referanser til WebSocket til SSE
-
-**Filer som skal endres:**
-- `API.md`
-
----
-
-### Task 4.3: Oppdater QUICKREF.md
-
-**Status:** Pending
-
-**Beskrivelse:**
-Oppdater hurtigreferansen for å reflektere SSE-teknologien.
-
-**Forventet oppførsel:**
-- Linje 9: Endre teknologistack-liste til å inkludere SSE i stedet for Socket.IO
-- Linje 17: Endre "Backend (Express + Socket.IO)" til "Backend (Express + SSE)"
-- Linje 29: Endre "Real-time updates via Socket.IO" til "Real-time updates via SSE"
-- Linje 104-106: Oppdater WebSocket-seksjonen til SSE
-
-**Filer som skal endres:**
-- `QUICKREF.md`
-
----
-
-### Task 4.4: Oppdater DECISIONS.md
-
-**Status:** Pending
-
-**Beskrivelse:**
-Oppdater beslutningsdokumentet for å fjerne Socket.IO-spesifikke beslutninger og legge til SSE-beslutninger.
-
-**Filer som skal endres:**
-- `DECISIONS.md`
-  - Fjern eller oppdater seksjon om "D-002 – Socket.IO event scope"
-  - Fjern referanser til Socket.IO gjenoppretting (linje 217-222)
-  - Legg til ny beslutning om SSE valg hvis ønskelig
+- `backend/src/routes/playlists.ts` (ved behov – legg til `cover_image_url` i SELECT-spørringer)
+- `frontend/src/components/playlist/PlaylistEditor/PlaylistEditor.tsx` (state-oppdatering)
+- Eventuelle Jotai-atomer eller hooks som holder playlist-data
 
 ---
 
@@ -334,10 +132,11 @@ Oppdater beslutningsdokumentet for å fjerne Socket.IO-spesifikke beslutninger o
 
 ### Verifisering
 
-1. Start backend og frontend
-2. Generer en ny sang
-3. Verifiser at statusoppdateringer kommer gjennom i sanntid
-4. Generer en mixtape
-5. Verifiser at mixtape-ferdigstillelse kommer gjennom
-6. Sjekk konsollen for feilmeldinger
-7. Verifiser at automatisk gjenoppretting fungerer ved nettverksbrudd
+1. Åpne en eksisterende playlist i PlaylistEditor
+2. Klikk på cover-området – velg en JPEG/PNG-fil
+3. Verifiser at bildet vises umiddelbart i editoren
+4. Generer en mixtape fra playlisten
+5. Åpne den nedlastede filen i en mediespiller – verifiser at playlistens cover vises som album art
+6. Test at liked-mixtape fortsatt bruker placeholder
+7. Test at en playlist uten cover bruker placeholder i mixtapen
+8. Test avvisning av ugyldig filtype og for stor fil

@@ -1,4 +1,7 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import {
   getAllPlaylists,
   getPlaylistById,
@@ -15,6 +18,31 @@ import {
 const router = Router();
 const PLAYLIST_LIMIT = 100;
 const PLAYLIST_SONGS_LIMIT = 100;
+
+const playlistImagesDir = path.join(__dirname, '../../images/playlists');
+if (!fs.existsSync(playlistImagesDir)) {
+  fs.mkdirSync(playlistImagesDir, { recursive: true });
+}
+
+const coverStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, playlistImagesDir),
+  filename: (req, file, cb) => {
+    const ext = file.mimetype === 'image/png' ? '.png' : '.jpg';
+    cb(null, `${(req as Request<{ id: string }>).params.id}${ext}`);
+  },
+});
+
+const coverUpload = multer({
+  storage: coverStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG and PNG images are allowed'));
+    }
+  },
+});
 
 function isValidId(id: string): boolean {
   return /^[\w-]+$/.test(id);
@@ -212,6 +240,58 @@ router.patch('/:id/songs/reorder', (req: Request<{ id: string }>, res: Response)
   } catch (error) {
     console.error('Error reordering playlist songs:', error);
     res.status(500).json({ error: 'Failed to reorder playlist songs' });
+  }
+});
+
+// POST /api/playlists/:id/cover - Upload playlist cover image
+router.post('/:id/cover', (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+  coverUpload.single('cover')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large (max 5 MB)' });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}, (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidId(id)) {
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const existing = getPlaylistById(id);
+    if (!existing) {
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ error: 'Playlist not found' });
+    }
+
+    // Remove any previous cover with the other extension
+    const otherExt = req.file.mimetype === 'image/png' ? '.jpg' : '.png';
+    const otherPath = path.join(playlistImagesDir, `${id}${otherExt}`);
+    if (fs.existsSync(otherPath)) {
+      fs.unlinkSync(otherPath);
+    }
+
+    const fileExt = req.file.mimetype === 'image/png' ? '.png' : '.jpg';
+    const coverImageUrl = `/images/playlists/${id}${fileExt}`;
+
+    updatePlaylist(id, { coverImageUrl });
+
+    res.json({ coverImageUrl });
+  } catch (error) {
+    console.error('Error uploading playlist cover:', error);
+    res.status(500).json({ error: 'Failed to upload playlist cover' });
   }
 });
 

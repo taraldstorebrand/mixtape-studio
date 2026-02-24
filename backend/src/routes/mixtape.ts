@@ -144,10 +144,11 @@ interface MixtapeOptions {
   taskId: string;
   songIds?: string[];
   name?: string;
+  coverImageUrl?: string;
 }
 
 async function generateMixtape(options: MixtapeOptions): Promise<void> {
-  const { taskId, songIds, name } = options;
+  const { taskId, songIds, name, coverImageUrl } = options;
   const mp3sDir = path.join(__dirname, '../../mp3s');
   ensureTempDir();
 
@@ -198,14 +199,25 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
     const metadataContent = await generateChapterMetadata(songData);
     fs.writeFileSync(tempMetadataFile, metadataContent);
 
-    const hasImage = fs.existsSync(PLACEHOLDER_IMAGE);
+    let resolvedImagePath: string | undefined;
+    if (coverImageUrl) {
+      const relativePath = coverImageUrl.replace(/^\//, '');
+      const absolutePath = path.join(__dirname, '../../', relativePath);
+      if (fs.existsSync(absolutePath)) {
+        resolvedImagePath = absolutePath;
+      }
+    }
+    if (!resolvedImagePath && fs.existsSync(PLACEHOLDER_IMAGE)) {
+      resolvedImagePath = PLACEHOLDER_IMAGE;
+    }
+
     await runFfmpegConcat({
       tempListFile,
       tempMetadataFile,
       outputFile,
       mixtapeName,
-      hasImage,
-      imagePath: hasImage ? PLACEHOLDER_IMAGE : undefined,
+      hasImage: !!resolvedImagePath,
+      imagePath: resolvedImagePath,
     });
 
     broadcastSseEvent('mixtape-ready', { taskId, downloadId, fileName });
@@ -252,7 +264,7 @@ router.post('/playlist/:playlistId', async (req: Request, res: Response) => {
 
   const taskId = Date.now().toString();
 
-  generateMixtape({ taskId, songIds, name: playlist.name });
+  generateMixtape({ taskId, songIds, name: playlist.name, coverImageUrl: playlist.coverImageUrl });
 
   res.json({ taskId });
 });
