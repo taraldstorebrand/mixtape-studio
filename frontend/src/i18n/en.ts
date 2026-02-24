@@ -66,6 +66,7 @@ export const en = {
     pause: 'Pause',
     next: 'Next',
     clear: 'Clear',
+    clearSearch: 'Clear search',
     removeFromHistory: 'Remove from history',
     addToMixtape: 'Add to mixtape',
     removeFromMixtape: 'Remove from mixtape',

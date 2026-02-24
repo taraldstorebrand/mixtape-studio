@@ -1,4 +1,4 @@
-import { HistoryList } from '../history/HistoryList';
+import { HistoryList } from '../history/HistoryList/HistoryList';
 import { HistoryItem } from '../../types';
 
 interface HistoryPanelProps {

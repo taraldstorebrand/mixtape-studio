@@ -8,6 +8,8 @@ export const historyAtom = atom<HistoryItem[]>([]);
 
 export const filterAtom = atom<FilterType>('default');
 
+export const searchQueryAtom = atom('');
+
 export const selectedItemIdAtom = atom<string | null>(null);
 
 export const selectedItemAtom = atom((get) => {

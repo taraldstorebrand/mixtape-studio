@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { HistoryItem as HistoryItemType } from '../../types';
-import { HistoryItem } from './HistoryItem/HistoryItem';
-import { MixtapeButton } from './MixtapeButton/MixtapeButton';
-import { UploadButton } from './UploadButton/UploadButton';
-import { PlaylistDropdown } from './PlaylistDropdown/PlaylistDropdown';
-import { PlaylistActions } from './PlaylistActions/PlaylistActions';
-import { currentPlaylistEntriesAtom, currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, selectedPlaylistIdAtom } from '../../store/atoms';
-import { useScrollToItem } from '../../hooks/useScrollToItem';
-import { t } from '../../i18n';
-import { fetchPlaylists, fetchPlaylist, deletePlaylist } from '../../services/playlists';
-import { Modal } from '../common/Modal/Modal';
-import { PlaylistEditor } from '../playlist/PlaylistEditor/PlaylistEditor';
+import { HistoryItem as HistoryItemType } from '../../../types';
+import { HistoryItem } from '../HistoryItem/HistoryItem';
+import { MixtapeButton } from '../MixtapeButton/MixtapeButton';
+import { UploadButton } from '../UploadButton/UploadButton';
+import { PlaylistDropdown } from '../PlaylistDropdown/PlaylistDropdown';
+import { PlaylistActions } from '../PlaylistActions/PlaylistActions';
+import { SearchInput } from './SearchInput/SearchInput';
+import { currentPlaylistEntriesAtom, currentPlaylistSongsAtom, filterAtom, filteredHistoryAtom, playlistsAtom, searchQueryAtom, selectedPlaylistIdAtom } from '../../../store/atoms';
+import { useScrollToItem } from '../../../hooks/useScrollToItem';
+import { t } from '../../../i18n';
+import { fetchPlaylists, fetchPlaylist, deletePlaylist } from '../../../services/playlists';
+import { Modal } from '../../common/Modal/Modal';
+import { PlaylistEditor } from '../../playlist/PlaylistEditor/PlaylistEditor';
 import styles from './HistoryList.module.css';
 
 interface HistoryListProps {
@@ -36,12 +37,22 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const currentPlaylistSongs = useAtomValue(currentPlaylistSongsAtom);
     const currentPlaylistEntries = useAtomValue(currentPlaylistEntriesAtom);
     const filteredItems = useAtomValue(filteredHistoryAtom);
+    const searchQuery = useAtomValue(searchQueryAtom);
     const { highlightedItemId, setItemRef } = useScrollToItem();
 
     const completedSongs = (songs: HistoryItemType[]) => songs.filter(song => song.sunoLocalUrl || (song.sunoStatus === 'completed' && song.sunoAudioUrl));
     const likedItems = completedSongs(items.filter(item => item.feedback === 'up'));
 
     const displayItems = currentPlaylistSongs !== null ? currentPlaylistSongs : filteredItems;
+
+    const lowerQuery = searchQuery.toLowerCase();
+    const searchedItems = searchQuery.trim()
+        ? displayItems.filter(
+            (item) =>
+                item.title.toLowerCase().includes(lowerQuery) ||
+                (item.artist?.toLowerCase().includes(lowerQuery) ?? false)
+        )
+        : displayItems;
 
     const handleCreatePlaylist = () => {
         setEditingPlaylistId(undefined);
@@ -134,71 +145,78 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
             <div className={styles.panelActions}>
                 <div className={styles.panelActionsButtons}>
                     <UploadButton onUploadFormChange={setIsUploadFormActive} />
+                    {!isUploadFormActive && <SearchInput />}
                     {!isUploadFormActive && (
                         <MixtapeButton likedItems={selectedPlaylistId !== null ? completedSongs(currentPlaylistSongs ?? []) : likedItems} playlistId={selectedPlaylistId ?? undefined} />
                     )}
                 </div>
                 {!isUploadFormActive && (
                     <div className={styles.headerBar}>
-                        <div className={styles.headerBarLeft}>
-                            {selectedPlaylistId !== null && (
-                                <button
-                                    type="button"
-                                    className={styles.backButton}
-                                    onClick={handleReturnToLibrary}
-                                    title={t.tooltips.returnToLibrary}
-                                    aria-label={t.tooltips.returnToLibrary}
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
-                                        <path d="M3 8H13M3 8L6 5M3 8L6 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                    {t.filters.library}
-                                </button>
-                            )}
-                            <PlaylistDropdown playlists={playlists} selectedPlaylistId={selectedPlaylistId} itemCount={displayItems.length} onCreatePlaylist={selectedPlaylistId ? handleCreatePlaylist : undefined} />
-                            {selectedPlaylistId === null && (
-                                <div className={styles.filterButtons}>
+                            <div className={styles.headerBarLeft}>
+                                {selectedPlaylistId !== null && (
                                     <button
                                         type="button"
-                                        className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
-                                        onClick={() => setFilter('default')}
+                                        className={styles.backButton}
+                                        onClick={handleReturnToLibrary}
+                                        title={t.tooltips.returnToLibrary}
+                                        aria-label={t.tooltips.returnToLibrary}
                                     >
-                                        {t.filters.songs}
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+                                            <path d="M3 8H13M3 8L6 5M3 8L6 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                        {t.filters.library}
                                     </button>
-                                    <button
-                                        type="button"
-                                        className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
-                                        onClick={() => setFilter('liked')}
-                                    >
-                                        {t.filters.liked}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
-                                        onClick={() => setFilter('all')}
-                                    >
-                                        {t.filters.all}
-                                    </button>
-                                </div>
-                            )}
+                                )}
+                                <PlaylistDropdown playlists={playlists} selectedPlaylistId={selectedPlaylistId} itemCount={displayItems.length} onCreatePlaylist={selectedPlaylistId ? handleCreatePlaylist : undefined} />
+                                {selectedPlaylistId === null && (
+                                    <div className={styles.filterButtons}>
+                                        <button
+                                            type="button"
+                                            className={`${styles.filterButton} ${filter === 'default' ? styles.active : ''}`}
+                                            onClick={() => setFilter('default')}
+                                        >
+                                            {t.filters.songs}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`${styles.filterButton} ${filter === 'liked' ? styles.active : ''}`}
+                                            onClick={() => setFilter('liked')}
+                                        >
+                                            {t.filters.liked}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
+                                            onClick={() => setFilter('all')}
+                                        >
+                                            {t.filters.all}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <div className={styles.headerBarRight}>
+                                <PlaylistActions
+                                    onCreatePlaylist={handleCreatePlaylist}
+                                    onEditPlaylist={handleEditPlaylist}
+                                    onDeletePlaylist={handleDeletePlaylist}
+                                />
+                            </div>
                         </div>
-                        <div className={styles.headerBarRight}>
-                            <PlaylistActions
-                                onCreatePlaylist={handleCreatePlaylist}
-                                onEditPlaylist={handleEditPlaylist}
-                                onDeletePlaylist={handleDeletePlaylist}
-                            />
-                        </div>
-                    </div>
                 )}
             </div>
-            {displayItems.length === 0 ? (
+            {searchedItems.length === 0 ? (
                 <div className={styles.empty}>
-                    <p>{selectedPlaylistId !== null ? t.messages.noSongsInPlaylist : t.messages.noSongsAvailable}</p>
+                    <p>
+                        {searchQuery.trim()
+                            ? t.messages.noSongsFound
+                            : selectedPlaylistId !== null
+                                ? t.messages.noSongsInPlaylist
+                                : t.messages.noSongsAvailable}
+                    </p>
                 </div>
             ) : (
                 <>
-                    {displayItems.map((item, index) => {
+                    {searchedItems.map((item, index) => {
                         const entryId = currentPlaylistEntries?.[index]?.entryId ?? null;
                         return (
                             <HistoryItem
