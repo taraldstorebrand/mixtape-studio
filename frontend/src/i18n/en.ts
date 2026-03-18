@@ -81,6 +81,7 @@ export const en = {
     deletePlaylist: 'Delete playlist',
     returnToLibrary: 'Return to library',
     resizePanels: 'Resize panels',
+    download: 'Download',
     mute: 'Mute',
     unmute: 'Unmute',
     uploadCover: 'Upload cover image',

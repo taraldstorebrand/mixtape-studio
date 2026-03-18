@@ -704,7 +704,7 @@ Uploaded items have Suno fields set to null and are marked with `isUploaded: tru
 
 Constraints:
 - Accepted formats: MP3, FLAC, WAV, OGG, M4A, AAC, AIFF, Opus
-- Maximum file size: 100 MB
+- Maximum file size: 3 GB
 - User must provide a title for the uploaded song
 - Uploaded songs appear in history and can be liked/disliked like generated songs
 
@@ -754,7 +754,7 @@ Filename examples:
 
 Constraints:
 - Maximum 20 files per upload
-- Maximum 100 MB per file
+- Maximum 3 GB per file
 - Titles are sanitized (special characters replaced with `_`)
 
 Rationale:
