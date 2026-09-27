@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   startMixtapeGeneration,
   downloadMixtape,
+  getMixtapeStatus,
 } from '../../../services/api';
 import { useMixtapeReady } from '../../../hooks/useSse';
 import { t } from '../../../i18n';
 import type { HistoryItem } from '../../../types';
 import styles from './MixtapeButton.module.css';
+
+// Fallback polling interval in case the SSE event is missed (e.g. phone screen off)
+const STATUS_POLL_INTERVAL_MS = 3000;
 
 function formatDuration(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
@@ -27,28 +31,43 @@ export function MixtapeButton({ likedItems, playlistId }: MixtapeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
+  const handledTaskIdRef = useRef<string | null>(null);
 
   const hasLikedSongs = likedItems.length > 0;
   const totalDuration = likedItems.reduce((sum, item) => sum + (item.duration ?? 0), 0);
 
-  useMixtapeReady(currentTaskId || '', async (data) => {
+  // Handles the result once, whether it arrives via SSE or via polling
+  const handleResult = (taskId: string, data: { downloadId?: string; fileName?: string; error?: string }) => {
+    if (handledTaskIdRef.current === taskId) return;
+    handledTaskIdRef.current = taskId;
     if (data.error) {
-      setIsLoading(false);
       setError(data.error);
-      setCurrentTaskId(null);
-      return;
-    }
-
-    if (data.downloadId) {
-      try {
-        await downloadMixtape(data.downloadId, data.fileName);
-      } catch (downloadErr: any) {
-        setError(downloadErr.message || t.errors.couldNotDownloadMixtape);
-      }
+    } else if (data.downloadId) {
+      downloadMixtape(data.downloadId, data.fileName);
     }
     setIsLoading(false);
     setCurrentTaskId(null);
+  };
+
+  useMixtapeReady(currentTaskId || '', (data) => {
+    if (currentTaskId) handleResult(currentTaskId, data);
   });
+
+  useEffect(() => {
+    if (!currentTaskId) return;
+    const taskId = currentTaskId;
+    const interval = setInterval(async () => {
+      try {
+        const status = await getMixtapeStatus(taskId);
+        if (status.status !== 'pending') {
+          handleResult(taskId, status);
+        }
+      } catch (err: any) {
+        handleResult(taskId, { error: err.message || t.errors.couldNotDownloadMixtape });
+      }
+    }, STATUS_POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [currentTaskId]);
 
   async function handleClick() {
     setIsLoading(true);
@@ -73,7 +92,7 @@ export function MixtapeButton({ likedItems, playlistId }: MixtapeButtonProps) {
         : t.actions.makeMixtapeFromLiked;
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       <button
         className={styles.mixtapeButton}
         onClick={handleClick}

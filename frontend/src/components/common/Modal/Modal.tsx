@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { t } from '../../../i18n';
 import styles from './Modal.module.css';
 
@@ -36,11 +37,14 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     }
   };
 
-  return (
+  // Rendered into <body> so no ancestor stacking context (e.g. the sticky list
+  // toolbar) can place it below the fixed Now Playing bar, which on phones
+  // covered the editor's bottom buttons
+  return createPortal(
     <div className={styles.overlay} onClick={handleOverlayClick}>
-      <div className={styles.modal}>
+      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div className={styles.header}>
-          <h2 className={styles.title}>{title}</h2>
+          <h2 id="modal-title" className={styles.title}>{title}</h2>
           <button type="button" className={styles.closeButton} onClick={onClose} aria-label={t.actions.close}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" focusable="false">
               <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -51,6 +55,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

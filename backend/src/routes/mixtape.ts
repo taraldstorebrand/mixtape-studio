@@ -13,6 +13,29 @@ const TEMP_DIR = path.join(__dirname, '../../temp');
 const PLACEHOLDER_IMAGE = path.join(__dirname, '../assets/placeholder.png');
 const TEMP_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
+interface MixtapeTask {
+  status: 'pending' | 'ready' | 'failed';
+  downloadId?: string;
+  fileName?: string;
+  error?: string;
+  updatedAt: number;
+}
+
+// Task state for polling. Phones drop the SSE connection while the screen is
+// off, so a 'mixtape-ready' event sent at that moment is lost; clients poll
+// GET /status/:taskId as a fallback.
+const tasks = new Map<string, MixtapeTask>();
+
+function newTaskId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/** Records the result and notifies connected clients. */
+function finishTask(taskId: string, result: { downloadId?: string; fileName?: string; error?: string }) {
+  tasks.set(taskId, { status: result.error ? 'failed' : 'ready', ...result, updatedAt: Date.now() });
+  broadcastSseEvent('mixtape-ready', { taskId, ...result });
+}
+
 function ensureTempDir(): void {
   if (!fs.existsSync(TEMP_DIR)) {
     fs.mkdirSync(TEMP_DIR, { recursive: true });
@@ -22,6 +45,11 @@ function ensureTempDir(): void {
 export function cleanupOldTempFiles(): void {
   ensureTempDir();
   const now = Date.now();
+  for (const [taskId, task] of tasks) {
+    if (task.status !== 'pending' && now - task.updatedAt > TEMP_TTL_MS) {
+      tasks.delete(taskId);
+    }
+  }
   try {
     const files = fs.readdirSync(TEMP_DIR);
     for (const file of files) {
@@ -151,6 +179,7 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
   const { taskId, songIds, name, coverImageUrl } = options;
   const mp3sDir = path.join(__dirname, '../../mp3s');
   ensureTempDir();
+  tasks.set(taskId, { status: 'pending', updatedAt: Date.now() });
 
   try {
     const allItems = getAllHistoryItems();
@@ -172,7 +201,7 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
     }
 
     if (selectedItems.length === 0) {
-      broadcastSseEvent('mixtape-ready', { taskId, error: 'No songs found' });
+      finishTask(taskId, { error: 'No songs found' });
       return;
     }
 
@@ -220,10 +249,10 @@ async function generateMixtape(options: MixtapeOptions): Promise<void> {
       imagePath: resolvedImagePath,
     });
 
-    broadcastSseEvent('mixtape-ready', { taskId, downloadId, fileName });
+    finishTask(taskId, { downloadId, fileName });
   } catch (error: any) {
     console.error('Error creating mixtape:', error);
-    broadcastSseEvent('mixtape-ready', { taskId, error: 'Failed to create mixtape' });
+    finishTask(taskId, { error: 'Failed to create mixtape' });
   }
 }
 
@@ -238,7 +267,7 @@ router.post('/liked', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'No liked songs found' });
   }
 
-  const taskId = Date.now().toString();
+  const taskId = newTaskId();
 
   generateMixtape({ taskId });
 
@@ -262,14 +291,26 @@ router.post('/playlist/:playlistId', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'No songs in playlist with audio files' });
   }
 
-  const taskId = Date.now().toString();
+  const taskId = newTaskId();
 
   generateMixtape({ taskId, songIds, name: playlist.name, coverImageUrl: playlist.coverImageUrl });
 
   res.json({ taskId });
 });
 
-// GET /api/mixtape/download/:downloadId - Download generated mixtape
+// GET /api/mixtape/status/:taskId - Poll generation status (fallback for missed SSE events)
+router.get('/status/:taskId', (req: Request, res: Response) => {
+  const task = tasks.get(req.params.taskId as string);
+  if (!task) {
+    return res.status(404).json({ error: 'Unknown or expired mixtape task' });
+  }
+  const { updatedAt: _updatedAt, ...status } = task;
+  res.json(status);
+});
+
+// GET /api/mixtape/download/:downloadId - Download generated mixtape.
+// The file is kept until the temp TTL expires rather than deleted on first
+// download: mobile browsers (iOS Safari) may request it more than once.
 router.get('/download/:downloadId', (req: Request, res: Response) => {
   const downloadId = req.params.downloadId as string;
   const fileName = req.query.fileName as string | undefined;
@@ -287,32 +328,8 @@ router.get('/download/:downloadId', (req: Request, res: Response) => {
 
   const downloadFileName = fileName || 'mixtape_liked_songs.m4b';
 
-  res.setHeader('Content-Type', 'audio/mp4');
-  res.setHeader(
-    'Content-Disposition',
-    `attachment; filename="${encodeURIComponent(downloadFileName)}"`
-  );
-
-  const stream = fs.createReadStream(filePath);
-
-  stream.on('end', () => {
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error('Error deleting temp file after download:', err);
-      } else {
-        console.log(`Deleted temp file after download: ${downloadId}.m4b`);
-      }
-    });
-  });
-
-  stream.on('error', (err) => {
-    console.error('Error streaming mixtape file:', err);
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Failed to download file' });
-    }
-  });
-
-  stream.pipe(res);
+  // res.download sets Content-Disposition with an ASCII fallback and a UTF-8 filename
+  res.download(filePath, downloadFileName, { headers: { 'Content-Type': 'audio/mp4' } });
 });
 
 export default router;

@@ -57,6 +57,10 @@
   --transition-fast: 0.1s;
   --transition-base: 0.2s;
 
+  /* Stacking order: modals must cover the fixed Now Playing bar */
+  --z-now-playing: 1000;
+  --z-modal: 1100;
+
   /* Overlays */
   --color-overlay-bg: rgba(0, 0, 0, 0.6);
   --color-overlay-bg-light: rgba(0, 0, 0, 0.5);

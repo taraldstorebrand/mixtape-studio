@@ -186,7 +186,7 @@ const updateHistoryStmt = db.prepare(`
     genre = COALESCE(@genre, genre),
     artist = COALESCE(@artist, artist),
     album = COALESCE(@album, album),
-    feedback = @feedback,
+    feedback = CASE WHEN @setFeedback = 1 THEN @feedback ELSE feedback END,
     suno_job_id = COALESCE(@sunoJobId, suno_job_id),
     suno_clip_id = COALESCE(@sunoClipId, suno_clip_id),
     suno_status = COALESCE(@sunoStatus, suno_status),
@@ -279,9 +279,18 @@ export function createHistoryItem(item: HistoryItem): void {
   enforceHistoryLimit();
 }
 
-export function updateHistoryItem(id: string, updates: Partial<HistoryItem>): void {
+/**
+ * Omitted fields are left unchanged. Feedback is only written when the
+ * `feedback` key is present (null clears it); previously any update without
+ * feedback, e.g. a finished Suno job, silently cleared likes/dislikes.
+ */
+export function updateHistoryItem(
+  id: string,
+  updates: Omit<Partial<HistoryItem>, 'feedback'> & { feedback?: HistoryItem['feedback'] | null }
+): void {
   updateHistoryStmt.run({
     id,
+    setFeedback: 'feedback' in updates ? 1 : 0,
     prompt: updates.prompt ?? null,
     title: updates.title ?? null,
     lyrics: updates.lyrics ?? null,
