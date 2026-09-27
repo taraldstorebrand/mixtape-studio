@@ -2,11 +2,11 @@
   "name": "mixtape-studio-backend",
   "version": "1.0.0",
   "description": "Backend API for Mixtape Studio",
-  "main": "dist/server.js",
+  "main": "dist/backend/src/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && xcopy src\\assets dist\\backend\\src\\assets /E /I /Y",
-    "start": "node dist/server.js",
+    "build": "tsc && node -e \"require('fs').cpSync('src/assets','dist/backend/src/assets',{recursive:true})\"",
+    "start": "node dist/backend/src/server.js",
     "migrate": "tsx src/scripts/migrate-existing-songs.ts"
   },
   "keywords": [],

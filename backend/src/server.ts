@@ -81,6 +81,12 @@ app.get('/health', (req, res) => {
 // SSE endpoint for real-time updates
 app.get('/api/events', handleSseConnection);
 
+// Serve built frontend (production). Registered after /assets so Vite bundles
+// fall through when not found among backend assets.
+if (config.frontendDist) {
+  app.use(express.static(config.frontendDist));
+}
+
 // Error handler (must be after routes)
 app.use(errorHandler);
 

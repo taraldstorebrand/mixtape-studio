@@ -7,6 +7,8 @@ export const config = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   sunoApiKey: process.env.SUNO_API_KEY || '',
+  // Built frontend to serve from the backend (production/Docker only; unset in dev)
+  frontendDist: process.env.FRONTEND_DIST || '',
 };
 
 if (!config.openaiApiKey) {
