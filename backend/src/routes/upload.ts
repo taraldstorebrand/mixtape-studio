@@ -5,7 +5,7 @@ import fs from 'fs';
 import { createHistoryItem } from '../db';
 import type { HistoryItem } from '../../../shared/types';
 import * as musicMetadata from 'music-metadata';
-import { getMp3DurationSync } from '../utils/ffmpeg';
+import { getAudioDurationMs } from '../utils/ffmpeg';
 
 const imagesDir = path.join(__dirname, '../../images');
 if (!fs.existsSync(imagesDir)) {
@@ -19,6 +19,7 @@ interface ExtractedMetadata {
   artist?: string;
   album?: string;
   genre?: string;
+  duration?: number;
 }
 
 async function extractMetadata(filePath: string, baseFilename: string): Promise<ExtractedMetadata> {
@@ -27,7 +28,9 @@ async function extractMetadata(filePath: string, baseFilename: string): Promise<
   };
 
   try {
-    const metadata = await musicMetadata.parseFile(filePath);
+    // duration: true scans the file when the header has no duration info
+    const metadata = await musicMetadata.parseFile(filePath, { duration: true });
+    result.duration = metadata.format.duration;
 
     // Extract cover art
     const picture = metadata.common.picture?.[0];
@@ -151,13 +154,15 @@ router.post('/', upload.array('files', 20), async (req: Request, res: Response) 
 
     const items: { id: string; localUrl: string; duration?: number; imageUrl: string; artist?: string; genre?: string }[] = [];
 
+    // Validate every title before writing anything, so a request never half-succeeds
+    const missingIndex = titles.findIndex((title) => !title?.trim());
+    if (missingIndex >= 0) {
+      return res.status(400).json({ error: `Title missing for file ${missingIndex + 1}` });
+    }
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const title = titles[i]?.trim();
-
-      if (!title) {
-        return res.status(400).json({ error: `Title missing for file ${i + 1}` });
-      }
+      const title = titles[i].trim();
 
       const sanitized = sanitizeFilename(title);
       const ext = path.extname(file.originalname).toLowerCase() || '.mp3';
@@ -166,8 +171,12 @@ router.post('/', upload.array('files', 20), async (req: Request, res: Response) 
 
       moveFile(file.path, filePath);
 
-      const duration = getMp3DurationSync(filePath);
-      const metadata = await extractMetadata(filePath, sanitized);
+      // Name the cover after the unique audio filename, so two songs with the
+      // same title never share (and overwrite or delete) one cover file
+      const metadata = await extractMetadata(filePath, path.parse(filename).name);
+      // Metadata reading is async; the old synchronous ffmpeg decode blocked the
+      // server and gave up after 10 s on large files. ffmpeg is only a fallback.
+      const duration = metadata.duration ?? ((await getAudioDurationMs(filePath)) / 1000 || undefined);
       const id = `upload-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const localUrl = `/mp3s/${filename}`;
 
