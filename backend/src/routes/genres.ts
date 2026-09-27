@@ -42,8 +42,9 @@ router.delete('/:genre', (req: Request<{ genre: string }>, res: Response) => {
       return res.status(400).json({ error: 'Genre er påkrevd' });
     }
 
-    removeGenre(decodeURIComponent(genre));
-    res.json({ success: true, genre: decodeURIComponent(genre) });
+    // Express already URL-decodes params; decoding again broke names containing '%'
+    removeGenre(genre);
+    res.json({ success: true, genre });
   } catch (error: any) {
     console.error('Error removing genre:', error);
     res.status(500).json({ error: 'Kunne ikke fjerne sjanger' });

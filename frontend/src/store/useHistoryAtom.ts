@@ -64,7 +64,9 @@ export function useHistoryActions() {
     );
 
     try {
-      await apiUpdateHistoryItem(id, updates);
+      // JSON drops undefined, so send an explicit null to clear feedback
+      const body = 'feedback' in updates ? { ...updates, feedback: updates.feedback ?? null } : updates;
+      await apiUpdateHistoryItem(id, body);
     } catch (error) {
       console.error('Failed to update history item:', error);
       setGlobalError('Failed to update history item.');

@@ -90,7 +90,11 @@ export async function createHistoryItem(item: HistoryItem): Promise<void> {
   }
 }
 
-export async function updateHistoryItem(id: string, updates: Partial<HistoryItem>): Promise<void> {
+/** Omitted fields are left unchanged; send `feedback: null` to clear feedback. */
+export async function updateHistoryItem(
+  id: string,
+  updates: Omit<Partial<HistoryItem>, 'feedback'> & { feedback?: HistoryItem['feedback'] | null }
+): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/history/${id}`, {
     method: 'PATCH',
     headers: {
@@ -172,29 +176,35 @@ export async function startMixtapeGeneration(playlistId?: string): Promise<strin
   return data.taskId;
 }
 
-export async function downloadMixtape(downloadId: string, fileName?: string): Promise<void> {
-  const url = fileName
-    ? `${API_BASE_URL}/mixtape/download/${downloadId}?fileName=${encodeURIComponent(fileName)}`
-    : `${API_BASE_URL}/mixtape/download/${downloadId}`;
+export interface MixtapeStatus {
+  status: 'pending' | 'ready' | 'failed';
+  downloadId?: string;
+  fileName?: string;
+  error?: string;
+}
 
-  const response = await fetch(url);
-
+/** Generation status; used as a fallback when the SSE 'mixtape-ready' event was missed. */
+export async function getMixtapeStatus(taskId: string): Promise<MixtapeStatus> {
+  const response = await fetch(`${API_BASE_URL}/mixtape/status/${taskId}`);
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || t.errors.couldNotDownloadMixtape);
   }
+  return response.json();
+}
 
-  const blob = await response.blob();
-  const blobUrl = URL.createObjectURL(blob);
-
+/**
+ * Starts a native browser download, which streams to disk instead of loading
+ * the whole (possibly very large) file into memory first - important on phones.
+ */
+export function downloadMixtape(downloadId: string, fileName?: string): void {
+  const name = fileName || 'mixtape_likte_sanger.m4b';
   const a = document.createElement('a');
-  a.href = blobUrl;
-  a.download = fileName || 'mixtape_likte_sanger.m4b';
+  a.href = `${API_BASE_URL}/mixtape/download/${downloadId}?fileName=${encodeURIComponent(name)}`;
+  a.download = name;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-
-  URL.revokeObjectURL(blobUrl);
 }
 
 // Upload API
