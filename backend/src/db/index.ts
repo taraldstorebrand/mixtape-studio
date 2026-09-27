@@ -131,7 +131,13 @@ const itemsWithLocalFiles = db.prepare(
   `SELECT id, suno_local_url FROM history_items WHERE suno_local_url IS NOT NULL`
 ).all() as { id: string; suno_local_url: string }[];
 
-for (const item of itemsWithLocalFiles) {
+const filesInMp3Dir = fs.existsSync(mp3Dir) ? fs.readdirSync(mp3Dir) : [];
+
+// Safety: skip both sweeps if either side is empty (e.g. a missing or misconfigured
+// Docker volume), so one side is never wiped because the other is absent.
+const canCleanup = filesInMp3Dir.length > 0 && itemsWithLocalFiles.length > 0;
+
+for (const item of canCleanup ? itemsWithLocalFiles : []) {
   const filename = item.suno_local_url.replace(/^\/mp3s\//, '');
   const filePath = path.join(mp3Dir, filename);
   if (!fs.existsSync(filePath)) {
@@ -140,11 +146,11 @@ for (const item of itemsWithLocalFiles) {
 }
 
 // Delete mp3 files on disk that are not referenced by any database entry
-if (fs.existsSync(mp3Dir)) {
+if (canCleanup) {
   const referencedFiles = new Set(
     itemsWithLocalFiles.map(item => item.suno_local_url.replace(/^\/mp3s\//, ''))
   );
-  const filesOnDisk = fs.readdirSync(mp3Dir).filter(f => f.endsWith('.mp3'));
+  const filesOnDisk = filesInMp3Dir.filter(f => f.endsWith('.mp3'));
   for (const file of filesOnDisk) {
     if (!referencedFiles.has(file)) {
       fs.unlinkSync(path.join(mp3Dir, file));
