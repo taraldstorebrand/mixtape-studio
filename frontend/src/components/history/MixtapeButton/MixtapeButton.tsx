@@ -92,7 +92,7 @@ export function MixtapeButton({ likedItems, playlistId }: MixtapeButtonProps) {
         : t.actions.makeMixtapeFromLiked;
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       <button
         className={styles.mixtapeButton}
         onClick={handleClick}

@@ -8,6 +8,7 @@
 
 .button {
   width: 100%;
+  white-space: nowrap;
   padding: var(--spacing-sm) var(--spacing-md);
   background: none;
   color: var(--color-text-dim);
