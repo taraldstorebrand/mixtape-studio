@@ -188,8 +188,8 @@
   position: relative;
   display: block;
   width: fit-content;
-  margin-top: var(--spacing-sm);
-  margin-bottom: var(--spacing-xl);
+  margin-top: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
   align-self: center;
 }
 
@@ -197,6 +197,7 @@
 
 .readonlyCoverImage img {
   width: 100%;
+  max-width: min(100%, 45vh);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   display: block;
