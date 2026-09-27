@@ -100,10 +100,19 @@ const ALLOWED_AUDIO_MIMETYPES = new Set([
   'audio/opus',
 ]);
 
-const storage = multer.memoryStorage();
+// Uploads stream to a temp dir instead of memory: with up to 3 GB x 20 files,
+// memory storage could exhaust the RAM of a small home server.
+const uploadTempDir = path.join(__dirname, '../../temp');
+fs.mkdirSync(uploadTempDir, { recursive: true });
+
+/** Moves a file; copy + delete also works across volumes (separate Docker bind mounts). */
+function moveFile(from: string, to: string): void {
+  fs.copyFileSync(from, to);
+  fs.unlinkSync(from);
+}
 
 const upload = multer({
-  storage,
+  dest: uploadTempDir,
   limits: {
     fileSize: 3 * 1024 * 1024 * 1024,
     files: 20,
@@ -118,8 +127,8 @@ const upload = multer({
 });
 
 router.post('/', upload.array('files', 20), async (req: Request, res: Response) => {
+  const files = req.files as Express.Multer.File[];
   try {
-    const files = req.files as Express.Multer.File[];
     
     if (!files || files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
@@ -155,7 +164,7 @@ router.post('/', upload.array('files', 20), async (req: Request, res: Response) 
       const filename = getUniqueFilename(sanitized, ext);
       const filePath = path.join(mp3Dir, filename);
 
-      fs.writeFileSync(filePath, file.buffer);
+      moveFile(file.path, filePath);
 
       const duration = getMp3DurationSync(filePath);
       const metadata = await extractMetadata(filePath, sanitized);
@@ -185,6 +194,11 @@ router.post('/', upload.array('files', 20), async (req: Request, res: Response) 
   } catch (error: any) {
     console.error('Error uploading files:', error);
     res.status(500).json({ error: 'Failed to upload files' });
+  } finally {
+    // Remove temp files left behind by validation errors or failures
+    for (const file of files ?? []) {
+      fs.rmSync(file.path, { force: true });
+    }
   }
 });
 

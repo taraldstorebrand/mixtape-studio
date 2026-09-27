@@ -152,6 +152,50 @@ Frontend (in a new terminal):
 npm run dev -w frontend
 ```
 
+## Docker / OpenMediaVault
+
+Single container: the backend serves the API, live updates (SSE), media and the built frontend on **one port (3001)**. ffmpeg is included. Don't route it through a VPN container.
+
+> ⚠️ The app has no login. Anyone who can reach the port can spend your OpenAI/Suno credits and delete songs. Keep it on your LAN (optionally set `BIND_ADDRESS` to the server's LAN IP) and never port-forward it; use a VPN or an authenticating reverse proxy for remote access.
+
+```bash
+git clone https://github.com/taraldstorebrand/mixtape-studio.git mixtape-studio && cd mixtape-studio
+cp .env.example .env              # set OPENAI_API_KEY, SUNO_API_KEY, PUID/PGID (id -u / id -g)
+mkdir -p data/db data/mp3s data/images data/temp
+chown -R <PUID>:<PGID> data      # must match .env (needed if mkdir ran as root)
+docker compose up -d --build
+```
+
+Open `http://<server-ip>:3001`. Status: `docker compose ps` (healthcheck on `/health`), logs: `docker compose logs -f`.
+
+Persistent data (bind mounts, owned by `PUID:PGID`):
+
+| Host path | Contents |
+|---|---|
+| `./data/db` | SQLite database (`sangtekst.db` + `-wal`/`-shm`, playlists included) and `crash.log` |
+| `./data/mp3s` | Generated/uploaded audio |
+| `./data/images` | Cover images (songs and playlists) |
+| `./data/temp` | Uploads in progress and generated mixtapes (temporary, auto-deleted after ~10 min). Needs free space for your largest upload (up to 3 GB per file). |
+
+> On startup the app deletes DB entries whose MP3 is missing and MP3s not in the DB (skipped if either side is empty). Always keep `data/db` and `data/mp3s` together (move/restore them as a pair).
+
+**Update:**
+```bash
+git pull
+docker compose build --pull       # --pull also picks up base-image security updates
+docker compose up -d
+docker image prune -f             # optional: remove old images
+```
+(`docker compose pull` does not apply — the image is built locally from source.)
+
+**Backup** (stop first so SQLite is consistent):
+```bash
+docker compose stop
+tar czf mixtape-backup-$(date +%F).tar.gz data .env
+docker compose start
+```
+Restore: extract the archive in the project folder, then `docker compose up -d`.
+
 ## Usage
 
 ### Create a song

@@ -14,6 +14,9 @@ build/
 */dist/
 */build/
 
+# Docker persistent data (DB, audio, images, temp)
+/data/
+
 # SQLite runtime files
 backend/data/*.db
 backend/data/*.db-wal
