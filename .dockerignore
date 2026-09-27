@@ -1,0 +1,33 @@
+# VCS / tooling
+.git
+.gitignore
+.claude
+.vscode
+.idea
+*.log
+
+# Dependencies and build output (rebuilt in the image)
+node_modules
+**/node_modules
+**/dist
+**/build
+
+# Secrets - never copied into the image
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+
+# Runtime data (mounted as volumes)
+data
+backend/data
+backend/mp3s
+backend/images
+backend/temp
+
+# Docs / not needed for build
+docs
+*.md
+Dockerfile
+docker-compose.yml

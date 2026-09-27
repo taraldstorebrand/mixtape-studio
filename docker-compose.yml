@@ -1,0 +1,21 @@
+services:
+  mixtape-studio:
+    build: .
+    image: mixtape-studio:latest
+    container_name: mixtape-studio
+    restart: unless-stopped
+    # Forward SIGTERM so `docker compose stop` shuts down promptly
+    init: true
+    # Run as the host user that owns ./data (see README)
+    user: "${PUID:-1000}:${PGID:-1000}"
+    ports:
+      # No built-in auth: set BIND_ADDRESS to a LAN IP to limit exposure; never port-forward
+      - "${BIND_ADDRESS:-0.0.0.0}:${HOST_PORT:-3001}:3001"
+    env_file: .env
+    environment:
+      PORT: "3001" # container port is fixed; change HOST_PORT instead
+    volumes:
+      - ./data/db:/app/data
+      - ./data/mp3s:/app/mp3s
+      - ./data/images:/app/images
+      - ./data/temp:/app/temp
