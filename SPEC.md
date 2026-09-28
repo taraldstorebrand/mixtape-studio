@@ -223,7 +223,7 @@ Panel width is persisted to localStorage (`sangtekst_panel_width`).
 
 **Constraints**:
 
-- Maximum 20 files per upload
+- Maximum 100 files per upload
 - Maximum 3 GB per file
 - Accepted formats: MP3, FLAC, WAV, OGG, M4A, AAC, AIFF, Opus
 - Uploaded songs appear in history and can be liked/disliked

@@ -103,7 +103,7 @@ const ALLOWED_AUDIO_MIMETYPES = new Set([
   'audio/opus',
 ]);
 
-// Uploads stream to a temp dir instead of memory: with up to 3 GB x 20 files,
+// Uploads stream to a temp dir instead of memory: with up to 3 GB x 100 files,
 // memory storage could exhaust the RAM of a small home server.
 const uploadTempDir = path.join(__dirname, '../../temp');
 fs.mkdirSync(uploadTempDir, { recursive: true });
@@ -118,7 +118,7 @@ const upload = multer({
   dest: uploadTempDir,
   limits: {
     fileSize: 3 * 1024 * 1024 * 1024,
-    files: 20,
+    files: 100,
   },
   fileFilter: (req, file, cb) => {
     if (ALLOWED_AUDIO_MIMETYPES.has(file.mimetype)) {
@@ -129,7 +129,7 @@ const upload = multer({
   },
 });
 
-router.post('/', upload.array('files', 20), async (req: Request, res: Response) => {
+router.post('/', upload.array('files', 100), async (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[];
   try {
     
@@ -137,8 +137,8 @@ router.post('/', upload.array('files', 20), async (req: Request, res: Response) 
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    if (files.length > 20) {
-      return res.status(400).json({ error: 'Maximum 20 files per upload' });
+    if (files.length > 100) {
+      return res.status(400).json({ error: 'Maximum 100 files per upload' });
     }
 
     let titles: string[];

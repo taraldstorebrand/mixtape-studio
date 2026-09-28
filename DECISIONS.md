@@ -753,7 +753,7 @@ Filename examples:
 - "Min Sang" (duplicate) → `Min_Sang_1.mp3`, `Min_Sang_2.mp3`
 
 Constraints:
-- Maximum 20 files per upload
+- Maximum 100 files per upload
 - Maximum 3 GB per file
 - Titles are sanitized (special characters replaced with `_`)
 

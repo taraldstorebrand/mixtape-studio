@@ -26,7 +26,7 @@ export function UploadButton({ onUploadFormChange }: UploadButtonProps) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    if (files.length > 20) {
+    if (files.length > 100) {
       setError(t.errors.maxFilesPerUpload);
       return;
     }
