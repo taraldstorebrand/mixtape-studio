@@ -14,7 +14,7 @@ Legg til et tekstbasert søkefelt i historikkpanelet, på raden direkte under «
 
 ## Task 1: Flytt `HistoryList` til egen mappe
 
-**Status:** Ikke påbegynt
+**Status:** Ferdig
 
 **Beskrivelse:**
 Flytt komponent og CSS-modul til en ny mappe slik at `SearchInput`-subkomponenten kan plasseres korrekt iht. AGENTS.md.
@@ -34,7 +34,7 @@ Ingen logikk eller stil endres i dette steget.
 
 ## Task 2: Legg til `searchQueryAtom` i `atoms.ts`
 
-**Status:** Ikke påbegynt
+**Status:** Ferdig
 
 **Fil:** `frontend/src/store/atoms.ts`
 
@@ -52,7 +52,7 @@ Ingen endringer i `filteredHistoryAtom` – tekstfiltreringen håndteres i `Hist
 
 ## Task 3: Opprett `SearchInput`-komponenten
 
-**Status:** Ikke påbegynt
+**Status:** Ferdig
 
 **Filer som opprettes:**
 - `frontend/src/components/history/HistoryList/SearchInput/SearchInput.tsx`
@@ -160,7 +160,7 @@ Komponenten har ingen props. Den leser og skriver direkte til `searchQueryAtom`.
 
 ## Task 4: Legg til `clearSearch` i i18n
 
-**Status:** Ikke påbegynt
+**Status:** Ferdig
 
 **Fil:** `frontend/src/i18n/en.ts`
 
@@ -176,7 +176,7 @@ clearSearch: 'Clear search',
 
 ## Task 5: Integrer `SearchInput` i `HistoryList`
 
-**Status:** Ikke påbegynt
+**Status:** Ferdig
 
 **Fil:** `frontend/src/components/history/HistoryList/HistoryList.tsx`
 

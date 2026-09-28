@@ -46,13 +46,18 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
     const displayItems = currentPlaylistSongs !== null ? currentPlaylistSongs : filteredItems;
 
     const lowerQuery = searchQuery.toLowerCase();
+    // Pair each song with its playlist entryId before filtering so positions stay aligned
+    const displayEntries = displayItems.map((item, index) => ({
+        item,
+        entryId: currentPlaylistEntries?.[index]?.entryId ?? null,
+    }));
     const searchedItems = searchQuery.trim()
-        ? displayItems.filter(
-            (item) =>
+        ? displayEntries.filter(
+            ({ item }) =>
                 item.title.toLowerCase().includes(lowerQuery) ||
                 (item.artist?.toLowerCase().includes(lowerQuery) ?? false)
         )
-        : displayItems;
+        : displayEntries;
 
     const handleCreatePlaylist = () => {
         setEditingPlaylistId(undefined);
@@ -216,8 +221,7 @@ export function HistoryList({ items, selectedItemId, onFeedback, onSelect, onDel
                 </div>
             ) : (
                 <>
-                    {searchedItems.map((item, index) => {
-                        const entryId = currentPlaylistEntries?.[index]?.entryId ?? null;
+                    {searchedItems.map(({ item, entryId }, index) => {
                         return (
                             <HistoryItem
                                 key={entryId ?? `${item.id}-${index}`}
